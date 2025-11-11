@@ -1,0 +1,371 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { fetchAllOrders, fetchOrdersByStatus, type Order } from '@/lib/firebase';
+
+export default function AdminPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'cancelled'>('all');
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Завантажити замовлення при завантаженні або зміні фільтра
+  useEffect(() => {
+    if (!mounted) return;
+
+    if (statusFilter === 'all') {
+      fetchAllOrders(setOrders);
+    } else {
+      fetchOrdersByStatus(statusFilter, setOrders);
+    }
+  }, [statusFilter, mounted]);
+
+  // Фільтрувати замовлення при зміні списку
+  useEffect(() => {
+    if (statusFilter === 'all') {
+      setFilteredOrders(orders);
+    } else {
+      setFilteredOrders(orders.filter(order => order.status === statusFilter));
+    }
+  }, [orders, statusFilter]);
+
+  if (!mounted) {
+    return null;
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'processing':
+        return 'bg-blue-100 text-blue-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Очікує обробки';
+      case 'processing':
+        return 'В процесі';
+      case 'completed':
+        return 'Завершено';
+      case 'cancelled':
+        return 'Скасовано';
+      default:
+        return status;
+    }
+  };
+
+  const getDeliveryLabel = (method: string) => {
+    if (method === 'courier') return 'Кур\'єр';
+    if (method === 'nova') return 'Нова Пошта';
+    return method;
+  };
+
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleString('uk-UA');
+  };
+
+  return (
+    <main className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4">
+        {/* Заголовок */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">🔧 Панель адміністратора</h1>
+          <p className="text-gray-600">Управління замовленнями</p>
+        </div>
+
+        {/* Фільтри */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Фільтр по статусу</h2>
+          <div className="flex flex-wrap gap-3">
+            {(['all', 'pending', 'processing', 'completed', 'cancelled'] as const).map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                  statusFilter === status
+                    ? 'bg-purple-600 text-white shadow-md'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                {status === 'all' ? 'Все (Усі)' : getStatusLabel(status)}
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-gray-600 mt-4">
+            Всього замовлень: <span className="font-bold">{filteredOrders.length}</span>
+          </p>
+        </div>
+
+        {/* Список замовлень */}
+        <div className="space-y-4">
+          {filteredOrders.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <p className="text-gray-600 text-lg">Немає замовлень з вибраним статусом</p>
+            </div>
+          ) : (
+            filteredOrders.map((order) => (
+              <div key={order.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600">Номер замовлення</p>
+                      <p className="text-lg font-bold text-gray-900"># {order.id.substring(0, 8)}</p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                      {getStatusLabel(order.status)}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                      <p className="text-sm text-gray-600">Замовник</p>
+                      <p className="font-semibold text-gray-900">{order.firstName} {order.lastName}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Контакт</p>
+                      <p className="font-semibold text-gray-900">{order.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Місто</p>
+                      <p className="font-semibold text-gray-900">{order.city}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Дата замовлення</p>
+                      <p className="font-semibold text-gray-900 text-sm">{formatDate(order.createdAt)}</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-200">
+                    <div>
+                      <p className="text-sm text-gray-600">Сума товарів</p>
+                      <p className="font-semibold text-gray-900">{order.totalPrice}₴</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Доставка</p>
+                      <p className="font-semibold text-gray-900">{order.deliveryPrice === 0 ? 'Безкоштовна' : `${order.deliveryPrice}₴`}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">До оплати</p>
+                      <p className="font-bold text-purple-600 text-lg">{order.finalPrice}₴</p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-600">
+                      <span className="font-semibold">{order.items.length}</span> товарів в замовленні
+                    </div>
+                    <button
+                      onClick={() => setSelectedOrder(order)}
+                      className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                    >
+                      📋 Інформація
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Модальне вікно з деталями */}
+      {selectedOrder && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Заголовок модалю */}
+            <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-4 sm:p-6 sticky top-0 z-10">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs sm:text-sm opacity-90">Замовлення №</p>
+                  <p className="text-xl sm:text-2xl font-bold truncate">{selectedOrder.id}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="text-white text-2xl font-bold hover:scale-110 transition-transform flex-shrink-0"
+                  aria-label="Закрити"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Вміст модалю */}
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+              {/* Статус */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <p className="text-gray-600 text-sm sm:text-base">Статус:</p>
+                <span className={`px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(selectedOrder.status)}`}>
+                  {getStatusLabel(selectedOrder.status)}
+                </span>
+              </div>
+
+              {/* Контактна інформація */}
+              <section>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                  👤 Контактна інформація
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Ім'я</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{selectedOrder.firstName}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Прізвище</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{selectedOrder.lastName}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Email</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base break-all">{selectedOrder.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Телефон</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{selectedOrder.phone}</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Адреса доставки */}
+              <section>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                  🏠 Адреса доставки
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-gray-900 text-sm sm:text-base">
+                    <span className="text-xs sm:text-sm text-gray-600">Місто:</span> <span className="font-semibold">{selectedOrder.city}</span>
+                  </p>
+                  <p className="text-gray-900 text-sm sm:text-base break-words">
+                    <span className="text-xs sm:text-sm text-gray-600">Адреса:</span> <span className="font-semibold">{selectedOrder.address}</span>
+                  </p>
+                  {selectedOrder.postalCode && (
+                    <p className="text-gray-900 text-sm sm:text-base">
+                      <span className="text-xs sm:text-sm text-gray-600">Поштовий індекс:</span> <span className="font-semibold">{selectedOrder.postalCode}</span>
+                    </p>
+                  )}
+                </div>
+              </section>
+
+              {/* Способ доставки та оплати */}
+              <section>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                  🚚 Доставка та оплата
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Способ доставки</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{getDeliveryLabel(selectedOrder.deliveryMethod)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Способ оплати</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Оплата онлайн карткою</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Товари */}
+              <section>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                  📦 Товари ({selectedOrder.items.length})
+                </h3>
+                <div className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto">
+                  {selectedOrder.items.map((item) => (
+                    <div key={item.id} className="flex justify-between items-start p-2 sm:p-3 bg-gray-50 rounded-lg gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm sm:text-base break-words">{item.name}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">Категорія: {item.category}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">Кіл-во: {item.quantity}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-gray-900 text-xs sm:text-sm">{item.price}₴ за ед.</p>
+                        <p className="text-xs sm:text-sm text-purple-600 font-bold">{parseInt(item.price) * item.quantity}₴</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Розрахунки */}
+              <section>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                  💰 Розрахунки
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                    <span>Сума товарів:</span>
+                    <span className="font-semibold">{selectedOrder.totalPrice}₴</span>
+                  </div>
+                  {selectedOrder.deliveryPrice > 0 && (
+                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                      <span>Доставка:</span>
+                      <span className="font-semibold text-orange-600">+{selectedOrder.deliveryPrice}₴</span>
+                    </div>
+                  )}
+                  {selectedOrder.deliveryPrice === 0 && (
+                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                      <span>Доставка:</span>
+                      <span className="font-semibold text-green-600">Безкоштовна ✓</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-base sm:text-lg font-bold text-purple-600 pt-2 sm:pt-3 border-t border-gray-200">
+                    <span>До оплати:</span>
+                    <span>{selectedOrder.finalPrice}₴</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* Коментарі */}
+              {selectedOrder.comments && (
+                <section>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                    📝 Коментарі
+                  </h3>
+                  <p className="text-gray-700 text-sm sm:text-base whitespace-pre-wrap break-words">{selectedOrder.comments}</p>
+                </section>
+              )}
+
+              {/* Дати */}
+              <section>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                  📅 Дати
+                </h3>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600">Створено</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{formatDate(selectedOrder.createdAt)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs sm:text-sm text-gray-600">Оновлено</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{formatDate(selectedOrder.updatedAt)}</p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Кнопка закриття */}
+              <div className="pt-4 sm:pt-6 border-t border-gray-200">
+                <button
+                  onClick={() => setSelectedOrder(null)}
+                  className="w-full bg-gray-200 text-gray-800 font-bold py-2 sm:py-2.5 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
+                >
+                  Закрити
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}

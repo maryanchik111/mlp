@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { database } from '@/lib/firebase';
+import { ref, push } from 'firebase/database';
 
 interface CartItem {
   id: number;
@@ -28,6 +30,7 @@ interface FormData {
 export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
@@ -96,6 +99,55 @@ export default function CheckoutPage() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  // Функція для збереження замовлення у Firebase
+  const handleSubmitOrder = async () => {
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    try {
+      const ordersRef = ref(database, 'orders');
+      const newOrder = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        postalCode: formData.postalCode,
+        deliveryMethod: formData.deliveryMethod,
+        paymentMethod: formData.paymentMethod,
+        comments: formData.comments,
+        items: cartItems,
+        totalPrice,
+        deliveryPrice,
+        finalPrice,
+        status: 'pending',
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      // Зберігаємо замовлення у Firebase
+      await push(ordersRef, newOrder);
+
+      // Очищаємо кошик
+      localStorage.removeItem('mlp-cart');
+      window.dispatchEvent(new CustomEvent('cart-updated', { detail: [] }));
+
+      // Показуємо повідомлення про успіх
+      alert('✅ Замовлення успішно створено! Дякуємо за покупку!');
+
+      // Перенаправляємо на каталог
+      setTimeout(() => {
+        window.location.href = '/catalog';
+      }, 1000);
+    } catch (error) {
+      console.error('Помилка при збереженні замовлення:', error);
+      alert('❌ Помилка при оформленні замовлення. Спробуйте ще раз.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Розрахунки
@@ -358,7 +410,7 @@ export default function CheckoutPage() {
                   <div key={item.id} className="flex justify-between items-start pb-3 border-b border-gray-200">
                     <div>
                       <p className="font-semibold text-gray-900">{item.name}</p>
-                      <p className="text-sm text-gray-600">Кіл-во: {item.quantity}</p>
+                      <p className="text-sm text-gray-600">Кількість: {item.quantity}</p>
                     </div>
                     <p className="font-semibold text-purple-600">
                       {parseInt(item.price) * item.quantity}₴
@@ -398,10 +450,15 @@ export default function CheckoutPage() {
               {/* Кнопки дій */}
               <div className="space-y-3 pt-4 border-t border-gray-200">
                 <button
-                  onClick={() => validateForm() && alert('Замовлення створено! (інтеграція з бекендом)')}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 rounded-lg hover:shadow-lg transition-all hover:scale-105"
+                  onClick={handleSubmitOrder}
+                  disabled={isLoading}
+                  className={`w-full font-bold py-3 rounded-lg transition-all ${
+                    isLoading
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg hover:scale-105'
+                  }`}
                 >
-                  ✓ Оформити замовлення
+                  {isLoading ? '⏳ Обробка...' : '✓ Оформити замовлення'}
                 </button>
                 <Link
                   href="/catalog"
