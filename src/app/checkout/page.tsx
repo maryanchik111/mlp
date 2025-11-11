@@ -1,0 +1,424 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+interface CartItem {
+  id: number;
+  name: string;
+  price: string;
+  quantity: number;
+  image: string;
+  category: string;
+}
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  deliveryMethod: 'courier' | 'nova';
+  paymentMethod: 'card';
+  comments: string;
+}
+
+export default function CheckoutPage() {
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [mounted, setMounted] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    postalCode: '',
+    deliveryMethod: 'courier',
+    paymentMethod: 'card',
+    comments: '',
+  });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Завантаження кошика
+  useEffect(() => {
+    setMounted(true);
+    const savedCart = localStorage.getItem('mlp-cart');
+    if (savedCart) {
+      try {
+        setCartItems(JSON.parse(savedCart));
+      } catch (error) {
+        console.error('Помилка завантаження кошика:', error);
+      }
+    }
+
+    // Слухаємо custom event від каталогу
+    const handleCartUpdate = (event: any) => {
+      if (event.detail) {
+        setCartItems(event.detail);
+      }
+    };
+
+    window.addEventListener('cart-updated', handleCartUpdate);
+    return () => window.removeEventListener('cart-updated', handleCartUpdate);
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+    // Очищаємо помилку для цього поля
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+
+    if (!formData.firstName.trim()) newErrors.firstName = 'Введіть ім\'я';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Введіть прізвище';
+    if (!formData.email.trim()) newErrors.email = 'Введіть email';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Невірний формат email';
+    if (!formData.phone.trim()) newErrors.phone = 'Введіть номер телефону';
+    if (!formData.address.trim()) newErrors.address = 'Введіть адресу';
+    if (!formData.city.trim()) newErrors.city = 'Введіть місто';
+
+  // Оплата лише онлайн карткою — якщо за якоїсь причини інше значення, валідуємо
+  if (formData.paymentMethod !== 'card') newErrors.paymentMethod = 'Доступна лише оплата онлайн карткою';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Розрахунки
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = cartItems.reduce((sum, item) => {
+    const price = parseInt(item.price);
+    return sum + price * item.quantity;
+  }, 0);
+
+  const deliveryPrice = (() => {
+    // Без самовивозу: доставка залежить від способу та суми замовлення
+    if (totalPrice >= 500) return 0;
+    if (formData.deliveryMethod === 'nova') return 100;
+    return 50; // courier
+  })();
+
+  const finalPrice = totalPrice + deliveryPrice;
+
+  if (!mounted) {
+    return null;
+  }
+
+  // Якщо кошик порожній
+  if (cartItems.length === 0) {
+    return (
+      <main className="min-h-screen bg-gray-50 py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+            <div className="text-5xl mb-4">🦄</div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Кошик порожній</h1>
+            <p className="text-gray-600 mb-6">Поверніться до каталогу, щоб додати товари</p>
+            <Link
+              href="/catalog"
+              className="inline-block bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              ← До каталогу
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {/* Заголовок */}
+        <div className="mb-8">
+          <Link href="/catalog" className="text-purple-600 hover:text-purple-700 mb-4 inline-block">
+            ← Повернутися до каталогу
+          </Link>
+          <h1 className="text-4xl font-bold text-gray-900">Оформлення замовлення</h1>
+          <p className="text-gray-600 mt-2">Заповніть форму для оформлення покупки</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Основна форма - 2 колони */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+              {/* Контактна інформація */}
+              <section>
+                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  📋 Контактна інформація
+                </h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Ім'я *</label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                        errors.firstName ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="Ваше ім'я"
+                    />
+                    {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Прізвище *</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleInputChange}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                        errors.lastName ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="Ваше прізвище"
+                    />
+                    {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                        errors.email ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="example@mail.com"
+                    />
+                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Телефон *</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                        errors.phone ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="+380 XX XXX XX XX"
+                    />
+                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                  </div>
+                </div>
+              </section>
+
+              {/* Адреса */}
+              <section>
+                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  🏠 Адреса доставки
+                </h2>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Адреса *</label>
+                  <input
+                    type="text"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                      errors.address ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Вулиця, будинок, квартира"
+                  />
+                  {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Місто *</label>
+                    <input
+                      type="text"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                        errors.city ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="Назва міста"
+                    />
+                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Поштовий індекс</label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      value={formData.postalCode}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      placeholder="XX XXX"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* Способ доставки */}
+              <section>
+                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  🚚 Способ доставки
+                </h2>
+                <div className="space-y-3">
+                  <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="deliveryMethod"
+                      value="courier"
+                      checked={formData.deliveryMethod === 'courier'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <div className="ml-3 flex-1">
+                      <p className="font-semibold text-gray-900">Кур'єр ({totalPrice >= 500 ? 'Безкоштовна' : '50₴'})</p>
+                      <p className="text-sm text-gray-600">Доставка по місту та області 1-2 дні</p>
+                    </div>
+                  </label>
+
+                  <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="deliveryMethod"
+                      value="nova"
+                      checked={formData.deliveryMethod === 'nova'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <div className="ml-3 flex-1">
+                      <p className="font-semibold text-gray-900">Нова Пошта (НП) ({totalPrice >= 500 ? 'Безкоштовна' : '100₴'})</p>
+                      <p className="text-sm text-gray-600">Доставка в відділення НП або на адресу (2-5 днів)</p>
+                    </div>
+                  </label>
+                </div>
+              </section>
+
+              {/* Спосіб оплати */}
+              <section>
+                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  💳 Спосіб оплати
+                </h2>
+                <div className="space-y-3">
+                  <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="card"
+                      checked={formData.paymentMethod === 'card'}
+                      onChange={handleInputChange}
+                      className="w-4 h-4 text-purple-600"
+                    />
+                    <div className="ml-3 flex-1">
+                      <p className="font-semibold text-gray-900">Оплата онлайн карткою</p>
+                      <p className="text-sm text-gray-600">Visa, Mastercard — оплата відбувається одразу при підтвердженні</p>
+                    </div>
+                  </label>
+                </div>
+              </section>
+
+              {/* Коментарії */}
+              <section>
+                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  📝 Додаткові коментарії
+                </h2>
+                <textarea
+                  name="comments"
+                  value={formData.comments}
+                  onChange={handleInputChange}
+                  placeholder="Вкажіть особливі побажання або примітки..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 h-24 resize-none"
+                />
+              </section>
+            </div>
+          </div>
+
+          {/* Бічна панель - Заказ */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4 space-y-6">
+              <h2 className="text-xl font-bold text-gray-900">📦 Ваше замовлення</h2>
+
+              {/* Список товарів */}
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {cartItems.map(item => (
+                  <div key={item.id} className="flex justify-between items-start pb-3 border-b border-gray-200">
+                    <div>
+                      <p className="font-semibold text-gray-900">{item.name}</p>
+                      <p className="text-sm text-gray-600">Кіл-во: {item.quantity}</p>
+                    </div>
+                    <p className="font-semibold text-purple-600">
+                      {parseInt(item.price) * item.quantity}₴
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Розрахунки */}
+              <div className="space-y-3 pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center text-gray-700">
+                  <span>Сума товарів:</span>
+                  <span className="font-semibold">{totalPrice}₴</span>
+                </div>
+                {deliveryPrice > 0 && (
+                  <div className="flex justify-between items-center text-gray-700">
+                    <span>Доставка:</span>
+                    <span className="font-semibold text-orange-600">+{deliveryPrice}₴</span>
+                  </div>
+                )}
+                {deliveryPrice === 0 && (
+                  <div className="flex justify-between items-center text-green-600">
+                    <span>Доставка:</span>
+                    <span className="font-semibold">Безкоштовна! ✓</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Сума */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-gray-900">Всього до оплати:</span>
+                  <span className="text-2xl font-bold text-purple-600">{finalPrice}₴</span>
+                </div>
+              </div>
+
+              {/* Кнопки дій */}
+              <div className="space-y-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => validateForm() && alert('Замовлення створено! (інтеграція з бекендом)')}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-3 rounded-lg hover:shadow-lg transition-all hover:scale-105"
+                >
+                  ✓ Оформити замовлення
+                </button>
+                <Link
+                  href="/catalog"
+                  className="block text-center bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  ← Продовжити покупки
+                </Link>
+              </div>
+
+              {/* Інформація */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800">
+                <p>✓ Ваші дані захищені і не будуть передані третім особам</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
