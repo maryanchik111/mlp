@@ -129,19 +129,22 @@ export default function CheckoutPage() {
       };
 
       // Зберігаємо замовлення у Firebase
-      await push(ordersRef, newOrder);
+  const snapshot = await push(ordersRef, newOrder);
+  const orderId = snapshot.key;
 
       // Очищаємо кошик
       localStorage.removeItem('mlp-cart');
       window.dispatchEvent(new CustomEvent('cart-updated', { detail: [] }));
 
-      // Показуємо повідомлення про успіх
-      alert('✅ Замовлення успішно створено! Дякуємо за покупку!');
+  if (!orderId) throw new Error('Не вдалося отримати ID замовлення');
 
-      // Перенаправляємо на каталог
-      setTimeout(() => {
-        window.location.href = '/catalog';
-      }, 1000);
+      // Перенаправляємо на сторінку оплати з параметрами замовлення
+      const paymentParams = new URLSearchParams({
+        orderId: orderId,
+        totalAmount: String(finalPrice),
+        customerName: `${formData.firstName} ${formData.lastName}`,
+      });
+      window.location.href = `/payment?${paymentParams.toString()}`;
     } catch (error) {
       console.error('Помилка при збереженні замовлення:', error);
       alert('❌ Помилка при оформленні замовлення. Спробуйте ще раз.');

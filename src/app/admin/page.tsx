@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchAllOrders, fetchOrdersByStatus, type Order } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, type Order } from '@/lib/firebase';
 
 export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -9,10 +9,75 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'cancelled'>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Функція для підтвердження оплати
+  const handleConfirmPayment = async () => {
+    if (!selectedOrder) return;
+    setActionLoading(true);
+    try {
+      const success = await updateOrderStatus(selectedOrder.id, 'processing');
+      if (success) {
+        alert('✅ Оплата підтверджена! Статус змінено на "В процесі"');
+        // Оновлюємо локальний стан модалю, щоб відобразити новий статус без закриття
+        setSelectedOrder({ ...selectedOrder, status: 'processing', updatedAt: Date.now() });
+      } else {
+        alert('❌ Помилка при оновленні статусу');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при підтвердженні оплати');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Функція для скасування замовлення
+  const handleCancelOrder = async () => {
+    if (!selectedOrder) return;
+    if (!confirm('Ви впевнені? Це дію неможна скасувати!')) return;
+    setActionLoading(true);
+    try {
+      const success = await updateOrderStatus(selectedOrder.id, 'cancelled');
+      if (success) {
+        alert('✅ Замовлення скасовано');
+        // Закриваємо модаль, бо замовлення скасоване
+        setSelectedOrder(null);
+      } else {
+        alert('❌ Помилка при скасуванні');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при скасуванні замовлення');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Функція для позначення як виконане
+  const handleMarkCompleted = async () => {
+    if (!selectedOrder) return;
+    setActionLoading(true);
+    try {
+      const success = await updateOrderStatus(selectedOrder.id, 'completed');
+      if (success) {
+        alert('✅ Замовлення позначено як виконане');
+        // Оновлюємо локальний стан, щоб показати статус "completed"
+        setSelectedOrder({ ...selectedOrder, status: 'completed', updatedAt: Date.now() });
+      } else {
+        alert('❌ Помилка при оновленні статусу');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при оновленні замовлення');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Завантажити замовлення при завантаженні або зміні фільтра
   useEffect(() => {
@@ -353,8 +418,65 @@ export default function AdminPage() {
                 </div>
               </section>
 
-              {/* Кнопка закриття */}
-              <div className="pt-4 sm:pt-6 border-t border-gray-200">
+              {/* Дії адміна та закриття модалю */}
+              <div className="pt-4 sm:pt-6 border-t border-gray-200 space-y-3">
+                {/* Дії для NEW замовлення: підтвердити оплату або скасувати */}
+                {selectedOrder.status === 'pending' && (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={handleConfirmPayment}
+                      disabled={actionLoading}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
+                        actionLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
+                    >
+                      {actionLoading ? '⏳ Обробка...' : '✅ Підтвердити оплату'}
+                    </button>
+                    <button
+                      onClick={handleCancelOrder}
+                      disabled={actionLoading}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
+                        actionLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-red-600 text-white hover:bg-red-700'
+                      }`}
+                    >
+                      {actionLoading ? '⏳ Обробка...' : '❌ Скасувати'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Дії для оброблюваних замовлень: позначити як виконане + скасувати */}
+                {selectedOrder.status === 'processing' && (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={handleMarkCompleted}
+                      disabled={actionLoading}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
+                        actionLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      {actionLoading ? '⏳ Обробка...' : '🏁 Позначити як виконане'}
+                    </button>
+                    <button
+                      onClick={handleCancelOrder}
+                      disabled={actionLoading}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
+                        actionLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-red-600 text-white hover:bg-red-700'
+                      }`}
+                    >
+                      {actionLoading ? '⏳ Обробка...' : '❌ Скасувати'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Закрити завжди */}
                 <button
                   onClick={() => setSelectedOrder(null)}
                   className="w-full bg-gray-200 text-gray-800 font-bold py-2 sm:py-2.5 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
