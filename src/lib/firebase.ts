@@ -187,11 +187,9 @@ export const decreaseProductQuantity = async (productId: number, quantityToDecre
     if (snapshot.exists()) {
       const product = snapshot.val() as Product;
       const newQuantity = Math.max(0, product.quantity - quantityToDecrease);
-      const inStock = newQuantity > 0;
       
       await update(productRef, {
         quantity: newQuantity,
-        inStock: inStock,
       });
       return true;
     }

@@ -94,7 +94,7 @@ export default function CatalogPage() {
       default:
         return filtered;
     }
-  }, [sortBy, selectedCategory, priceRange]);
+  }, [allProducts, sortBy, selectedCategory, priceRange]);
 
   // Пагінація
   const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
@@ -395,12 +395,12 @@ export default function CatalogPage() {
                   <meta itemProp="description" content={product.description} />
                   <meta itemProp="priceCurrency" content="UAH" />
                   <meta itemProp="price" content={product.price.replace("₴", "")} />
-                  <meta itemProp="availability" content={product.inStock ? "InStock" : "OutOfStock"} />
+                  <meta itemProp="availability" content={product.quantity > 0 ? "InStock" : "OutOfStock"} />
 
                   {/* Зображення продукту */}
                   <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-6xl relative">
                     {product.image}
-                    {!product.inStock && (
+                    {product.quantity === 0 && (
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                         <p className="text-white font-bold text-lg">Немає в наявності</p>
                       </div>
@@ -433,11 +433,11 @@ export default function CatalogPage() {
                             ? "bg-green-500 text-white scale-105"
                             : cartItems.includes(product.id)
                             ? "bg-blue-600 text-white hover:bg-red-600"
-                            : product.inStock
+                            : product.quantity > 0
                             ? "bg-purple-600 text-white hover:bg-purple-700"
                             : "bg-gray-300 text-gray-600 cursor-not-allowed"
                         }`}
-                        disabled={!product.inStock}
+                        disabled={product.quantity === 0}
                         title={cartItems.includes(product.id) ? "Видалити з кошика" : "Додати в кошик"}
                       >
                         {addedItems[product.id] === 'removed'
@@ -446,7 +446,7 @@ export default function CatalogPage() {
                           ? "✓ Додано!" 
                           : cartItems.includes(product.id)
                           ? "✓ Видалити"
-                          : product.inStock 
+                          : product.quantity > 0 
                           ? "В кошик" 
                           : "Закінчився"}
                       </button>
@@ -570,7 +570,7 @@ export default function CatalogPage() {
                   "@type": "Offer",
                   price: product.price.replace("₴", ""),
                   priceCurrency: "UAH",
-                  availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+                  availability: product.quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
                 },
               })),
             },

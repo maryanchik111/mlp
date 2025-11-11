@@ -350,9 +350,9 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      product.quantity > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
-                      {product.inStock ? 'В наявності' : 'Немає в наявності'}
+                      {product.quantity > 0 ? 'В наявності' : 'Немає в наявності'}
                     </div>
                   </div>
 
