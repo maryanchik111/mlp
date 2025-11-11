@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, query, orderByChild, limitToLast, onValue, DatabaseReference, update } from 'firebase/database';
+import { getDatabase, ref, query, orderByChild, limitToLast, onValue, DatabaseReference, update, get, push, set } from 'firebase/database';
 
 // Firebase конфігурація (замініть своїми значеннями з Firebase Console)
 const firebaseConfig = {
@@ -106,12 +106,98 @@ export const updateOrderStatus = async (orderId: string, newStatus: 'pending' | 
   }
 };
 
+// Тип для товару
+export interface Product {
+  id: number;
+  name: string;
+  category: string;
+  price: string;
+  image: string;
+  description: string;
+  inStock: boolean;
+  quantity: number;
+}
+
+// Функція для отримання всіх товарів з Firebase
+export const fetchAllProducts = async (callback: (products: Product[]) => void) => {
+  try {
+    const productsRef = ref(database, 'products');
+    
+    onValue(productsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        
+        // Якщо це об'єкт з ключами, перетворіть його в масив
+        if (typeof data === 'object' && !Array.isArray(data)) {
+          const products: Product[] = Object.values(data) as Product[];
+          callback(products);
+        } else if (Array.isArray(data)) {
+          // Якщо це вже масив, використайте як є
+          callback(data);
+        } else {
+          callback([]);
+        }
+      } else {
+        callback([]);
+      }
+    });
+  } catch (error) {
+    console.error('Помилка при завантаженні товарів:', error);
+    callback([]);
+  }
+};
+
 // Функція для отримання конфігурації платежу (QR, карта, посилання)
 export const getPaymentConfig = () => {
   return {
-    cardNumber: '4532123456789010', // Mock карта
-    cardName: 'My Little Pony Shop',
+    cardNumber: '4441 1111 4322 2457', // Mock карта
+    cardName: 'Богдана Мусевич',
     paymentLink: 'https://pay.example.com/invoice', // Mock посилання
     qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://pay.example.com/invoice',
   };
+};
+
+// Функція для генерації людського номеру замовлення (наприклад: NW4343)
+export const generateOrderNumber = (): string => {
+  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const randomLetter1 = letters[Math.floor(Math.random() * letters.length)];
+  const randomLetter2 = letters[Math.floor(Math.random() * letters.length)];
+  const randomNumbers = Math.floor(1000 + Math.random() * 9000); // 4-значне число від 1000 до 9999
+  return `${randomLetter1}${randomLetter2}${randomNumbers}`;
+};
+
+// Функція для оновлення товару (ціна, назва, опис, кількість)
+export const updateProduct = async (productId: number, updates: Partial<Product>) => {
+  try {
+    const productRef = ref(database, `products/${productId - 1}`); // Індекс масиву = id - 1
+    await update(productRef, updates);
+    return true;
+  } catch (error) {
+    console.error('Помилка при оновленні товару:', error);
+    return false;
+  }
+};
+
+// Функція для зменшення кількості товару після покупки
+export const decreaseProductQuantity = async (productId: number, quantityToDecrease: number) => {
+  try {
+    const productRef = ref(database, `products/${productId - 1}`);
+    const snapshot = await get(productRef);
+    
+    if (snapshot.exists()) {
+      const product = snapshot.val() as Product;
+      const newQuantity = Math.max(0, product.quantity - quantityToDecrease);
+      const inStock = newQuantity > 0;
+      
+      await update(productRef, {
+        quantity: newQuantity,
+        inStock: inStock,
+      });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Помилка при зменшенні кількості товару:', error);
+    return false;
+  }
 };

@@ -2,154 +2,9 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Basket from '../components/client/busket';
+import { fetchAllProducts, type Product } from '@/lib/firebase';
 
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: string;
-  image: string;
-  description: string;
-  inStock: boolean;
-}
-
-const allProducts: Product[] = [
-  {
-    id: 1,
-    name: "Twilight Sparkle",
-    category: "Основні персонажі",
-    price: "299₴",
-    image: "🦄",
-    description: "Фігурка головної героїні Твайлайт Спаркл",
-    inStock: true,
-  },
-  {
-    id: 2,
-    name: "Rainbow Dash",
-    category: "Основні персонажі",
-    price: "299₴",
-    image: "🌈",
-    description: "Цвітна фігурка Рейнбоу Деш",
-    inStock: true,
-  },
-  {
-    id: 3,
-    name: "Pinkie Pie",
-    category: "Основні персонажі",
-    price: "299₴",
-    image: "🎀",
-    description: "Веселісінька фігурка Пінкі Пай",
-    inStock: true,
-  },
-  {
-    id: 4,
-    name: "Applejack",
-    category: "Основні персонажі",
-    price: "299₴",
-    image: "🍎",
-    description: "Чарівна фігурка Еппльджек",
-    inStock: true,
-  },
-  {
-    id: 5,
-    name: "Fluttershy",
-    category: "Основні персонажі",
-    price: "299₴",
-    image: "🦋",
-    description: "Ніжна фігурка Флаттершай",
-    inStock: true,
-  },
-  {
-    id: 6,
-    name: "Rarity",
-    category: "Основні персонажі",
-    price: "299₴",
-    image: "💎",
-    description: "Елегантна фігурка Редрарітсі",
-    inStock: true,
-  },
-  {
-    id: 7,
-    name: "Колекційний набір",
-    category: "Набори",
-    price: "1299₴",
-    image: "🎁",
-    description: "Набір з 6 основних персонажів",
-    inStock: true,
-  },
-  {
-    id: 8,
-    name: "Радужна карета",
-    category: "Аксесуари",
-    price: "699₴",
-    image: "🏰",
-    description: "Красива карета для персонажів",
-    inStock: false,
-  },
-  {
-    id: 9,
-    name: "Princess Luna",
-    category: "Рідкісні видання",
-    price: "499₴",
-    image: "🌙",
-    description: "Колекційна фігурка принцеси Луни",
-    inStock: true,
-  },
-  {
-    id: 10,
-    name: "Princess Celestia",
-    category: "Рідкісні видання",
-    price: "499₴",
-    image: "☀️",
-    description: "Золота фігурка принцеси Селестії",
-    inStock: true,
-  },
-  {
-    id: 11,
-    name: "Spike Mini",
-    category: "Міні-фігурки",
-    price: "99₴",
-    image: "🐉",
-    description: "Мала фігурка Спайка",
-    inStock: true,
-  },
-  {
-    id: 12,
-    name: "Discord",
-    category: "Рідкісні видання",
-    price: "599₴",
-    image: "🎭",
-    description: "Незвичайна фігурка Дискорда",
-    inStock: false,
-  },
-  {
-    id: 13,
-    name: "Chrysalis",
-    category: "Рідкісні видання",
-    price: "449₴",
-    image: "👑",
-    description: "Темна фігурка королеви Хризаліс",
-    inStock: true,
-  },
-  {
-    id: 14,
-    name: "Apple Bloom Mini",
-    category: "Міні-фігурки",
-    price: "89₴",
-    image: "🍎",
-    description: "Мініатюрна фігурка Епл Блум",
-    inStock: true,
-  },
-  {
-    id: 15,
-    name: "Sweetie Belle Mini",
-    category: "Міні-фігурки",
-    price: "89₴",
-    image: "✨",
-    description: "Мініатюрна фігурка Світі Белл",
-    inStock: true,
-  },
-];
+const ITEMS_PER_PAGE = 6;
 
 const categories = [
   { name: "Основні персонажі", count: 6 },
@@ -159,8 +14,6 @@ const categories = [
   { name: "Міні-фігурки", count: 3 },
 ];
 
-const ITEMS_PER_PAGE = 6;
-
 export default function CatalogPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('popular');
@@ -168,6 +21,19 @@ export default function CatalogPage() {
   const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
   const [addedItems, setAddedItems] = useState<{ [key: number]: boolean | string }>({});
   const [cartItems, setCartItems] = useState<number[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Завантаження товарів з Firebase при завантаженні компонента
+  useEffect(() => {
+    setLoading(true);
+    fetchAllProducts((products) => {
+      if (products && products.length > 0) {
+        setAllProducts(products);
+      }
+      setLoading(false);
+    });
+  }, []);
 
   // Завантаження кошика при завантаженні компонента
   useEffect(() => {
@@ -313,6 +179,32 @@ export default function CatalogPage() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🦄</div>
+          <p className="text-gray-600 text-lg">Завантаження товарів...</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Empty state
+  if (!loading && allProducts.length === 0) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🦄</div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Товари не знайдено</h1>
+          <p className="text-gray-600 mb-6">Наразі товари відсутні в базі даних</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <>
     <main className="min-h-screen bg-gray-50">
@@ -530,7 +422,7 @@ export default function CatalogPage() {
                     {/* Ціна та кнопка */}
                     <div className="flex items-center justify-between">
                       <span className="text-2xl font-bold text-purple-600">
-                        {product.price}
+                        {product.price}₴
                       </span>
                       <button 
                         onClick={() => handleToggleCart(product)}

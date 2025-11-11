@@ -1,0 +1,154 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Twilight Sparkle",
+      "category": "Основні персонажі",
+      "price": "299",
+      "image": "🦄",
+      "description": "Фігурка головної героїні Твайлайт Спаркл",
+      "inStock": true,
+      "quantity": 15
+    },
+    {
+      "id": 2,
+      "name": "Rainbow Dash",
+      "category": "Основні персонажі",
+      "price": "299",
+      "image": "🌈",
+      "description": "Цвітна фігурка Рейнбоу Деш",
+      "inStock": true,
+      "quantity": 20
+    },
+    {
+      "id": 3,
+      "name": "Pinkie Pie",
+      "category": "Основні персонажі",
+      "price": "299",
+      "image": "🎀",
+      "description": "Веселісінька фігурка Пінкі Пай",
+      "inStock": true,
+      "quantity": 18
+    },
+    {
+      "id": 4,
+      "name": "Applejack",
+      "category": "Основні персонажі",
+      "price": "299",
+      "image": "🍎",
+      "description": "Чарівна фігурка Еппльджек",
+      "inStock": true,
+      "quantity": 12
+    },
+    {
+      "id": 5,
+      "name": "Fluttershy",
+      "category": "Основні персонажі",
+      "price": "299",
+      "image": "🦋",
+      "description": "Ніжна фігурка Флаттершай",
+      "inStock": true,
+      "quantity": 10
+    },
+    {
+      "id": 6,
+      "name": "Rarity",
+      "category": "Основні персонажі",
+      "price": "299",
+      "image": "💎",
+      "description": "Елегантна фігурка Редрарітсі",
+      "inStock": true,
+      "quantity": 14
+    },
+    {
+      "id": 7,
+      "name": "Колекційний набір",
+      "category": "Набори",
+      "price": "1299",
+      "image": "🎁",
+      "description": "Набір з 6 основних персонажів",
+      "inStock": true,
+      "quantity": 5
+    },
+    {
+      "id": 8,
+      "name": "Радужна карета",
+      "category": "Аксесуари",
+      "price": "699",
+      "image": "🏰",
+      "description": "Красива карета для персонажів",
+      "inStock": false,
+      "quantity": 0
+    },
+    {
+      "id": 9,
+      "name": "Princess Luna",
+      "category": "Рідкісні видання",
+      "price": "499",
+      "image": "🌙",
+      "description": "Колекційна фігурка принцеси Луни",
+      "inStock": true,
+      "quantity": 8
+    },
+    {
+      "id": 10,
+      "name": "Princess Celestia",
+      "category": "Рідкісні видання",
+      "price": "499",
+      "image": "☀️",
+      "description": "Золота фігурка принцеси Селестії",
+      "inStock": true,
+      "quantity": 7
+    },
+    {
+      "id": 11,
+      "name": "Spike Mini",
+      "category": "Міні-фігурки",
+      "price": "99",
+      "image": "🐉",
+      "description": "Мала фігурка Спайка",
+      "inStock": true,
+      "quantity": 25
+    },
+    {
+      "id": 12,
+      "name": "Discord",
+      "category": "Рідкісні видання",
+      "price": "599",
+      "image": "🎭",
+      "description": "Незвичайна фігурка Дискорда",
+      "inStock": false,
+      "quantity": 0
+    },
+    {
+      "id": 13,
+      "name": "Chrysalis",
+      "category": "Рідкісні видання",
+      "price": "449",
+      "image": "👑",
+      "description": "Темна фігурка королеви Хризаліс",
+      "inStock": true,
+      "quantity": 6
+    },
+    {
+      "id": 14,
+      "name": "Apple Bloom Mini",
+      "category": "Міні-фігурки",
+      "price": "89",
+      "image": "🍎",
+      "description": "Мініатюрна фігурка Епл Блум",
+      "inStock": true,
+      "quantity": 30
+    },
+    {
+      "id": 15,
+      "name": "Sweetie Belle Mini",
+      "category": "Міні-фігурки",
+      "price": "89",
+      "image": "✨",
+      "description": "Мініатюрна фігурка Світі Белл",
+      "inStock": true,
+      "quantity": 22
+    }
+  ]
+}

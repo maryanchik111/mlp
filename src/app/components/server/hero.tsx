@@ -9,7 +9,7 @@ export default function Hero() {
           {/* Текстова частина */}
           <div className="space-y-6">
             <div className="space-y-3">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white drop-shadow-lg">
                 Світ My Little Pony
               </h1>
               <p className="text-xl md:text-2xl text-white drop-shadow-md">

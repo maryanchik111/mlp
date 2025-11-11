@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { database } from '@/lib/firebase';
-import { ref, push } from 'firebase/database';
+import { database, generateOrderNumber, decreaseProductQuantity } from '@/lib/firebase';
+import { ref, set } from 'firebase/database';
 
 interface CartItem {
   id: number;
@@ -107,8 +107,12 @@ export default function CheckoutPage() {
 
     setIsLoading(true);
     try {
-      const ordersRef = ref(database, 'orders');
+      // Генеруємо людський номер замовлення
+      const orderId = generateOrderNumber();
+      const ordersRef = ref(database, `orders/${orderId}`);
+      
       const newOrder = {
+        id: orderId,
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
@@ -129,14 +133,16 @@ export default function CheckoutPage() {
       };
 
       // Зберігаємо замовлення у Firebase
-  const snapshot = await push(ordersRef, newOrder);
-  const orderId = snapshot.key;
+      await set(ordersRef, newOrder);
+
+      // Зменшуємо кількість товарів у базі
+      for (const item of cartItems) {
+        await decreaseProductQuantity(item.id, item.quantity);
+      }
 
       // Очищаємо кошик
       localStorage.removeItem('mlp-cart');
       window.dispatchEvent(new CustomEvent('cart-updated', { detail: [] }));
-
-  if (!orderId) throw new Error('Не вдалося отримати ID замовлення');
 
       // Перенаправляємо на сторінку оплати з параметрами замовлення
       const paymentParams = new URLSearchParams({

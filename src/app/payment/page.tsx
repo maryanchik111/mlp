@@ -62,7 +62,7 @@ function PaymentPageContent() {
             ← Повернутися до каталогу
           </Link>
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">💳 Оплата замовлення</h1>
-          <p className="text-gray-600 mt-2 text-sm sm:text-base">Замовлення №{paymentDetails.orderId.substring(0, 8)}</p>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">Замовлення №{paymentDetails.orderId}</p>
         </div>
 
         {/* Основний контент */}

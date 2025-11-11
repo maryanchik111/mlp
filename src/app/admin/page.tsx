@@ -1,19 +1,73 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, type Order } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, type Order, type Product } from '@/lib/firebase';
+
+type TabType = 'orders' | 'products';
 
 export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'cancelled'>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [mounted, setMounted] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  
+  // Products state
+  const [products, setProducts] = useState<Product[]>([]);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Product>>({});
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Функція для завантаження товарів
+  useEffect(() => {
+    if (!mounted) return;
+    fetchAllProducts((loadedProducts) => {
+      setProducts(loadedProducts);
+    });
+  }, [mounted]);
+
+  // Функція для відкриття форми редагування товару
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setEditForm({
+      name: product.name,
+      price: product.price,
+      description: product.description,
+      quantity: product.quantity,
+      category: product.category,
+      image: product.image,
+    });
+  };
+
+  // Функція для збереження змін товару
+  const handleSaveProduct = async () => {
+    if (!editingProduct) return;
+    setActionLoading(true);
+    try {
+      const success = await updateProduct(editingProduct.id, editForm);
+      if (success) {
+        alert('✅ Товар оновлено успішно!');
+        setEditingProduct(null);
+        setEditForm({});
+        // Перезавантажуємо товари
+        fetchAllProducts((loadedProducts) => {
+          setProducts(loadedProducts);
+        });
+      } else {
+        alert('❌ Помилка при оновленні товару');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при оновленні товару');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Функція для підтвердження оплати
   const handleConfirmPayment = async () => {
@@ -149,103 +203,296 @@ export default function AdminPage() {
         {/* Заголовок */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">🔧 Панель адміністратора</h1>
-          <p className="text-gray-600">Управління замовленнями</p>
+          <p className="text-gray-600">Управління замовленнями та товарами</p>
         </div>
 
-        {/* Фільтри */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Фільтр по статусу</h2>
-          <div className="flex flex-wrap gap-3">
-            {(['all', 'pending', 'processing', 'completed', 'cancelled'] as const).map((status) => (
-              <button
-                key={status}
-                onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                  statusFilter === status
-                    ? 'bg-purple-600 text-white shadow-md'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                {status === 'all' ? 'Все (Усі)' : getStatusLabel(status)}
-              </button>
-            ))}
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow-sm p-2 mb-8">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all ${
+                activeTab === 'orders'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📦 Замовлення
+            </button>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all ${
+                activeTab === 'products'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🛍️ Товари
+            </button>
           </div>
-          <p className="text-sm text-gray-600 mt-4">
-            Всього замовлень: <span className="font-bold">{filteredOrders.length}</span>
-          </p>
         </div>
 
-        {/* Список замовлень */}
-        <div className="space-y-4">
-          {filteredOrders.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-              <p className="text-gray-600 text-lg">Немає замовлень з вибраним статусом</p>
+        {/* Orders Tab Content */}
+        {activeTab === 'orders' && (
+          <>
+            {/* Фільтри */}
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Фільтр по статусу</h2>
+              <div className="flex flex-wrap gap-3">
+                {(['all', 'pending', 'processing', 'completed', 'cancelled'] as const).map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setStatusFilter(status)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      statusFilter === status
+                        ? 'bg-purple-600 text-white shadow-md'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {status === 'all' ? 'Все (Усі)' : getStatusLabel(status)}
+                  </button>
+                ))}
+              </div>
+              <p className="text-sm text-gray-600 mt-4">
+                Всього замовлень: <span className="font-bold">{filteredOrders.length}</span>
+              </p>
             </div>
-          ) : (
-            filteredOrders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
+
+            {/* Список замовлень */}
+            <div className="space-y-4">
+              {filteredOrders.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                  <p className="text-gray-600 text-lg">Немає замовлень з вибраним статусом</p>
+                </div>
+              ) : (
+                filteredOrders.map((order) => (
+                  <div key={order.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <p className="text-sm text-gray-600">Номер замовлення</p>
+                          <p className="text-lg font-bold text-gray-900"># {order.id}</p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                          {getStatusLabel(order.status)}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div>
+                          <p className="text-sm text-gray-600">Замовник</p>
+                          <p className="font-semibold text-gray-900">{order.firstName} {order.lastName}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Контакт</p>
+                          <p className="font-semibold text-gray-900">{order.phone}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Місто</p>
+                          <p className="font-semibold text-gray-900">{order.city}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Дата замовлення</p>
+                          <p className="font-semibold text-gray-900 text-sm">{formatDate(order.createdAt)}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-200">
+                        <div>
+                          <p className="text-sm text-gray-600">Сума товарів</p>
+                          <p className="font-semibold text-gray-900">{order.totalPrice}₴</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Доставка</p>
+                          <p className="font-semibold text-gray-900">{order.deliveryPrice === 0 ? 'Безкоштовна' : `${order.deliveryPrice}₴`}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">До оплати</p>
+                          <p className="font-bold text-purple-600 text-lg">{order.finalPrice}₴</p>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div className="text-sm text-gray-600">
+                          <span className="font-semibold">{order.items.length}</span> товарів в замовленні
+                        </div>
+                        <button
+                          onClick={() => setSelectedOrder(order)}
+                          className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                        >
+                          📋 Інформація
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Products Tab Content */}
+        {activeTab === 'products' && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+              <h2 className="text-lg font-bold text-gray-900 mb-2">Всього товарів: {products.length}</h2>
+            </div>
+            
+            {products.map((product) => (
+              <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Номер замовлення</p>
-                      <p className="text-lg font-bold text-gray-900"># {order.id.substring(0, 8)}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="text-4xl">{product.image}</div>
+                      <div>
+                        <p className="text-lg font-bold text-gray-900">{product.name}</p>
+                        <p className="text-sm text-gray-600">{product.category}</p>
+                      </div>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                      {getStatusLabel(order.status)}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div>
-                      <p className="text-sm text-gray-600">Замовник</p>
-                      <p className="font-semibold text-gray-900">{order.firstName} {order.lastName}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Контакт</p>
-                      <p className="font-semibold text-gray-900">{order.phone}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Місто</p>
-                      <p className="font-semibold text-gray-900">{order.city}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Дата замовлення</p>
-                      <p className="font-semibold text-gray-900 text-sm">{formatDate(order.createdAt)}</p>
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {product.inStock ? 'В наявності' : 'Немає в наявності'}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-200">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-gray-600">Сума товарів</p>
-                      <p className="font-semibold text-gray-900">{order.totalPrice}₴</p>
+                      <p className="text-sm text-gray-600">Ціна</p>
+                      <p className="font-bold text-purple-600 text-lg">{product.price}₴</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Доставка</p>
-                      <p className="font-semibold text-gray-900">{order.deliveryPrice === 0 ? 'Безкоштовна' : `${order.deliveryPrice}₴`}</p>
+                      <p className="text-sm text-gray-600">Кількість</p>
+                      <p className="font-semibold text-gray-900">{product.quantity} шт</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-600">До оплати</p>
-                      <p className="font-bold text-purple-600 text-lg">{order.finalPrice}₴</p>
+                    <div className="col-span-2">
+                      <p className="text-sm text-gray-600">Опис</p>
+                      <p className="text-gray-900">{product.description}</p>
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-600">
-                      <span className="font-semibold">{order.items.length}</span> товарів в замовленні
-                    </div>
+                  <div className="flex justify-end">
                     <button
-                      onClick={() => setSelectedOrder(order)}
+                      onClick={() => handleEditProduct(product)}
                       className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
                     >
-                      📋 Інформація
+                      ✏️ Редагувати
                     </button>
                   </div>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Модальне вікно редагування товару */}
+      {editingProduct && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Заголовок */}
+            <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-6 sticky top-0 z-10">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1">
+                  <p className="text-sm opacity-90">Редагування товару</p>
+                  <p className="text-2xl font-bold">{editingProduct.name}</p>
+                </div>
+                <button
+                  onClick={() => setEditingProduct(null)}
+                  className="text-white text-2xl font-bold hover:scale-110 transition-transform"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Форма редагування */}
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Назва</label>
+                <input
+                  type="text"
+                  value={editForm.name || ''}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Категорія</label>
+                <input
+                  type="text"
+                  value={editForm.category || ''}
+                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ціна (₴)</label>
+                  <input
+                    type="text"
+                    value={editForm.price || ''}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Кількість</label>
+                  <input
+                    type="number"
+                    value={editForm.quantity || 0}
+                    onChange={(e) => setEditForm({ ...editForm, quantity: parseInt(e.target.value) || 0 })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Іконка (emoji)</label>
+                <input
+                  type="text"
+                  value={editForm.image || ''}
+                  onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Опис</label>
+                <textarea
+                  value={editForm.description || ''}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                />
+              </div>
+
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                <button
+                  onClick={handleSaveProduct}
+                  disabled={actionLoading}
+                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${
+                    actionLoading
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {actionLoading ? '⏳ Збереження...' : '💾 Зберегти зміни'}
+                </button>
+                <button
+                  onClick={() => setEditingProduct(null)}
+                  className="w-full bg-gray-200 text-gray-800 font-bold py-2.5 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Скасувати
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Модальне вікно з деталями */}
       {selectedOrder && (
