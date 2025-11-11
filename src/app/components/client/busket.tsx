@@ -11,6 +11,7 @@ interface CartItem {
   quantity: number;
   image: string;
   category: string;
+    maxQuantity?: number; // Максимальна кількість на складі
 }
 
 export default function Basket() {
@@ -71,9 +72,12 @@ export default function Basket() {
       const existingItem = prevItems.find(i => i.id === item.id);
       
       if (existingItem) {
+          // Перевіряємо максимальну кількість
+          const maxQty = existingItem.maxQuantity || Infinity;
+          const newQuantity = Math.min(existingItem.quantity + 1, maxQty);
         return prevItems.map(i =>
           i.id === item.id
-            ? { ...i, quantity: i.quantity + 1 }
+              ? { ...i, quantity: newQuantity }
             : i
         );
       }
@@ -92,11 +96,17 @@ export default function Basket() {
       return;
     }
 
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
+      setCartItems(prevItems =>
+        prevItems.map(item => {
+          if (item.id === id) {
+            // Перевіряємо максимальну кількість на складі
+            const maxQty = item.maxQuantity || Infinity;
+            const newQuantity = Math.min(quantity, maxQty);
+            return { ...item, quantity: newQuantity };
+          }
+          return item;
+        })
+      );
   };
 
   // Розрахунки
@@ -233,13 +243,25 @@ export default function Basket() {
                             onClick={() =>
                               updateQuantity(item.id, item.quantity + 1)
                             }
-                            className="px-2 py-1 text-sm font-bold text-gray-700 hover:bg-white rounded transition-colors"
+                              disabled={item.maxQuantity !== undefined && item.quantity >= item.maxQuantity}
+                              className={`px-2 py-1 text-sm font-bold rounded transition-colors ${
+                                item.maxQuantity !== undefined && item.quantity >= item.maxQuantity
+                                  ? 'text-gray-400 cursor-not-allowed'
+                                  : 'text-gray-700 hover:bg-white'
+                              }`}
                             aria-label="Збільшити кількість"
                           >
                             +
                           </button>
                         </div>
                       </div>
+                      
+                        {/* Повідомлення про максимальну кількість */}
+                        {item.maxQuantity !== undefined && item.quantity >= item.maxQuantity && (
+                          <p className="text-xs text-orange-600 mt-2">
+                            Максимальна доступна кількість: {item.maxQuantity}
+                          </p>
+                        )}
                     </div>
                   ))}
                 </div>

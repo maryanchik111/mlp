@@ -12,6 +12,7 @@ interface CartItem {
   quantity: number;
   image: string;
   category: string;
+    maxQuantity?: number;
 }
 
 interface FormData {
@@ -104,6 +105,16 @@ export default function CheckoutPage() {
   // Функція для збереження замовлення у Firebase
   const handleSubmitOrder = async () => {
     if (!validateForm()) return;
+
+      // Перевіряємо чи не перевищує кількість товарів максимальну доступну
+      const invalidItems = cartItems.filter(item => 
+        item.maxQuantity !== undefined && item.quantity > item.maxQuantity
+      );
+    
+      if (invalidItems.length > 0) {
+        alert(`❌ Деякі товари перевищують доступну кількість на складі. Будь ласка, перевірте кошик.`);
+        return;
+      }
 
     setIsLoading(true);
     try {

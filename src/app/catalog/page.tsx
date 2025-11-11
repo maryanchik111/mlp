@@ -157,6 +157,7 @@ export default function CatalogPage() {
         quantity: 1,
         image: product.image,
         category: product.category,
+          maxQuantity: product.quantity, // Додаємо максимальну кількість на складі
       });
       setCartItems(prev => [...prev, product.id]);
       
