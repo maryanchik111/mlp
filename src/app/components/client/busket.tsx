@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/app/providers';
 
 interface CartItem {
   id: number;
@@ -19,6 +20,7 @@ export default function Basket() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
   // Завантаження кошика з localStorage
   useEffect(() => {
@@ -118,6 +120,7 @@ export default function Basket() {
 
   const deliveryPrice = totalPrice >= 2000 ? 0 : 50;
   const finalPrice = totalPrice + deliveryPrice;
+  const estimatedPoints = Math.floor(finalPrice / 100);
 
   if (!mounted) {
     return null;
@@ -309,6 +312,13 @@ export default function Basket() {
                     <p>Ще {2000 - totalPrice}₴ для безкоштовної доставки</p>
                   )}
                 </div>
+
+                {/* Інформація для авторизованих про бали */}
+                {user && estimatedPoints > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded p-2 text-xs text-green-800">
+                    <p>За це замовлення буде нараховано <strong>+{estimatedPoints}</strong> балів у ваш акаунт після підтвердження оплати.</p>
+                  </div>
+                )}
 
                 {/* Кнопки дій */}
                 <div className="space-y-2">

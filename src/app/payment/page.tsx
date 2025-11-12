@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getPaymentConfig, fetchOrderStatus } from '@/lib/firebase';
+import { useAuth } from '@/app/providers';
 import { Suspense } from 'react';
 
 interface PaymentDetails {
@@ -14,6 +15,7 @@ interface PaymentDetails {
 
 function PaymentPageContent() {
   const searchParams = useSearchParams();
+  const { user } = useAuth();
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -96,6 +98,7 @@ function PaymentPageContent() {
 
   // Якщо оплата підтверджена - показуємо сторінку подяки
   if (paymentConfirmed) {
+    const earnedPoints = Math.floor((paymentDetails.totalAmount || 0) / 100);
     return (
       <main className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-12">
         <div className="container mx-auto px-4 max-w-3xl">
@@ -166,6 +169,18 @@ function PaymentPageContent() {
               </div>
             </div>
 
+            {/* Бонуси за оплату */}
+            {earnedPoints > 0 && (
+              <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4 mb-6">
+                <p className="text-green-800 text-base sm:text-lg font-semibold text-center">
+                  🎁 Ви отримали <span className="text-green-700">+{earnedPoints}</span> балів {user ? 'у ваш акаунт' : ''} за це замовлення
+                </p>
+                {!user && (
+                  <p className="text-green-700 text-xs text-center mt-1">Увійдіть в акаунт, щоб зберігати та використовувати бали</p>
+                )}
+              </div>
+            )}
+
             {/* Кнопки */}
             <div className="space-y-3">
               <Link
@@ -173,6 +188,12 @@ function PaymentPageContent() {
                 className="block w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-4 rounded-lg hover:shadow-lg transition-all hover:scale-105"
               >
                 🛍️ Продовжити покупки
+              </Link>
+              <Link
+                href="/account"
+                className="block w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition-colors"
+              >
+                👤 Перейти в акаунт
               </Link>
               <Link
                 href="/"

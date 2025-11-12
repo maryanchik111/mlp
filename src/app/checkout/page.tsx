@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { database, generateOrderNumber, decreaseProductQuantity } from '@/lib/firebase';
+import { database, generateOrderNumber, decreaseProductQuantity, updateUserStatsAfterOrder } from '@/lib/firebase';
+import { useAuth } from '@/app/providers';
 import { ref, set } from 'firebase/database';
 
 interface CartItem {
@@ -29,6 +30,7 @@ interface FormData {
 }
 
 export default function CheckoutPage() {
+  const { user, profile } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -135,12 +137,18 @@ export default function CheckoutPage() {
         paymentMethod: formData.paymentMethod,
         comments: formData.comments,
         items: cartItems,
-        totalPrice,
+        totalPrice, // сума без знижки
+        discountPercent: userDiscountPercent,
+        discountAmount,
+        discountedSubtotal,
         deliveryPrice,
         finalPrice,
         status: 'pending',
         createdAt: Date.now(),
         updatedAt: Date.now(),
+        // Якщо користувач не авторизований — не записуємо undefined (Firebase не приймає undefined)
+        // Використовуємо null або прибираємо поле. Тут ставимо null для явності.
+        userId: user ? user.uid : null,
       };
 
       // Зберігаємо замовлення у Firebase
@@ -149,6 +157,11 @@ export default function CheckoutPage() {
       // Зменшуємо кількість товарів у базі
       for (const item of cartItems) {
         await decreaseProductQuantity(item.id, item.quantity);
+      }
+
+      // Оновлюємо статистику користувача (бали, рейтинг) якщо авторизований
+      if (user) {
+        await updateUserStatsAfterOrder(user.uid, finalPrice);
       }
 
       // Очищаємо кошик
@@ -184,7 +197,10 @@ export default function CheckoutPage() {
     return 50; // courier
   })();
 
-  const finalPrice = totalPrice + deliveryPrice;
+  const userDiscountPercent = profile?.discountPercent ?? 0;
+  const discountAmount = Math.round((totalPrice * userDiscountPercent) / 100);
+  const discountedSubtotal = totalPrice - discountAmount;
+  const finalPrice = discountedSubtotal + deliveryPrice;
 
   if (!mounted) {
     return null;
@@ -445,6 +461,18 @@ export default function CheckoutPage() {
                   <span>Сума товарів:</span>
                   <span className="font-semibold">{totalPrice}₴</span>
                 </div>
+                {userDiscountPercent > 0 && (
+                  <>
+                    <div className="flex justify-between items-center text-gray-700">
+                      <span>Знижка ({userDiscountPercent}%)</span>
+                      <span className="font-semibold text-green-600">−{discountAmount}₴</span>
+                    </div>
+                    <div className="flex justify-between items-center text-gray-700">
+                      <span>Після знижки:</span>
+                      <span className="font-semibold">{discountedSubtotal}₴</span>
+                    </div>
+                  </>
+                )}
                 {deliveryPrice > 0 && (
                   <div className="flex justify-between items-center text-gray-700">
                     <span>Доставка:</span>
@@ -460,11 +488,14 @@ export default function CheckoutPage() {
               </div>
 
               {/* Сума */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg">
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg space-y-1">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-gray-900">Всього до оплати:</span>
                   <span className="text-2xl font-bold text-purple-600">{finalPrice}₴</span>
                 </div>
+                {userDiscountPercent > 0 && (
+                  <p className="text-xs text-gray-500">Включає вашу знижку {userDiscountPercent}% (рейтинг: {profile?.rating})</p>
+                )}
               </div>
 
               {/* Кнопки дій */}
