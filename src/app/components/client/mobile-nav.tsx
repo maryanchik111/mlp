@@ -7,20 +7,29 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 export default function MobileNav() {
-  const { user, profile } = useAuth();
+  const { user, profile, loading } = useAuth();
   const pathname = usePathname();
   const [cartCount, setCartCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  // Монтування компонента
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Перевірка прав адміна
   useEffect(() => {
-    if (user) {
-      setIsAdmin(checkAdminAccess(user));
+    if (loading) return; // Чекаємо поки auth завантажиться
+    
+    if (user && user.email) {
+      const adminStatus = checkAdminAccess(user);
+      setIsAdmin(adminStatus);
     } else {
       setIsAdmin(false);
     }
-  }, [user]);
+  }, [user, loading]);
 
   // Завантаження кількості нових замовлень для адміна
   useEffect(() => {
@@ -76,6 +85,11 @@ export default function MobileNav() {
   const handleCartClick = () => {
     window.dispatchEvent(new CustomEvent('open-basket'));
   };
+
+  // Не рендеримо поки не змонтовано
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
