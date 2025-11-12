@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
@@ -44,6 +44,7 @@ export default function AdminPage() {
     images: [],
     discount: 0,
   });
+  const [uploadingImages, setUploadingImages] = useState(false);
   
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -259,6 +260,85 @@ export default function AdminPage() {
       alert('❌ Помилка при видаленні товару');
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  // Функція для завантаження фото
+  const handleImageUpload = async (files: FileList | null, formType: 'create' | 'edit') => {
+    if (!files || files.length === 0) return;
+    
+    setUploadingImages(true);
+    const uploadedUrls: string[] = [];
+    
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Перевіряємо тип файлу
+        if (!file.type.startsWith('image/')) {
+          alert(`⚠️ Файл ${file.name} не є зображенням`);
+          continue;
+        }
+        
+        // Перевіряємо розмір (макс 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`⚠️ Файл ${file.name} завеликий (більше 5MB)`);
+          continue;
+        }
+        
+        const url = await uploadImage(file);
+        if (url) {
+          uploadedUrls.push(url);
+        }
+      }
+      
+      if (uploadedUrls.length > 0) {
+        if (formType === 'create') {
+          setNewProductForm({
+            ...newProductForm,
+            images: [...(newProductForm.images || []), ...uploadedUrls]
+          });
+        } else {
+          setEditForm({
+            ...editForm,
+            images: [...(editForm.images as string[] || []), ...uploadedUrls]
+          });
+        }
+        alert(`✅ Завантажено ${uploadedUrls.length} фото`);
+      }
+    } catch (error) {
+      console.error('Помилка завантаження:', error);
+      alert('❌ Помилка завантаження фото');
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  // Функція для видалення фото з форми
+  const handleRemoveImage = async (imageUrl: string, formType: 'create' | 'edit') => {
+    if (!confirm('Видалити це фото?')) return;
+    
+    try {
+      // Видаляємо з Storage якщо це Firebase URL
+      if (imageUrl.includes('firebasestorage.googleapis.com')) {
+        await deleteImage(imageUrl);
+      }
+      
+      // Видаляємо з форми
+      if (formType === 'create') {
+        setNewProductForm({
+          ...newProductForm,
+          images: (newProductForm.images || []).filter(url => url !== imageUrl)
+        });
+      } else {
+        setEditForm({
+          ...editForm,
+          images: (editForm.images as string[] || []).filter(url => url !== imageUrl)
+        });
+      }
+    } catch (error) {
+      console.error('Помилка видалення фото:', error);
+      alert('❌ Помилка видалення фото');
     }
   };
 
@@ -841,15 +921,56 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Галерея (URL через кому або з нового рядка)</label>
-                <textarea
-                  value={Array.isArray(newProductForm.images) ? newProductForm.images.join('\n') : ''}
-                  onChange={(e) => setNewProductForm({ ...newProductForm, images: e.target.value.split(/\n|,/).map(s => s.trim()).filter(Boolean) })}
-                  rows={4}
-                  placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-sm text-gray-900"
-                />
-                <p className="text-xs text-purple-500 mt-1">Можна вводити через кому або кожне з нового рядка. Перше використовується як головне.</p>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
+                
+                {/* Завантажені фото */}
+                {newProductForm.images && newProductForm.images.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {newProductForm.images.map((url, idx) => (
+                      <div key={idx} className="relative group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={url} 
+                          alt={`Photo ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded border border-purple-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(url, 'create')}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Кнопка завантаження */}
+                <label className={`block w-full border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingImages ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <input 
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={uploadingImages}
+                    onChange={(e) => handleImageUpload(e.target.files, 'create')}
+                    className="hidden"
+                  />
+                  <div className="text-purple-600">
+                    {uploadingImages ? (
+                      <>
+                        <span className="text-2xl">⏳</span>
+                        <p className="text-sm font-medium mt-2">Завантаження...</p>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-3xl">📸</span>
+                        <p className="text-sm font-medium mt-2">Завантажити фото</p>
+                        <p className="text-xs text-gray-500 mt-1">Натисніть або перетягніть (макс 5MB на фото)</p>
+                      </>
+                    )}
+                  </div>
+                </label>
               </div>
 
               <div className="pt-4 border-t border-gray-200 space-y-3">
@@ -980,15 +1101,56 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Галерея (URL через кому або з нового рядка)</label>
-                <textarea
-                  value={Array.isArray(editForm.images) ? editForm.images.join('\n') : (editForm.images as any) || ''}
-                  onChange={(e) => setEditForm({ ...editForm, images: e.target.value.split(/\n|,/).map(s => s.trim()).filter(Boolean) })}
-                  rows={4}
-                  placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-sm text-gray-900"
-                />
-                <p className="text-xs text-purple-500 mt-1">Можна вводити через кому або кожне з нового рядка. Перше використовується як головне.</p>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
+                
+                {/* Завантажені фото */}
+                {editForm.images && Array.isArray(editForm.images) && editForm.images.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {editForm.images.map((url, idx) => (
+                      <div key={idx} className="relative group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={url} 
+                          alt={`Photo ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded border border-purple-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(url, 'edit')}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Кнопка завантаження */}
+                <label className={`block w-full border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingImages ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <input 
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={uploadingImages}
+                    onChange={(e) => handleImageUpload(e.target.files, 'edit')}
+                    className="hidden"
+                  />
+                  <div className="text-purple-600">
+                    {uploadingImages ? (
+                      <>
+                        <span className="text-2xl">⏳</span>
+                        <p className="text-sm font-medium mt-2">Завантаження...</p>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-3xl">📸</span>
+                        <p className="text-sm font-medium mt-2">Завантажити фото</p>
+                        <p className="text-xs text-gray-500 mt-1">Натисніть або перетягніть (макс 5MB на фото)</p>
+                      </>
+                    )}
+                  </div>
+                </label>
               </div>
 
               <div className="pt-4 border-t border-gray-200 space-y-3">
@@ -1041,8 +1203,8 @@ export default function AdminPage() {
                 <label className="block text-sm font-medium text-purple-600 mb-2">Назва *</label>
                 <input
                   type="text"
-                  value={editForm.name || ''}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  value={newProductForm.name}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
                   className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                   placeholder="Назва товару"
                 />
@@ -1050,24 +1212,29 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Категорія *</label>
-                <input
-                  type="text"
-                  value={editForm.category || ''}
-                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                <select
+                  value={newProductForm.category}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, category: e.target.value })}
                   className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                  placeholder="Наприклад: Взуття, Одяг"
-                />
+                >
+                  <option value="">Оберіть категорію</option>
+                  {PRODUCT_CATEGORIES.map((cat: string) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-purple-600 mb-2">Ціна (₴) *</label>
                   <input
-                    type="number"
-                    value={editForm.price || ''}
-                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    type="text"
+                    value={newProductForm.price}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, price: e.target.value })}
                     className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                    placeholder="0"
+                    placeholder="299"
                   />
                 </div>
 
@@ -1075,8 +1242,8 @@ export default function AdminPage() {
                   <label className="block text-sm font-medium text-purple-600 mb-2">Кількість</label>
                   <input
                     type="number"
-                    value={editForm.quantity || ''}
-                    onChange={(e) => setEditForm({ ...editForm, quantity: parseInt(e.target.value) || 0 })}
+                    value={newProductForm.quantity}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, quantity: parseInt(e.target.value) || 0 })}
                     className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                     placeholder="0"
                   />
@@ -1086,51 +1253,95 @@ export default function AdminPage() {
               <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Опис</label>
                 <textarea
-                  value={editForm.description || ''}
-                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900 min-h-[100px]"
+                  value={newProductForm.description}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                   placeholder="Опис товару..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Емоджі (іконка)</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Іконка (emoji) / Головне зображення</label>
                 <input
                   type="text"
-                  value={editForm.image || ''}
-                  onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+                  value={newProductForm.image}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, image: e.target.value })}
                   className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                  placeholder="📦"
+                  placeholder="🎁"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Знижка (%)</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Знижка на товар (%)</label>
                 <input
                   type="number"
-                  value={editForm.discount || 0}
-                  onChange={(e) => setEditForm({ ...editForm, discount: parseInt(e.target.value) || 0 })}
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                  min={0}
+                  max={90}
+                  value={newProductForm.discount ?? 0}
+                  onChange={e => setNewProductForm(f => ({ ...f, discount: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
                   placeholder="0"
-                  min="0"
-                  max="100"
                 />
+                <span className="text-xs text-gray-500">Вкажіть від 0 до 90. Знижка буде показана у каталозі та при оформленні.</span>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Галерея фото (URLs)</label>
-                <textarea
-                  value={editForm.images?.join('\n') || ''}
-                  onChange={(e) => setEditForm({ ...editForm, images: e.target.value as any })}
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900 min-h-[100px]"
-                  placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                />
-                <p className="text-xs text-purple-500 mt-1">Кожне посилання з нового рядка або через кому</p>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
+                
+                {/* Завантажені фото */}
+                {newProductForm.images && newProductForm.images.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {newProductForm.images.map((url, idx) => (
+                      <div key={idx} className="relative group">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={url} 
+                          alt={`Photo ${idx + 1}`}
+                          className="w-full h-24 object-cover rounded border border-purple-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(url, 'create')}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Кнопка завантаження */}
+                <label className={`block w-full border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingImages ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <input 
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={uploadingImages}
+                    onChange={(e) => handleImageUpload(e.target.files, 'create')}
+                    className="hidden"
+                  />
+                  <div className="text-purple-600">
+                    {uploadingImages ? (
+                      <>
+                        <span className="text-2xl">⏳</span>
+                        <p className="text-sm font-medium mt-2">Завантаження...</p>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-3xl">📸</span>
+                        <p className="text-sm font-medium mt-2">Завантажити фото</p>
+                        <p className="text-xs text-gray-500 mt-1">Натисніть або перетягніть (макс 5MB на фото)</p>
+                      </>
+                    )}
+                  </div>
+                </label>
               </div>
 
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 <button
-                  onClick={handleSaveProduct}
+                  onClick={handleSubmitNewProduct}
                   disabled={actionLoading}
                   className={`w-full font-bold py-2.5 rounded-lg transition-all ${
                     actionLoading

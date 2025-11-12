@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, query, orderByChild, limitToLast, onValue, update, get, set } from 'firebase/database';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 // Firebase конфігурація (замініть своїми значеннями з Firebase Console)
 const firebaseConfig = {
@@ -17,6 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const database = getDatabase(app);
 export const auth = getAuth(app);
+export const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
 
 // =====================
@@ -505,25 +507,93 @@ export const deleteProduct = async (productId: number): Promise<boolean> => {
 
     if (!snapshot.exists()) return false;
     const data = snapshot.val();
+    
+    let productToDelete: Product | null = null;
 
     if (Array.isArray(data)) {
       const products = data as Product[];
+      productToDelete = products.find((p) => p.id === productId) || null;
       const updated = products.filter((p) => p.id !== productId);
       if (updated.length === products.length) return false;
       await set(productsRef, updated);
-      return true;
+    } else {
+      const obj: Record<string, Product> = data as any;
+      const key = Object.keys(obj).find((k) => obj[k]?.id === productId);
+      if (!key) return false;
+      productToDelete = obj[key];
+      // Видаляємо ключ і переписуємо як масив для уніфікації
+      delete obj[key];
+      const list: Product[] = Object.values(obj);
+      await set(productsRef, list);
     }
-
-    const obj: Record<string, Product> = data as any;
-    const key = Object.keys(obj).find((k) => obj[k]?.id === productId);
-    if (!key) return false;
-    // Видаляємо ключ і переписуємо як масив для уніфікації
-    delete obj[key];
-    const list: Product[] = Object.values(obj);
-    await set(productsRef, list);
+    
+    // Видаляємо фото з Storage, якщо є
+    if (productToDelete && productToDelete.images && productToDelete.images.length > 0) {
+      for (const imageUrl of productToDelete.images) {
+        try {
+          // Перевіряємо чи це Firebase Storage URL
+          if (imageUrl.includes('firebasestorage.googleapis.com')) {
+            const imageRef = storageRef(storage, imageUrl);
+            await deleteObject(imageRef);
+          }
+        } catch (err) {
+          console.warn('Не вдалося видалити фото:', err);
+        }
+      }
+    }
+    
     return true;
   } catch (error) {
     console.error('Помилка при видаленні товару:', error);
+    return false;
+  }
+};
+
+// =====================
+// STORAGE FUNCTIONS (завантаження фото)
+// =====================
+
+/**
+ * Завантажує фото в Firebase Storage і повертає URL
+ * @param file - файл зображення
+ * @param folder - папка для зберігання (за замовчуванням 'products')
+ * @returns URL завантаженого зображення або null при помилці
+ */
+export const uploadImage = async (file: File, folder: string = 'products'): Promise<string | null> => {
+  try {
+    // Генеруємо унікальне ім'я файлу
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 15);
+    const extension = file.name.split('.').pop();
+    const fileName = `${folder}/${timestamp}_${randomString}.${extension}`;
+    
+    // Створюємо референс та завантажуємо файл
+    const imageRef = storageRef(storage, fileName);
+    const snapshot = await uploadBytes(imageRef, file);
+    
+    // Отримуємо публічний URL
+    const url = await getDownloadURL(snapshot.ref);
+    return url;
+  } catch (error) {
+    console.error('Помилка завантаження фото:', error);
+    return null;
+  }
+};
+
+/**
+ * Видаляє фото з Firebase Storage за URL
+ * @param imageUrl - URL зображення для видалення
+ */
+export const deleteImage = async (imageUrl: string): Promise<boolean> => {
+  try {
+    if (!imageUrl.includes('firebasestorage.googleapis.com')) {
+      return false; // Не Firebase Storage URL
+    }
+    const imageRef = storageRef(storage, imageUrl);
+    await deleteObject(imageRef);
+    return true;
+  } catch (error) {
+    console.error('Помилка видалення фото:', error);
     return false;
   }
 };
