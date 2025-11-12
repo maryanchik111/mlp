@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/app/providers';
-import { checkAdminAccess } from '@/lib/firebase';
+import { checkAdminAccess, fetchOrdersByStatus, type Order } from '@/lib/firebase';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -11,6 +11,7 @@ export default function MobileNav() {
   const pathname = usePathname();
   const [cartCount, setCartCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
 
   // Перевірка прав адміна
   useEffect(() => {
@@ -20,6 +21,28 @@ export default function MobileNav() {
       setIsAdmin(false);
     }
   }, [user]);
+
+  // Завантаження кількості нових замовлень для адміна
+  useEffect(() => {
+    if (!isAdmin) {
+      setPendingOrdersCount(0);
+      return;
+    }
+
+    // Завантажуємо pending замовлення
+    fetchOrdersByStatus('pending', (orders: Order[]) => {
+      setPendingOrdersCount(orders.length);
+    });
+
+    // Оновлюємо кожні 30 секунд
+    const interval = setInterval(() => {
+      fetchOrdersByStatus('pending', (orders: Order[]) => {
+        setPendingOrdersCount(orders.length);
+      });
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [isAdmin]);
 
   // Оновлення кількості товарів у кошику
   useEffect(() => {
@@ -85,8 +108,13 @@ export default function MobileNav() {
 
         {/* Адмін - тільки для адміністраторів */}
         {isAdmin && (
-          <Link href="/admin" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/admin' ? 'text-purple-600' : 'text-gray-600'}`}>
+          <Link href="/admin" className={`flex flex-col items-center justify-center h-full transition-colors relative ${pathname === '/admin' ? 'text-purple-600' : 'text-gray-600'}`}>
             <span className="text-2xl mb-1">🔧</span>
+            {pendingOrdersCount > 0 && (
+              <span className="absolute top-2 right-1/4 translate-x-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                {pendingOrdersCount}
+              </span>
+            )}
             <span className="text-xs font-medium">Адмін</span>
           </Link>
         )}

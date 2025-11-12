@@ -69,29 +69,34 @@ export default function RecentReviews() {
 
       {/* Список відгуків в колонку */}
       <div className="space-y-4 mb-6">
-        {currentReviews.map(r => (
-          <div key={r.id} className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="text-lg font-bold text-purple-700">
-                    {r.displayName || 'Користувач'}
-                  </span>
-                  <div className="flex gap-0.5" aria-label={`Рейтинг ${r.rating}`}>
-                    {[1,2,3,4,5].map(i => (
-                      <span key={i} className={`text-xl ${i <= r.rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
-                    ))}
+        {currentReviews.map(r => {
+          // Витягуємо тільки ім'я (перше слово)
+          const firstName = (r.displayName || 'Користувач').split(' ')[0];
+          
+          return (
+            <div key={r.id} className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-lg font-bold text-purple-700">
+                      {firstName}
+                    </span>
+                    <div className="flex gap-0.5" aria-label={`Рейтинг ${r.rating}`}>
+                      {[1,2,3,4,5].map(i => (
+                        <span key={i} className={`text-xl ${i <= r.rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                      ))}
+                    </div>
                   </div>
+                  <p className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
-                <p className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                <div className="text-xs text-purple-400 font-medium opacity-60">#{r.orderId}</div>
               </div>
-              <div className="text-xs text-purple-400 font-medium opacity-60">#{r.orderId}</div>
+              <p className="text-sm text-gray-800 leading-relaxed">
+                {r.text?.length ? `"${r.text}"` : '⭐ Чудова покупка!'}
+              </p>
             </div>
-            <p className="text-sm text-gray-800 leading-relaxed">
-              {r.text?.length ? `"${r.text}"` : '⭐ Чудова покупка!'}
-            </p>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Пагінація */}

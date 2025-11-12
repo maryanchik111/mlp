@@ -317,8 +317,11 @@ export default function AdminPage() {
       <div className="container mx-auto px-4">
         {/* Заголовок */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">🔧 Панель адміністратора</h1>
-          <p className="text-gray-600">Управління замовленнями та товарами</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Панель адміністратора</h1>
+          <p className="text-gray-600">
+            Вітаємо, {user?.displayName || user?.email?.split('@')[0] || 'Адміністратор'}! 👋
+          </p>
+          <p className="text-gray-500 text-sm mt-1">Управління замовленнями та товарами</p>
         </div>
 
         {/* Tabs (адаптивні) */}

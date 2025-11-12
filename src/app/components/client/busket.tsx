@@ -254,7 +254,7 @@ export default function Basket() {
                           >
                             −
                           </button>
-                          <span className="px-2 py-1 font-semibold min-w-8 text-center text-sm">
+                          <span className="px-2 py-1 font-semibold min-w-8 text-purple-600 font-bold text-center text-sm">
                             {item.quantity}
                           </span>
                           <button
