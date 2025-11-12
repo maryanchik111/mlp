@@ -14,7 +14,6 @@ interface CartItem {
   category: string;
   maxQuantity?: number; // Максимальна кількість на складі
   discount?: number; // Знижка на товар у %
-  images?: string[]; // Масив фото товару
 }
 
 export default function Basket() {
@@ -144,12 +143,12 @@ export default function Basket() {
         <>
           {/* Overlay */}
           <div
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 z-[60]"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Кошик */}
-          <div className="fixed right-0 top-0 h-screen w-full max-w-md bg-white shadow-2xl z-50 flex flex-col overflow-hidden">
+          <div className="fixed right-0 top-0 h-screen w-full max-w-md bg-white shadow-2xl z-[70] flex flex-col overflow-hidden">
             {/* Заголовок */}
             <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-6 shadow-md flex-shrink-0">
               <div className="flex items-center justify-between">
@@ -197,10 +196,10 @@ export default function Basket() {
                     >
                       {/* Заголовок товару */}
                       <div className="flex gap-3 mb-3">
-                        {item.images && item.images.length > 0 ? (
+                        {(item as any).images && (item as any).images.length > 0 ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img 
-                            src={item.images[0]} 
+                            src={(item as any).images[0]} 
                             alt={item.name}
                             className="w-12 h-12 object-cover rounded-full border-2 border-purple-200 flex-shrink-0"
                           />
