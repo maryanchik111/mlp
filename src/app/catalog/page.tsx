@@ -398,7 +398,7 @@ export default function CatalogPage() {
                   <meta itemProp="name" content={product.name} />
                   <meta itemProp="description" content={product.description} />
                   <meta itemProp="priceCurrency" content="UAH" />
-                  <meta itemProp="price" content={product.price.replace("₴", "")} />
+                  <meta itemProp="price" content={String(product.price).replace("₴", "")} />
                   <meta itemProp="availability" content={product.quantity > 0 ? "InStock" : "OutOfStock"} />
 
                   {/* Іконка продукту (галерея тільки на сторінці товару) */}
@@ -592,7 +592,7 @@ export default function CatalogPage() {
                 description: product.description,
                 offers: {
                   "@type": "Offer",
-                  price: product.price.replace("₴", ""),
+                  price: String(product.price).replace("₴", ""),
                   priceCurrency: "UAH",
                   availability: product.quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
                 },
