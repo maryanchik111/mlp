@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 import MobileNav from "./components/client/mobile-nav";
+import PWAInstaller from "./components/client/pwa-installer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -14,6 +15,12 @@ export const metadata: Metadata = {
   description: "Купіть оригінальні іграшки My Little Pony та колекційні фігурки. Великий вибір персонажів, доступні ціни та швидка доставка.",
   keywords: ["My Little Pony", "MLP", "іграшки", "фігурки", "колекція", "поні"],
   authors: [{ name: "MLP Store" }],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "MLP Store",
+  },
   openGraph: {
     title: "My Little Pony Store - Офіційні іграшки та колекційні фігурки",
     description: "Купіть оригінальні іграшки My Little Pony та колекційні фігурки з доставкою по Україні",
@@ -21,7 +28,13 @@ export const metadata: Metadata = {
     locale: "uk_UA",
   },
   robots: "index, follow",
-  viewport: "width=device-width, initial-scale=1",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
+  themeColor: "#9333ea",
 };
 
 export default function RootLayout({
@@ -31,8 +44,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="uk">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/icon-192.svg" />
+        <link rel="icon" href="/icon-192.svg" type="image/svg+xml" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="MLP Store" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="theme-color" content="#9333ea" />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>
+          <PWAInstaller />
           {children}
           <MobileNav />
         </Providers>
