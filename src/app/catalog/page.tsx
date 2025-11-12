@@ -97,8 +97,10 @@ export default function CatalogPage() {
           const priceB = typeof b.price === 'string' ? parseInt(b.price) : b.price;
           return priceB - priceA;
         });
+      case 'popular':
       default:
-        return filtered;
+        // За популярністю = нові товари спочатку (більший ID = новіший)
+        return filtered.sort((a, b) => b.id - a.id);
     }
   }, [allProducts, sortBy, selectedCategory, priceRange]);
 

@@ -107,6 +107,12 @@ export default function AdminPage() {
     setActionLoading(true);
     try {
       let payload = { ...editForm } as any;
+      
+      // Price має бути рядком
+      if (typeof payload.price === 'number') {
+        payload.price = String(payload.price);
+      }
+      
       // Якщо введено discount як рядок – парсимо
       if (typeof payload.discount === 'string') {
         payload.discount = parseInt(payload.discount) || 0;
@@ -167,6 +173,11 @@ export default function AdminPage() {
         alert('❌ Заповніть обов\'язкові поля: назва, ціна, категорія');
         setActionLoading(false);
         return;
+      }
+      
+      // Price має бути рядком
+      if (typeof payload.price === 'number') {
+        payload.price = String(payload.price);
       }
       
       // Парсимо discount
@@ -874,7 +885,7 @@ export default function AdminPage() {
                   <input
                     type="number"
                     value={editForm.price || ''}
-                    onChange={(e) => setEditForm({ ...editForm, price: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
                     className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                     placeholder="0"
                   />
@@ -930,7 +941,7 @@ export default function AdminPage() {
                 <label className="block text-sm font-medium text-purple-600 mb-2">Галерея фото (URLs)</label>
                 <textarea
                   value={editForm.images?.join('\n') || ''}
-                  onChange={(e) => setEditForm({ ...editForm, images: e.target.value })}
+                  onChange={(e) => setEditForm({ ...editForm, images: e.target.value as any })}
                   className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900 min-h-[100px]"
                   placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
                 />
