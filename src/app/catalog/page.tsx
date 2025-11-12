@@ -8,12 +8,14 @@ import { fetchAllProducts, type Product } from '@/lib/firebase';
 
 const ITEMS_PER_PAGE = 6;
 
-const categories = [
-  { name: "Основні персонажі", count: 6 },
-  { name: "Набори", count: 1 },
-  { name: "Аксесуари", count: 1 },
-  { name: "Рідкісні видання", count: 4 },
-  { name: "Міні-фігурки", count: 3 },
+// Базові категорії каталогу (порядок відображення)
+const BASE_CATEGORIES: string[] = [
+  "Основні персонажі",
+  "Набори",
+  "Аксесуари",
+  "Рідкісні видання",
+  "Міні-фігурки",
+  "Унікальна",
 ];
 
 export default function CatalogPage() {
@@ -25,6 +27,19 @@ export default function CatalogPage() {
   const [cartItems, setCartItems] = useState<number[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Категорії з підрахунком кількості товарів (динамічно з товарів)
+  const derivedCategories = useMemo(() => {
+    const counts: Record<string, number> = Object.fromEntries(
+      BASE_CATEGORIES.map((c) => [c, 0])
+    );
+    for (const p of allProducts) {
+      if (p.category) {
+        counts[p.category] = (counts[p.category] || 0) + 1;
+      }
+    }
+    return BASE_CATEGORIES.map((name) => ({ name, count: counts[name] || 0 }));
+  }, [allProducts]);
 
   // Завантаження товарів з Firebase при завантаженні компонента
   useEffect(() => {
@@ -273,7 +288,7 @@ export default function CatalogPage() {
                 >
                   Всі категорії
                 </button>
-                {categories.map((category) => (
+                {derivedCategories.map((category) => (
                   <button
                     key={category.name}
                     onClick={() => {

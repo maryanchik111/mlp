@@ -8,6 +8,16 @@ import { AdminStats } from './admin-stats';
 
 type TabType = 'orders' | 'products' | 'reviews' | 'stats';
 
+// Список доступних категорій товарів
+const PRODUCT_CATEGORIES = [
+  "Основні персонажі",
+  "Набори",
+  "Аксесуари",
+  "Рідкісні видання",
+  "Міні-фігурки",
+  "Унікальна",
+];
+
 export default function AdminPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
@@ -702,6 +712,154 @@ export default function AdminPage() {
         )}
       </div>
 
+<<<<<<< Updated upstream
+=======
+      {/* Модальне вікно створення нового товару */}
+      {isCreatingProduct && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Заголовок */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-6 sticky top-0 z-10">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1">
+                  <p className="text-sm opacity-90">Додавання нового товару</p>
+                  <p className="text-2xl font-bold">Новий товар</p>
+                </div>
+                <button
+                  onClick={() => setIsCreatingProduct(false)}
+                  className="text-white text-2xl font-bold hover:scale-110 transition-transform"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Форма створення */}
+            <div className="p-6 space-y-4 text-purple-600">
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Назва *</label>
+                <input
+                  type="text"
+                  value={newProductForm.name}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                  placeholder="Наприклад: Twilight Sparkle"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Категорія *</label>
+                <select
+                  value={newProductForm.category}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, category: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                >
+                  <option value="">Оберіть категорію</option>
+                  {PRODUCT_CATEGORIES.map((cat: string) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-purple-600 mb-2">Ціна (₴) *</label>
+                  <input
+                    type="text"
+                    value={newProductForm.price}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, price: e.target.value })}
+                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                    placeholder="299"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-purple-600 mb-2">Кількість</label>
+                  <input
+                    type="number"
+                    value={newProductForm.quantity}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, quantity: parseInt(e.target.value) || 0 })}
+                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Іконка (emoji) / Головне зображення</label>
+                <input
+                  type="text"
+                  value={newProductForm.image}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, image: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                  placeholder="🎁"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Опис</label>
+                <textarea
+                  value={newProductForm.description}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                  placeholder="Опис товару..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Знижка на товар (%)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={90}
+                  value={newProductForm.discount ?? 0}
+                  onChange={e => setNewProductForm(f => ({ ...f, discount: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
+                  placeholder="0"
+                />
+                <span className="text-xs text-gray-500">Вкажіть від 0 до 90. Знижка буде показана у каталозі та при оформленні.</span>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Галерея (URL через кому або з нового рядка)</label>
+                <textarea
+                  value={Array.isArray(newProductForm.images) ? newProductForm.images.join('\n') : ''}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, images: e.target.value.split(/\n|,/).map(s => s.trim()).filter(Boolean) })}
+                  rows={4}
+                  placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-sm text-gray-900"
+                />
+                <p className="text-xs text-purple-500 mt-1">Можна вводити через кому або кожне з нового рядка. Перше використовується як головне.</p>
+              </div>
+
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                <button
+                  onClick={handleCreateProduct}
+                  disabled={actionLoading}
+                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${
+                    actionLoading
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {actionLoading ? '⏳ Додавання...' : '➕ Додати товар'}
+                </button>
+                <button
+                  onClick={() => setIsCreatingProduct(false)}
+                  className="w-full bg-gray-200 text-gray-800 font-bold py-2.5 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Скасувати
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+>>>>>>> Stashed changes
       {/* Модальне вікно редагування товару */}
       {editingProduct && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -736,12 +894,18 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Категорія</label>
-                <input
-                  type="text"
+                <select
                   value={editForm.category || ''}
                   onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
                   className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                />
+                >
+                  <option value="">Оберіть категорію</option>
+                  {PRODUCT_CATEGORIES.map((cat: string) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

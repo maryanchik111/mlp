@@ -369,7 +369,36 @@ export const generateOrderNumber = (): string => {
 // Функція для оновлення товару (ціна, назва, опис, кількість)
 export const updateProduct = async (productId: number, updates: Partial<Product>) => {
   try {
-    const productRef = ref(database, `products/${productId - 1}`); // Індекс масиву = id - 1
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+    if (!snapshot.exists()) return false;
+
+    const data = snapshot.val();
+
+    // Якщо зберігається як масив
+    if (Array.isArray(data)) {
+      const products = data as Product[];
+      const idx = products.findIndex((p) => p.id === productId);
+      if (idx === -1) return false;
+      const updated = { ...products[idx], ...updates } as Product;
+      // Автооновлення inStock, якщо кількість змінюється
+      if (typeof updates.quantity === 'number') {
+        updated.inStock = (updates.quantity ?? updated.quantity) > 0;
+      }
+      products[idx] = updated;
+      await set(productsRef, products);
+      return true;
+    }
+
+    // Якщо зберігається як об'єкт
+    const obj: Record<string, Product> = data as any;
+    const key = Object.keys(obj).find((k) => obj[k]?.id === productId);
+    if (!key) return false;
+    const productRef = ref(database, `products/${key}`);
+    // Якщо кількість змінюється, тримаємо inStock у синхроні
+    if (typeof updates.quantity === 'number') {
+      updates = { ...updates, inStock: (updates.quantity ?? obj[key].quantity) > 0 };
+    }
     await update(productRef, updates);
     return true;
   } catch (error) {
@@ -431,19 +460,30 @@ export const deleteProduct = async (productId: number) => {
 // Функція для зменшення кількості товару після покупки
 export const decreaseProductQuantity = async (productId: number, quantityToDecrease: number) => {
   try {
-    const productRef = ref(database, `products/${productId - 1}`);
-    const snapshot = await get(productRef);
-    
-    if (snapshot.exists()) {
-      const product = snapshot.val() as Product;
-      const newQuantity = Math.max(0, product.quantity - quantityToDecrease);
-      
-      await update(productRef, {
-        quantity: newQuantity,
-      });
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+    if (!snapshot.exists()) return false;
+
+    const data = snapshot.val();
+    if (Array.isArray(data)) {
+      const products = data as Product[];
+      const idx = products.findIndex((p) => p.id === productId);
+      if (idx === -1) return false;
+      const product = products[idx];
+      const newQuantity = Math.max(0, (product.quantity || 0) - quantityToDecrease);
+      products[idx] = { ...product, quantity: newQuantity, inStock: newQuantity > 0 };
+      await set(productsRef, products);
       return true;
     }
-    return false;
+
+    const obj: Record<string, Product> = data as any;
+    const key = Object.keys(obj).find((k) => obj[k]?.id === productId);
+    if (!key) return false;
+    const product = obj[key];
+    const newQuantity = Math.max(0, (product.quantity || 0) - quantityToDecrease);
+    const productRef = ref(database, `products/${key}`);
+    await update(productRef, { quantity: newQuantity, inStock: newQuantity > 0 });
+    return true;
   } catch (error) {
     console.error('Помилка при зменшенні кількості товару:', error);
     return false;
@@ -453,19 +493,93 @@ export const decreaseProductQuantity = async (productId: number, quantityToDecre
 // Отримати один товар за id
 export const fetchProductById = async (id: number): Promise<Product | null> => {
   try {
-    const productRef = ref(database, `products/${id - 1}`); // масивна структура
-    const snapshot = await get(productRef);
-    if (snapshot.exists()) {
-      const product = snapshot.val() as Product;
-      return product;
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+    if (!snapshot.exists()) return null;
+    const data = snapshot.val();
+    if (Array.isArray(data)) {
+      const products = data as Product[];
+      return products.find((p) => p.id === id) || null;
     }
-    return null;
+    const obj: Record<string, Product> = data as any;
+    const key = Object.keys(obj).find((k) => obj[k]?.id === id);
+    return key ? (obj[key] as Product) : null;
   } catch (error) {
     console.error('Помилка отримання товару:', error);
     return null;
   }
 };
 
+<<<<<<< Updated upstream
+=======
+// Функція для додавання нового товару
+export const addProduct = async (newProduct: Omit<Product, 'id'>): Promise<boolean> => {
+  try {
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+
+    const buildProduct = (id: number): Product => ({
+      ...newProduct,
+      id,
+      inStock: newProduct.quantity > 0,
+    });
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      let list: Product[];
+      if (Array.isArray(data)) {
+        list = data as Product[];
+      } else {
+        // конвертуємо об'єкт у масив для уніфікації структури
+        list = Object.values(data as Record<string, Product>) as Product[];
+      }
+      const maxId = list.length > 0 ? Math.max(...list.map((p) => p.id)) : 0;
+      const productToAdd = buildProduct(maxId + 1);
+      await set(productsRef, [...list, productToAdd]);
+      return true;
+    } else {
+      const productToAdd = buildProduct(1);
+      await set(productsRef, [productToAdd]);
+      return true;
+    }
+  } catch (error) {
+    console.error('Помилка при додаванні товару:', error);
+    return false;
+  }
+};
+
+// Функція для видалення товару
+export const deleteProduct = async (productId: number): Promise<boolean> => {
+  try {
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+
+    if (!snapshot.exists()) return false;
+    const data = snapshot.val();
+
+    if (Array.isArray(data)) {
+      const products = data as Product[];
+      const updated = products.filter((p) => p.id !== productId);
+      if (updated.length === products.length) return false;
+      await set(productsRef, updated);
+      return true;
+    }
+
+    const obj: Record<string, Product> = data as any;
+    const key = Object.keys(obj).find((k) => obj[k]?.id === productId);
+    if (!key) return false;
+    // Видаляємо ключ і переписуємо як масив для уніфікації
+    delete obj[key];
+    const list: Product[] = Object.values(obj);
+    await set(productsRef, list);
+    return true;
+  } catch (error) {
+    console.error('Помилка при видаленні товару:', error);
+    return false;
+  }
+};
+
+>>>>>>> Stashed changes
 // Функція для отримання статусу замовлення за ID
 export const fetchOrderStatus = async (orderId: string): Promise<string | null> => {
   try {
