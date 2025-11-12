@@ -378,6 +378,56 @@ export const updateProduct = async (productId: number, updates: Partial<Product>
   }
 };
 
+// Функція для створення нового товару
+export const createProduct = async (product: Omit<Product, 'id'>) => {
+  try {
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+    
+    let newId = 1;
+    if (snapshot.exists()) {
+      const products = snapshot.val() as Product[];
+      // Знаходимо максимальний ID
+      newId = Math.max(...products.map(p => p.id || 0)) + 1;
+    }
+    
+    const newProduct = {
+      ...product,
+      id: newId,
+      createdAt: Date.now(),
+    };
+    
+    // Додаємо в кінець масиву
+    const newProductRef = ref(database, `products/${newId - 1}`);
+    await set(newProductRef, newProduct);
+    return true;
+  } catch (error) {
+    console.error('Помилка при створенні товару:', error);
+    return false;
+  }
+};
+
+// Функція для видалення товару
+export const deleteProduct = async (productId: number) => {
+  try {
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+    
+    if (!snapshot.exists()) return false;
+    
+    const products = snapshot.val() as Product[];
+    // Видаляємо товар з масиву
+    const updatedProducts = products.filter(p => p && p.id !== productId);
+    
+    // Перезаписуємо весь масив
+    await set(productsRef, updatedProducts);
+    return true;
+  } catch (error) {
+    console.error('Помилка при видаленні товару:', error);
+    return false;
+  }
+};
+
 // Функція для зменшення кількості товару після покупки
 export const decreaseProductQuantity = async (productId: number, quantityToDecrease: number) => {
   try {

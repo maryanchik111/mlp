@@ -82,11 +82,12 @@ export default function ProductPage() {
       category: product.category,
       quantity: qty,
       maxQuantity: product.quantity,
+      discount: product.discount ?? 0,
     };
 
     if (idx >= 0) {
       const nextQty = Math.min(cart[idx].quantity + qty, product.quantity);
-      cart[idx] = { ...cart[idx], quantity: nextQty, maxQuantity: product.quantity };
+      cart[idx] = { ...cart[idx], quantity: nextQty, maxQuantity: product.quantity, discount: product.discount ?? 0 };
       setAdded('updated');
     } else {
       cart.push(newItem);
@@ -190,7 +191,23 @@ export default function ProductPage() {
             <p className="text-gray-700 mb-6">{product.description}</p>
 
             <div className="flex items-center justify-between mb-6">
-              <span className="text-3xl font-extrabold text-purple-600">{product.price}₴</span>
+              <div className="flex items-center gap-2">
+                {product.discount && product.discount > 0 ? (
+                  <>
+                    <span className="text-lg text-gray-400 line-through">
+                      {product.price}₴
+                    </span>
+                    <span className="text-3xl font-extrabold text-purple-600">
+                      {Math.round(product.price * (1 - product.discount / 100))}₴
+                    </span>
+                    <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                      −{product.discount}%
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-3xl font-extrabold text-purple-600">{product.price}₴</span>
+                )}
+              </div>
               <span className={`text-sm px-3 py-1 rounded-full ${isOut ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
                 {isOut ? 'Немає в наявності' : `В наявності: ${product.quantity}`}
               </span>
@@ -227,7 +244,7 @@ export default function ProductPage() {
             offers: {
               '@type': 'Offer',
               priceCurrency: 'UAH',
-              price: product.price.replace('₴', ''),
+              price: String(product.price),
               availability: product.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
             }
           })

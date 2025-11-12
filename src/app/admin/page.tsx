@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, createProduct, deleteProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
@@ -23,6 +23,7 @@ export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
+  const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -135,6 +136,87 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Помилка:', error);
       alert('❌ Помилка при оновленні товару');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Функція для створення нового товару
+  const handleCreateProduct = () => {
+    setIsCreatingProduct(true);
+    setEditForm({
+      name: '',
+      price: 0,
+      description: '',
+      quantity: 0,
+      category: '',
+      image: '📦',
+      images: [],
+      discount: 0,
+    });
+  };
+
+  // Функція для збереження нового товару
+  const handleSaveNewProduct = async () => {
+    setActionLoading(true);
+    try {
+      let payload = { ...editForm } as any;
+      
+      // Валідація
+      if (!payload.name || !payload.price || !payload.category) {
+        alert('❌ Заповніть обов\'язкові поля: назва, ціна, категорія');
+        setActionLoading(false);
+        return;
+      }
+      
+      // Парсимо discount
+      if (typeof payload.discount === 'string') {
+        payload.discount = parseInt(payload.discount) || 0;
+      }
+      // Парсимо images
+      if (typeof payload.images === 'string') {
+        payload.images = payload.images
+          .split(/\n|,/)
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+      }
+      
+      const success = await createProduct(payload);
+      if (success) {
+        alert('✅ Товар створено успішно!');
+        setIsCreatingProduct(false);
+        setEditForm({});
+        fetchAllProducts((loadedProducts) => {
+          setProducts(loadedProducts);
+        });
+      } else {
+        alert('❌ Помилка при створенні товару');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при створенні товару');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Функція для видалення товару
+  const handleDeleteProduct = async (productId: number) => {
+    if (!confirm('Ви впевнені, що хочете видалити цей товар? Цю дію не можна скасувати!')) return;
+    setActionLoading(true);
+    try {
+      const success = await deleteProduct(productId);
+      if (success) {
+        alert('✅ Товар видалено успішно!');
+        fetchAllProducts((loadedProducts) => {
+          setProducts(loadedProducts);
+        });
+      } else {
+        alert('❌ Помилка при видаленні товару');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при видаленні товару');
     } finally {
       setActionLoading(false);
     }
@@ -494,8 +576,14 @@ export default function AdminPage() {
         {/* Products Tab Content */}
         {activeTab === 'products' && (
           <div className="space-y-4">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-              <h2 className="text-lg font-bold text-gray-900 mb-2">Всього товарів: {products.length}</h2>
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-4 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-gray-900">Всього товарів: {products.length}</h2>
+              <button
+                onClick={handleCreateProduct}
+                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
+              >
+                ➕ Додати товар
+              </button>
             </div>
             
             {products.map((product) => (
@@ -531,7 +619,14 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-2">
+                    <button
+                      onClick={() => handleDeleteProduct(product.id)}
+                      disabled={actionLoading}
+                      className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+                    >
+                      🗑️ Видалити
+                    </button>
                     <button
                       onClick={() => handleEditProduct(product)}
                       className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
@@ -719,6 +814,143 @@ export default function AdminPage() {
                 </button>
                 <button
                   onClick={() => setEditingProduct(null)}
+                  className="w-full bg-gray-200 text-gray-800 font-bold py-2.5 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Скасувати
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Модальне вікно створення товару */}
+      {isCreatingProduct && (
+        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Заголовок */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-6 sticky top-0 z-10">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1">
+                  <p className="text-sm opacity-90">Новий товар</p>
+                  <p className="text-2xl font-bold">Створення товару</p>
+                </div>
+                <button
+                  onClick={() => setIsCreatingProduct(false)}
+                  className="text-white text-2xl font-bold hover:scale-110 transition-transform"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Форма створення */}
+            <div className="p-6 space-y-4 text-purple-600">
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Назва *</label>
+                <input
+                  type="text"
+                  value={editForm.name || ''}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                  placeholder="Назва товару"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Категорія *</label>
+                <input
+                  type="text"
+                  value={editForm.category || ''}
+                  onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                  placeholder="Наприклад: Взуття, Одяг"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-purple-600 mb-2">Ціна (₴) *</label>
+                  <input
+                    type="number"
+                    value={editForm.price || ''}
+                    onChange={(e) => setEditForm({ ...editForm, price: parseFloat(e.target.value) || 0 })}
+                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                    placeholder="0"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-purple-600 mb-2">Кількість</label>
+                  <input
+                    type="number"
+                    value={editForm.quantity || ''}
+                    onChange={(e) => setEditForm({ ...editForm, quantity: parseInt(e.target.value) || 0 })}
+                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Опис</label>
+                <textarea
+                  value={editForm.description || ''}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900 min-h-[100px]"
+                  placeholder="Опис товару..."
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Емоджі (іконка)</label>
+                <input
+                  type="text"
+                  value={editForm.image || ''}
+                  onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                  placeholder="📦"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Знижка (%)</label>
+                <input
+                  type="number"
+                  value={editForm.discount || 0}
+                  onChange={(e) => setEditForm({ ...editForm, discount: parseInt(e.target.value) || 0 })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                  placeholder="0"
+                  min="0"
+                  max="100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Галерея фото (URLs)</label>
+                <textarea
+                  value={editForm.images?.join('\n') || ''}
+                  onChange={(e) => setEditForm({ ...editForm, images: e.target.value })}
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900 min-h-[100px]"
+                  placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
+                />
+                <p className="text-xs text-purple-500 mt-1">Кожне посилання з нового рядка або через кому</p>
+              </div>
+
+              <div className="pt-4 border-t border-gray-200 space-y-3">
+                <button
+                  onClick={handleSaveNewProduct}
+                  disabled={actionLoading}
+                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${
+                    actionLoading
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {actionLoading ? '⏳ Створення...' : '✅ Створити товар'}
+                </button>
+                <button
+                  onClick={() => setIsCreatingProduct(false)}
                   className="w-full bg-gray-200 text-gray-800 font-bold py-2.5 rounded-lg hover:bg-gray-300 transition-colors"
                 >
                   Скасувати

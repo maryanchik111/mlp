@@ -10,7 +10,13 @@ export default function MobileNav() {
   const { user, profile, loading } = useAuth();
   const pathname = usePathname();
   const [cartCount, setCartCount] = useState(0);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(() => {
+    // Ініціалізуємо з localStorage
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('isAdmin') === 'true';
+    }
+    return false;
+  });
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   const [mounted, setMounted] = useState(false);
 
@@ -19,15 +25,18 @@ export default function MobileNav() {
     setMounted(true);
   }, []);
 
-  // Перевірка прав адміна
+  // Перевірка прав адміна з кешуванням
   useEffect(() => {
     if (loading) return; // Чекаємо поки auth завантажиться
     
     if (user && user.email) {
       const adminStatus = checkAdminAccess(user);
       setIsAdmin(adminStatus);
+      // Зберігаємо в localStorage
+      localStorage.setItem('isAdmin', String(adminStatus));
     } else {
       setIsAdmin(false);
+      localStorage.removeItem('isAdmin');
     }
   }, [user, loading]);
 
