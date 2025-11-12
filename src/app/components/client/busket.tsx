@@ -116,7 +116,7 @@ export default function Basket() {
     return sum + price * item.quantity;
   }, 0);
 
-  const deliveryPrice = totalPrice >= 500 ? 0 : 50;
+  const deliveryPrice = totalPrice >= 2000 ? 0 : 50;
   const finalPrice = totalPrice + deliveryPrice;
 
   if (!mounted) {
@@ -179,7 +179,10 @@ export default function Basket() {
                     Додайте товари з каталогу, щоб почати покупки!
                   </p>
                   <button
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => {
+                      setIsOpen(false);
+                      router.push('/catalog');
+                    }}
                     className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
                   >
                     Перейти до каталогу
@@ -303,7 +306,7 @@ export default function Basket() {
                   {deliveryPrice === 0 ? (
                     <p>✓ <strong>Безкоштовна доставка!</strong></p>
                   ) : (
-                    <p>Ще {500 - totalPrice}₴ для безкоштовної доставки</p>
+                    <p>Ще {2000 - totalPrice}₴ для безкоштовної доставки</p>
                   )}
                 </div>
 

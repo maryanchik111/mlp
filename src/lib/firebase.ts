@@ -117,6 +117,7 @@ export interface Product {
   description: string;
   inStock: boolean;
   quantity: number;
+  images?: string[]; // масив URL або emoji для сторінки товару
 }
 
 // Функція для отримання всіх товарів з Firebase
@@ -198,5 +199,36 @@ export const decreaseProductQuantity = async (productId: number, quantityToDecre
   } catch (error) {
     console.error('Помилка при зменшенні кількості товару:', error);
     return false;
+  }
+};
+
+// Отримати один товар за id
+export const fetchProductById = async (id: number): Promise<Product | null> => {
+  try {
+    const productRef = ref(database, `products/${id - 1}`); // масивна структура
+    const snapshot = await get(productRef);
+    if (snapshot.exists()) {
+      const product = snapshot.val() as Product;
+      return product;
+    }
+    return null;
+  } catch (error) {
+    console.error('Помилка отримання товару:', error);
+    return null;
+  }
+};
+
+// Функція для отримання статусу замовлення за ID
+export const fetchOrderStatus = async (orderId: string): Promise<string | null> => {
+  try {
+    const orderRef = ref(database, `orders/${orderId}/status`);
+    const snapshot = await get(orderRef);
+    if (snapshot.exists()) {
+      return snapshot.val();
+    }
+    return null;
+  } catch (error) {
+    console.error('Помилка отримання статусу замовлення:', error);
+    return null;
   }
 };

@@ -179,7 +179,7 @@ export default function CheckoutPage() {
 
   const deliveryPrice = (() => {
     // Без самовивозу: доставка залежить від способу та суми замовлення
-    if (totalPrice >= 500) return 0;
+    if (totalPrice >= 2000) return 0;
     if (formData.deliveryMethod === 'nova') return 100;
     return 50; // courier
   })();
@@ -240,7 +240,7 @@ export default function CheckoutPage() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
                         errors.firstName ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="Ваше ім'я"
@@ -254,7 +254,7 @@ export default function CheckoutPage() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
                         errors.lastName ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="Ваше прізвище"
@@ -270,7 +270,7 @@ export default function CheckoutPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
                         errors.email ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="example@mail.com"
@@ -284,7 +284,7 @@ export default function CheckoutPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
                         errors.phone ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="+380 XX XXX XX XX"
@@ -306,7 +306,7 @@ export default function CheckoutPage() {
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                    className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
                       errors.address ? 'border-red-500' : 'border-gray-300'
                     }`}
                     placeholder="Вулиця, будинок, квартира"
@@ -321,7 +321,7 @@ export default function CheckoutPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
+                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
                         errors.city ? 'border-red-500' : 'border-gray-300'
                       }`}
                       placeholder="Назва міста"
@@ -335,7 +335,7 @@ export default function CheckoutPage() {
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      className="text-purple-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
                       placeholder="XX XXX"
                     />
                   </div>
@@ -358,7 +358,7 @@ export default function CheckoutPage() {
                       className="w-4 h-4 text-purple-600"
                     />
                     <div className="ml-3 flex-1">
-                      <p className="font-semibold text-gray-900">Кур'єр ({totalPrice >= 500 ? 'Безкоштовна' : '50₴'})</p>
+                      <p className="font-semibold text-gray-900">Кур'єр ({totalPrice >= 2000 ? 'Безкоштовна' : '50₴'})</p>
                       <p className="text-sm text-gray-600">Доставка по місту та області 1-2 дні</p>
                     </div>
                   </label>
@@ -373,7 +373,7 @@ export default function CheckoutPage() {
                       className="w-4 h-4 text-purple-600"
                     />
                     <div className="ml-3 flex-1">
-                      <p className="font-semibold text-gray-900">Нова Пошта (НП) ({totalPrice >= 500 ? 'Безкоштовна' : '100₴'})</p>
+                      <p className="font-semibold text-gray-900">Нова Пошта (НП) ({totalPrice >= 2000 ? 'Безкоштовна' : '100₴'})</p>
                       <p className="text-sm text-gray-600">Доставка в відділення НП або на адресу (2-5 днів)</p>
                     </div>
                   </label>

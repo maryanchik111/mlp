@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getPaymentConfig } from '@/lib/firebase';
+import { getPaymentConfig, fetchOrderStatus } from '@/lib/firebase';
 import { Suspense } from 'react';
 
 interface PaymentDetails {
@@ -17,6 +17,8 @@ function PaymentPageContent() {
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const paymentConfig = getPaymentConfig();
 
   useEffect(() => {
@@ -41,6 +43,45 @@ function PaymentPageContent() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCheckPayment = async () => {
+    if (!paymentDetails?.orderId) return;
+    
+    setIsChecking(true);
+    
+    // Polling функція - перевіряємо статус кожні 3 секунди
+    const checkStatus = async () => {
+      const status = await fetchOrderStatus(paymentDetails.orderId);
+      
+      if (status === 'processing' || status === 'completed') {
+        setPaymentConfirmed(true);
+        setIsChecking(false);
+        return true;
+      }
+      return false;
+    };
+    
+    // Перша перевірка одразу
+    const confirmed = await checkStatus();
+    if (confirmed) return;
+    
+    // Запускаємо polling кожні 3 секунди
+    const intervalId = setInterval(async () => {
+      const confirmed = await checkStatus();
+      if (confirmed) {
+        clearInterval(intervalId);
+      }
+    }, 3000);
+    
+    // Зупиняємо polling через 5 хвилин (100 спроб)
+    setTimeout(() => {
+      clearInterval(intervalId);
+      if (isChecking) {
+        setIsChecking(false);
+        alert('⏱️ Час очікування вичерпано. Спробуйте ще раз або зв\'яжіться з підтримкою.');
+      }
+    }, 300000); // 5 хвилин
+  };
+
   if (!mounted || !paymentDetails) {
     return (
       <main className="min-h-screen bg-gray-50 py-12">
@@ -53,9 +94,120 @@ function PaymentPageContent() {
     );
   }
 
+  // Якщо оплата підтверджена - показуємо сторінку подяки
+  if (paymentConfirmed) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-12">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="bg-white rounded-2xl shadow-xl p-8 sm:p-12 text-center">
+            {/* Іконка успіху */}
+            <div className="mb-6">
+              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <span className="text-5xl">✅</span>
+              </div>
+              <div className="text-6xl mb-4">🎉</div>
+            </div>
+
+            {/* Заголовок */}
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Дякуємо за оплату!
+            </h1>
+            <p className="text-lg text-gray-600 mb-8">
+              Ваше замовлення <span className="font-semibold text-purple-600">№{paymentDetails.orderId}</span> успішно оплачено
+            </p>
+
+            {/* Інформаційні блоки */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <div className="text-3xl mb-2">📦</div>
+                <p className="text-sm text-gray-600 mb-1">Статус</p>
+                <p className="font-bold text-purple-600">В обробці</p>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="text-3xl mb-2">💰</div>
+                <p className="text-sm text-gray-600 mb-1">Сума</p>
+                <p className="font-bold text-blue-600">{paymentDetails.totalAmount}₴</p>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="text-3xl mb-2">✉️</div>
+                <p className="text-sm text-gray-600 mb-1">Email</p>
+                <p className="font-bold text-green-600">Надіслано</p>
+              </div>
+            </div>
+
+            {/* Що далі */}
+            <div className="bg-gradient-to-r from-purple-100 to-pink-100 border-2 border-purple-200 rounded-xl p-6 mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">📋 Що далі?</h2>
+              <div className="text-left space-y-3 max-w-xl mx-auto">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl flex-shrink-0">1️⃣</span>
+                  <p className="text-gray-700">
+                    <strong>Підтвердження:</strong> Ми надіслали деталі замовлення на ваш email
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl flex-shrink-0">2️⃣</span>
+                  <p className="text-gray-700">
+                    <strong>Обробка:</strong> Ваше замовлення буде зібране протягом 1-2 робочих днів
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl flex-shrink-0">3️⃣</span>
+                  <p className="text-gray-700">
+                    <strong>Доставка:</strong> Відправимо товар обраним способом доставки
+                  </p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl flex-shrink-0">4️⃣</span>
+                  <p className="text-gray-700">
+                    <strong>Отримання:</strong> Насолоджуйтесь вашою покупкою! 🦄
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Кнопки */}
+            <div className="space-y-3">
+              <Link
+                href="/catalog"
+                className="block w-full bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold py-4 rounded-lg hover:shadow-lg transition-all hover:scale-105"
+              >
+                🛍️ Продовжити покупки
+              </Link>
+              <Link
+                href="/"
+                className="block w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                🏠 На головну
+              </Link>
+            </div>
+
+            {/* Контактна інформація */}
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <p className="text-sm text-gray-600 mb-2">
+                <strong>Потрібна допомога?</strong>
+              </p>
+              <p className="text-sm text-gray-600">
+                Email: <a href="mailto:support@mlpshop.ua" className="text-purple-600 hover:underline">support@mlpshop.ua</a>
+              </p>
+            </div>
+          </div>
+
+          {/* Додаткова інформація */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Замовлення №{paymentDetails.orderId} • {paymentDetails.customerName}
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Сторінка оплати (до підтвердження)
   return (
     <main className="min-h-screen bg-gray-50 py-12">
-      <div className="container mx-auto px-4 max-w-2xl">
+      <div className="container mx-auto px-4 max-w-4xl">
         {/* Заголовок */}
         <div className="mb-8">
           <Link href="/catalog" className="text-purple-600 hover:text-purple-700 mb-4 inline-block text-sm sm:text-base">
@@ -159,7 +311,7 @@ function PaymentPageContent() {
               </div>
 
               {/* Сума */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border-2 border-purple-200">
+              <div className="flex flex-col justify-center items-center bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg border-2 border-purple-200">
                 <p className="text-sm text-gray-600 mb-1">Сума до оплати</p>
                 <p className="text-3xl font-bold text-purple-600">{paymentDetails.totalAmount}₴</p>
               </div>
@@ -174,6 +326,31 @@ function PaymentPageContent() {
 
               {/* Кнопки навігації */}
               <div className="space-y-3 pt-4 border-t border-gray-200">
+                {!paymentConfirmed ? (
+                  <button
+                    onClick={handleCheckPayment}
+                    disabled={isChecking}
+                    className={`block w-full text-center font-bold py-3 rounded-lg transition-all text-sm sm:text-base ${
+                      isChecking
+                        ? 'bg-blue-400 text-white cursor-wait'
+                        : 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:shadow-lg hover:scale-105'
+                    }`}
+                  >
+                    {isChecking ? (
+                      <>
+                        <span className="inline-block animate-spin mr-2">⏳</span>
+                        Перевірка оплати...
+                      </>
+                    ) : (
+                      '🔍 Перевірити оплату'
+                    )}
+                  </button>
+                ) : (
+                  <div className="bg-green-100 border-2 border-green-500 rounded-lg p-4 text-center">
+                    <p className="text-green-800 font-bold text-lg">✅ Оплату підтверджено!</p>
+                    <p className="text-green-700 text-sm mt-1">Ваше замовлення в обробці</p>
+                  </div>
+                )}
                 <Link
                   href="/catalog"
                   className="block text-center bg-gray-200 text-gray-800 font-bold py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"

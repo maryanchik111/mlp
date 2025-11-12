@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import Basket from '../components/client/busket';
 import { fetchAllProducts, type Product } from '@/lib/firebase';
 
@@ -399,23 +400,27 @@ export default function CatalogPage() {
                   <meta itemProp="availability" content={product.quantity > 0 ? "InStock" : "OutOfStock"} />
 
                   {/* Зображення продукту */}
-                  <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-6xl relative">
-                    {product.image}
-                    {product.quantity === 0 && (
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                        <p className="text-white font-bold text-lg">Немає в наявності</p>
-                      </div>
-                    )}
-                  </div>
+                  <Link href={`/catalog/product/${product.id}`} className="block">
+                    <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-6xl relative">
+                      {product.image}
+                      {product.quantity === 0 && (
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <p className="text-white font-bold text-lg">Немає в наявності</p>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
 
                   {/* Інформація про продукт */}
                   <div className="p-4">
                     <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2">
                       {product.category}
                     </p>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-purple-600 cursor-pointer">
-                      {product.name}
-                    </h3>
+                    <Link href={`/catalog/product/${product.id}`} className="block">
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-purple-600">
+                        {product.name}
+                      </h3>
+                    </Link>
                     <p className="text-gray-600 text-sm mb-4">
                       {product.description}
                     </p>
@@ -529,7 +534,7 @@ export default function CatalogPage() {
               },
               {
                 q: "Скільки коштує доставка?",
-                a: "Доставка безкоштовна при замовленні від 500₴. В інших випадках - 50₴.",
+                a: "Доставка безкоштовна при замовленні від 2000₴. В інших випадках - 50₴.",
               },
               {
                 q: "Який час доставки?",

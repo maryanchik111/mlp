@@ -146,11 +146,14 @@ export default function AdminPage() {
 
   // Фільтрувати замовлення при зміні списку
   useEffect(() => {
-    if (statusFilter === 'all') {
-      setFilteredOrders(orders);
-    } else {
-      setFilteredOrders(orders.filter(order => order.status === statusFilter));
-    }
+    let filtered = statusFilter === 'all' 
+      ? orders 
+      : orders.filter(order => order.status === statusFilter);
+    
+    // Сортуємо за датою створення - нові зверху
+    filtered = filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    
+    setFilteredOrders(filtered);
   }, [orders, statusFilter]);
 
   if (!mounted) {
@@ -468,6 +471,18 @@ export default function AdminPage() {
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Зображення (URL по одному в рядку)</label>
+                <textarea
+                  value={(editForm.images || []).join('\n')}
+                  onChange={(e) => setEditForm({ ...editForm, images: e.target.value.split('\n').map(s => s.trim()).filter(Boolean) })}
+                  rows={4}
+                  placeholder="https://example.com/image1.jpg\nhttps://example.com/image2.jpg"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-sm"
+                />
+                <p className="text-xs text-gray-500 mt-1">Залиште порожнім щоб використовувати emoji.</p>
               </div>
 
               <div className="pt-4 border-t border-gray-200 space-y-3">

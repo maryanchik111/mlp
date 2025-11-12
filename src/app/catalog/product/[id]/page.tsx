@@ -1,0 +1,197 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import { fetchProductById, type Product } from '@/lib/firebase';
+import Basket from '@/app/components/client/busket';
+
+export default function ProductPage() {
+  const params = useParams();
+  const idParam = Array.isArray(params?.id) ? params?.id[0] : (params?.id as string | undefined);
+  const productId = useMemo(() => {
+    const n = Number(idParam);
+    return Number.isFinite(n) ? n : null;
+  }, [idParam]);
+
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState<'none' | 'added' | 'updated'>('none');
+  // IMPORTANT: hooks must not be conditional; declare here before any early returns
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      if (!productId) return;
+      setLoading(true);
+      const p = await fetchProductById(productId);
+      if (mounted) {
+        setProduct(p);
+        setLoading(false);
+        if (p) setQty(Math.min(1, Math.max(0, p.quantity)) || 1);
+      }
+    };
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, [productId]);
+
+  const maxQty = product?.quantity ?? 0;
+  const isOut = maxQty === 0;
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    const cartRaw = localStorage.getItem('mlp-cart');
+    const cart = cartRaw ? JSON.parse(cartRaw) : [];
+    const idx = cart.findIndex((i: any) => i.id === product.id);
+
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      category: product.category,
+      quantity: qty,
+      maxQuantity: product.quantity,
+    };
+
+    if (idx >= 0) {
+      const nextQty = Math.min(cart[idx].quantity + qty, product.quantity);
+      cart[idx] = { ...cart[idx], quantity: nextQty, maxQuantity: product.quantity };
+      setAdded('updated');
+    } else {
+      cart.push(newItem);
+      setAdded('added');
+    }
+
+    localStorage.setItem('mlp-cart', JSON.stringify(cart));
+    window.dispatchEvent(new CustomEvent('cart-updated', { detail: cart }));
+    setTimeout(() => setAdded('none'), 1500);
+  };
+
+  // Derive images list safely before any conditional return
+  const images = product?.images && product.images.length > 0 ? product.images : [];
+
+  // Loading
+  if (loading) {
+    return (
+      <>
+        <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-4">🦄</div>
+            <p className="text-gray-600 text-lg">Завантаження товару...</p>
+          </div>
+        </main>
+        <Basket />
+      </>
+    );
+  }
+
+  // Not found
+  if (!product || !productId) {
+    return (
+      <>
+        <main className="min-h-screen bg-gray-50 py-12">
+          <div className="container mx-auto px-4 max-w-2xl">
+            <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+              <p className="text-gray-700 mb-4">Товар не знайдено</p>
+              <Link href="/catalog" className="text-purple-600 hover:text-purple-700">← Повернутися до каталогу</Link>
+            </div>
+          </div>
+        </main>
+        <Basket />
+      </>
+    );
+  }
+
+  return (
+    <>
+    <main className="min-h-screen bg-gray-50 py-8">
+      <div className="container mx-auto px-4 max-w-6xl">
+        <nav className="text-sm text-gray-600 mb-6">
+          <Link href="/" className="hover:text-purple-600">Головна</Link> <span>/</span> <Link href="/catalog" className="hover:text-purple-600">Каталог</Link> <span>/</span> <span className="text-gray-900 font-semibold">{product.name}</span>
+        </nav>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Галерея */}
+          <div>
+            {images.length > 0 ? (
+              <div>
+                <div className="w-full h-80 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={images[Math.min(activeIndex, images.length - 1)]} alt={product.name} className="object-contain max-h-80" />
+                </div>
+                {images.length > 1 && (
+                  <div className="flex gap-2 mt-3 overflow-x-auto">
+                    {images.map((src, idx) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img key={idx} src={src} onClick={() => setActiveIndex(idx)} className={`h-16 w-16 object-cover rounded border cursor-pointer ${idx === activeIndex ? 'ring-2 ring-purple-600' : 'opacity-80 hover:opacity-100'}`} alt="thumb" />
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="w-full h-80 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg shadow-sm flex items-center justify-center text-8xl">
+                {product.image}
+              </div>
+            )}
+          </div>
+
+          {/* Інформація */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+            <p className="text-sm text-gray-600 mb-4">{product.category}</p>
+            <p className="text-gray-700 mb-6">{product.description}</p>
+
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-3xl font-extrabold text-purple-600">{product.price}₴</span>
+              <span className={`text-sm px-3 py-1 rounded-full ${isOut ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                {isOut ? 'Немає в наявності' : `В наявності: ${product.quantity}`}
+              </span>
+            </div>
+
+            {/* Кількість */}
+            <div className="flex items-center gap-3 mb-6">
+              <label className="text-gray-700">Кількість:</label>
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <button onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1} className={`px-3 py-1 rounded ${qty <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white'}`}>−</button>
+                <span className="text-purple-600 px-3 py-1 font-semibold min-w-8 text-center">{qty}</span>
+                <button onClick={() => setQty(Math.min(maxQty, qty + 1))} disabled={qty >= maxQty} className={`px-3 py-1 rounded ${qty >= maxQty ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white'}`}>+</button>
+              </div>
+            </div>
+
+            <button onClick={handleAddToCart} disabled={isOut || qty <= 0} className={`w-full py-3 rounded-lg font-bold transition-colors ${isOut ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-purple-600 text-white hover:bg-purple-700'}`}>
+              {added === 'added' ? '✓ Додано в кошик' : added === 'updated' ? '✓ Кількість оновлено' : 'Додати в кошик'}
+            </button>
+
+            <div className="mt-6 text-sm text-gray-600">
+              <p>Доставка по Україні. Оплата онлайн карткою.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* SEO JSON-LD */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org/',
+            '@type': 'Product',
+            name: product.name,
+            description: product.description,
+            image: images.length > 0 ? images : undefined,
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'UAH',
+              price: product.price.replace('₴', ''),
+              availability: product.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            }
+          })
+        }} />
+      </div>
+    </main>
+    <Basket />
+    </>
+  );
+}
