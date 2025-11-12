@@ -400,7 +400,7 @@ export default function CatalogPage() {
                   <meta itemProp="price" content={product.price.replace("₴", "")} />
                   <meta itemProp="availability" content={product.quantity > 0 ? "InStock" : "OutOfStock"} />
 
-                  {/* Зображення продукту */}
+                  {/* Іконка продукту (галерея тільки на сторінці товару) */}
                   <Link href={`/catalog/product/${product.id}`} className="block">
                     <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-6xl relative">
                       {product.image}

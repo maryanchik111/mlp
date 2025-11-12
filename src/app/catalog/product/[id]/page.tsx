@@ -21,6 +21,31 @@ export default function ProductPage() {
   const [added, setAdded] = useState<'none' | 'added' | 'updated'>('none');
   // IMPORTANT: hooks must not be conditional; declare here before any early returns
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // Повноекранний режим: обробка клавіш Escape / стрілки
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFullscreen(false);
+      } else if (e.key === 'ArrowRight') {
+        setActiveIndex(prev => {
+          const imagesLen = product?.images?.length || 0;
+          if (imagesLen === 0) return prev;
+          return (prev + 1) % imagesLen;
+        });
+      } else if (e.key === 'ArrowLeft') {
+        setActiveIndex(prev => {
+          const imagesLen = product?.images?.length || 0;
+          if (imagesLen === 0) return prev;
+          return (prev - 1 + imagesLen) % imagesLen;
+        });
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isFullscreen, product]);
 
   useEffect(() => {
     let mounted = true;
@@ -121,15 +146,32 @@ export default function ProductPage() {
           <div>
             {images.length > 0 ? (
               <div>
-                <div className="w-full h-80 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden">
+                <div className="w-full h-80 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden relative group">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={images[Math.min(activeIndex, images.length - 1)]} alt={product.name} className="object-contain max-h-80" />
+                  <img
+                    src={images[Math.min(activeIndex, images.length - 1)]}
+                    alt={product.name}
+                    className="object-contain max-h-80 cursor-zoom-in"
+                    onClick={() => setIsFullscreen(true)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsFullscreen(true)}
+                    className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Переглянути на весь екран"
+                  >🔍</button>
                 </div>
                 {images.length > 1 && (
                   <div className="flex gap-2 mt-3 overflow-x-auto">
                     {images.map((src, idx) => (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img key={idx} src={src} onClick={() => setActiveIndex(idx)} className={`h-16 w-16 object-cover rounded border cursor-pointer ${idx === activeIndex ? 'ring-2 ring-purple-600' : 'opacity-80 hover:opacity-100'}`} alt="thumb" />
+                      <img
+                        key={idx}
+                        src={src}
+                        onClick={() => setActiveIndex(idx)}
+                        className={`h-16 w-16 object-cover rounded border cursor-pointer ${idx === activeIndex ? 'ring-2 ring-purple-600' : 'opacity-80 hover:opacity-100'}`}
+                        alt="thumb"
+                      />
                     ))}
                   </div>
                 )}
@@ -194,6 +236,59 @@ export default function ProductPage() {
     </main>
     <Basket />
     <AccountButton />
+    {isFullscreen && images.length > 0 && (
+      <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
+        <div className="flex items-center justify-between p-4 text-white text-sm">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsFullscreen(false)}
+              className="px-3 py-1 rounded bg-white/20 hover:bg-white/30 font-medium"
+            >Закрити (Esc)</button>
+            {images.length > 1 && (
+              <span className="text-white/70">{activeIndex + 1} / {images.length}</span>
+            )}
+          </div>
+          {images.length > 1 && (
+            <div className="flex gap-2">
+              <button
+                onClick={() => setActiveIndex(prev => (prev - 1 + images.length) % images.length)}
+                className="px-2 py-1 rounded bg-white/20 hover:bg-white/30"
+                aria-label="Попереднє"
+              >←</button>
+              <button
+                onClick={() => setActiveIndex(prev => (prev + 1) % images.length)}
+                className="px-2 py-1 rounded bg-white/20 hover:bg-white/30"
+                aria-label="Наступне"
+              >→</button>
+            </div>
+          )}
+        </div>
+        <div className="flex-1 flex items-center justify-center p-4 select-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={images[Math.min(activeIndex, images.length - 1)]}
+            alt={product.name}
+            className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl"
+            draggable={false}
+          />
+        </div>
+        {images.length > 1 && (
+          <div className="p-4 flex gap-2 overflow-x-auto bg-black/60">
+            {images.map((src, idx) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={idx}
+                src={src}
+                alt={product.name + ' thumbnail ' + (idx + 1)}
+                onClick={() => setActiveIndex(idx)}
+                className={`h-16 w-16 object-cover rounded cursor-pointer transition-all ${idx === activeIndex ? 'ring-2 ring-purple-400 scale-105' : 'opacity-70 hover:opacity-100'}`}
+                draggable={false}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    )}
     </>
   );
 }

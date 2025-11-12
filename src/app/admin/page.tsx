@@ -60,6 +60,7 @@ export default function AdminPage() {
       quantity: product.quantity,
       category: product.category,
       image: product.image,
+      images: (product as any).images || [],
     });
   };
 
@@ -68,12 +69,23 @@ export default function AdminPage() {
     if (!editingProduct) return;
     setActionLoading(true);
     try {
-      const success = await updateProduct(editingProduct.id, editForm);
+      let payload = { ...editForm } as any;
+      // Якщо введено images і це рядок з комами – парсимо
+      if (typeof payload.images === 'string') {
+        payload.images = payload.images
+          .split(/\n|,/)
+          .map((s: string) => s.trim())
+          .filter(Boolean);
+      }
+      // Якщо images масив і перший елемент існує – виставимо перше як image (прев'ю)
+      if (Array.isArray(payload.images) && payload.images.length > 0) {
+        payload.image = payload.images[0];
+      }
+      const success = await updateProduct(editingProduct.id, payload);
       if (success) {
         alert('✅ Товар оновлено успішно!');
         setEditingProduct(null);
         setEditForm({});
-        // Перезавантажуємо товари
         fetchAllProducts((loadedProducts) => {
           setProducts(loadedProducts);
         });
@@ -489,79 +501,79 @@ export default function AdminPage() {
             </div>
 
             {/* Форма редагування */}
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 text-purple-600">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Назва</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Назва</label>
                 <input
                   type="text"
                   value={editForm.name || ''}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Категорія</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Категорія</label>
                 <input
                   type="text"
                   value={editForm.category || ''}
                   onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ціна (₴)</label>
+                  <label className="block text-sm font-medium text-purple-600 mb-2">Ціна (₴)</label>
                   <input
                     type="text"
                     value={editForm.price || ''}
                     onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Кількість</label>
+                  <label className="block text-sm font-medium text-purple-600 mb-2">Кількість</label>
                   <input
                     type="number"
                     value={editForm.quantity || 0}
                     onChange={(e) => setEditForm({ ...editForm, quantity: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Іконка (emoji)</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Іконка (emoji) / Головне зображення</label>
                 <input
                   type="text"
                   value={editForm.image || ''}
                   onChange={(e) => setEditForm({ ...editForm, image: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Опис</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Опис</label>
                 <textarea
                   value={editForm.description || ''}
                   onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Зображення (URL по одному в рядку)</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Галерея (URL через кому або з нового рядка)</label>
                 <textarea
-                  value={(editForm.images || []).join('\n')}
-                  onChange={(e) => setEditForm({ ...editForm, images: e.target.value.split('\n').map(s => s.trim()).filter(Boolean) })}
+                  value={Array.isArray(editForm.images) ? editForm.images.join('\n') : (editForm.images as any) || ''}
+                  onChange={(e) => setEditForm({ ...editForm, images: e.target.value.split(/\n|,/).map(s => s.trim()).filter(Boolean) })}
                   rows={4}
-                  placeholder="https://example.com/image1.jpg\nhttps://example.com/image2.jpg"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent text-sm"
+                  placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
+                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-sm text-gray-900"
                 />
-                <p className="text-xs text-gray-500 mt-1">Залиште порожнім щоб використовувати emoji.</p>
+                <p className="text-xs text-purple-500 mt-1">Можна вводити через кому або кожне з нового рядка. Перше використовується як головне.</p>
               </div>
 
               <div className="pt-4 border-t border-gray-200 space-y-3">
