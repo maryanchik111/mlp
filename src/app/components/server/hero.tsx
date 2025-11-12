@@ -1,9 +1,11 @@
 import Link from "next/link";
+import TopBuyers from "../client/top-buyers";
+import RecentReviews from "../client/recent-reviews";
 
 
 export default function Hero() {
   return (
-    <section className="w-full bg-gradient-to-r from-purple-400 via-pink-300 to-blue-300 py-20 md:py-32">
+    <section className="w-full bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700 py-20 md:py-32">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           {/* Текстова частина */}
@@ -74,6 +76,12 @@ export default function Hero() {
             <p className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">24/7</p>
             <p className="text-white/90 mt-2">Підтримка</p>
           </div>
+        </div>
+
+        {/* Топ покупці і відгуки */}
+        <div className="mt-16 space-y-8">
+          <TopBuyers />
+          <RecentReviews />
         </div>
       </div>
     </section>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { getPaymentConfig, fetchOrderStatus } from '@/lib/firebase';
+import { getPaymentConfig, fetchOrderStatus, createReview, hasReviewForOrder } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { Suspense } from 'react';
 
@@ -22,6 +22,11 @@ function PaymentPageContent() {
   const [isChecking, setIsChecking] = useState(false);
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const paymentConfig = getPaymentConfig();
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewSaved, setReviewSaved] = useState(false);
+  const [hasReview, setHasReview] = useState(false);
+  const earnedPoints = paymentDetails ? Math.floor((paymentDetails.totalAmount || 0) / 100) : 0;
 
   useEffect(() => {
     setMounted(true);
@@ -38,6 +43,17 @@ function PaymentPageContent() {
       });
     }
   }, [searchParams]);
+
+  // Перевірка наявності відгуку (має бути перед будь-якими early returns)
+  useEffect(() => {
+    const check = async () => {
+      if (!paymentConfirmed) return;
+      if (!paymentDetails?.orderId) return;
+      const exists = await hasReviewForOrder(paymentDetails.orderId);
+      setHasReview(exists);
+    };
+    check();
+  }, [paymentConfirmed, paymentDetails?.orderId]);
 
   const handleCopyCardNumber = () => {
     navigator.clipboard.writeText(paymentConfig.cardNumber);
@@ -96,9 +112,20 @@ function PaymentPageContent() {
     );
   }
 
+  const handleSubmitReview = async () => {
+    if (!user || !paymentDetails) return;
+    if (reviewSaved) return;
+    const ok = await createReview(paymentDetails.orderId, user, reviewRating, reviewText.trim());
+    if (ok) {
+      setReviewSaved(true);
+      setHasReview(true);
+    } else {
+      alert('❌ Відгук вже існує або сталася помилка');
+    }
+  };
+
   // Якщо оплата підтверджена - показуємо сторінку подяки
   if (paymentConfirmed) {
-    const earnedPoints = Math.floor((paymentDetails.totalAmount || 0) / 100);
     return (
       <main className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-12">
         <div className="container mx-auto px-4 max-w-3xl">
@@ -178,6 +205,48 @@ function PaymentPageContent() {
                 {!user && (
                   <p className="text-green-700 text-xs text-center mt-1">Увійдіть в акаунт, щоб зберігати та використовувати бали</p>
                 )}
+              </div>
+            )}
+
+            {/* Відгук після оплати */}
+            {user && !hasReview && (
+              <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 mb-8 text-left">
+                <h2 className="text-xl font-bold text-gray-900 mb-3">📝 Залишити відгук</h2>
+                <p className="text-sm text-gray-600 mb-4">Поділіться враженнями про покупку. Ваш рейтинг допоможе іншим користувачам.</p>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Рейтинг:</label>
+                  <div className="flex items-center gap-1">
+                    {[1,2,3,4,5].map(star => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        className={`text-2xl ${star <= reviewRating ? 'text-yellow-400' : 'text-gray-300'} hover:scale-110 transition-transform`}
+                        aria-label={`Оцінка ${star}`}
+                      >★</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Коментар (необов'язково):</label>
+                  <textarea
+                    rows={3}
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    placeholder="Що вам сподобалось?"
+                    className="w-full px-3 py-2 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-sm text-gray-900"
+                  />
+                </div>
+                <button
+                  onClick={handleSubmitReview}
+                  disabled={reviewSaved}
+                  className={`w-full py-3 rounded-lg font-bold transition-colors ${reviewSaved ? 'bg-green-500 text-white' : 'bg-purple-600 text-white hover:bg-purple-700'}`}
+                >{reviewSaved ? '✅ Відгук збережено' : '💾 Надіслати відгук'}</button>
+              </div>
+            )}
+            {user && hasReview && (
+              <div className="bg-green-50 border border-green-300 rounded-xl p-4 mb-8 text-left">
+                <p className="text-green-700 text-sm font-semibold">✅ Ви вже залишили відгук для цього замовлення. Дякуємо!</p>
               </div>
             )}
 

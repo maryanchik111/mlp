@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, fetchUserProfile, checkAdminAccess, type Order, type Product, type UserProfile } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 
-type TabType = 'orders' | 'products';
+type TabType = 'orders' | 'products' | 'reviews';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -22,6 +22,9 @@ export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
+  
+  // Reviews state
+  const [reviews, setReviews] = useState<Review[]>([]);
   
   // User profiles cache for authorized orders
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
@@ -49,6 +52,37 @@ export default function AdminPage() {
       setProducts(loadedProducts);
     });
   }, [mounted]);
+
+  // Функція для завантаження відгуків
+  useEffect(() => {
+    if (!mounted) return;
+    const loadReviews = async () => {
+      const allReviews = await fetchAllReviews();
+      setReviews(allReviews);
+    };
+    loadReviews();
+  }, [mounted]);
+
+  // Функція для видалення відгуку
+  const handleDeleteReview = async (orderId: string) => {
+    if (!confirm('Видалити цей відгук?')) return;
+    setActionLoading(true);
+    try {
+      const success = await deleteReview(orderId);
+      if (success) {
+        alert('✅ Відгук видалено');
+        const allReviews = await fetchAllReviews();
+        setReviews(allReviews);
+      } else {
+        alert('❌ Помилка видалення');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка видалення відгуку');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Функція для відкриття форми редагування товару
   const handleEditProduct = (product: Product) => {
@@ -304,6 +338,16 @@ export default function AdminPage() {
             >
               🛍️ Товари
             </button>
+            <button
+              onClick={() => setActiveTab('reviews')}
+              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all ${
+                activeTab === 'reviews'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              💬 Відгуки
+            </button>
           </div>
         </div>
 
@@ -476,6 +520,56 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Reviews Tab Content */}
+        {activeTab === 'reviews' && (
+          <div className="space-y-4">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+              <h2 className="text-lg font-bold text-gray-900 mb-2">Всього відгуків: {reviews.length}</h2>
+            </div>
+            
+            {reviews.length === 0 ? (
+              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                <p className="text-gray-600">Немає відгуків</p>
+              </div>
+            ) : (
+              reviews.map((review) => (
+                <div key={review.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <p className="text-lg font-bold text-purple-700">{review.displayName || 'Користувач'}</p>
+                        <div className="flex gap-0.5" aria-label={`Рейтинг ${review.rating}`}>
+                          {[1,2,3,4,5].map(i => (
+                            <span key={i} className={`text-lg ${i <= review.rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500 mb-1">Замовлення: #{review.orderId}</p>
+                      <p className="text-xs text-gray-500">{new Date(review.createdAt).toLocaleString('uk-UA')}</p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteReview(review.orderId)}
+                      disabled={actionLoading}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                        actionLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-red-600 text-white hover:bg-red-700'
+                      }`}
+                    >
+                      🗑️ Видалити
+                    </button>
+                  </div>
+                  <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
+                    <p className="text-gray-800 leading-relaxed">
+                      {review.text?.length ? `"${review.text}"` : '⭐ Без коментаря'}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>

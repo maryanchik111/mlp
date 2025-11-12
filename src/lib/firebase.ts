@@ -97,6 +97,19 @@ export interface UserProfile {
 }
 
 // =====================
+// ВІДГУКИ (REVIEWS)
+// =====================
+export interface Review {
+  id: string;          // reviewId
+  orderId: string;     // до якого замовлення
+  userId: string;      // автор (має бути власник замовлення)
+  displayName: string | null; // ім'я користувача
+  rating: number;      // 1..5
+  text: string;        // текст відгуку
+  createdAt: number;   // час створення
+}
+
+// =====================
 // АВТОРИЗАЦІЯ
 // =====================
 export const signInWithGoogle = async () => {
@@ -413,5 +426,107 @@ export const fetchOrderStatus = async (orderId: string): Promise<string | null> 
   } catch (error) {
     console.error('Помилка отримання статусу замовлення:', error);
     return null;
+  }
+};
+
+// =====================
+// REVIEWS FUNCTIONS
+// =====================
+// Перевірити чи існує відгук для замовлення (один відгук на замовлення)
+export const hasReviewForOrder = async (orderId: string): Promise<boolean> => {
+  try {
+    const reviewRef = ref(database, `reviews/${orderId}`); // використовуємо orderId як ключ
+    const snapshot = await get(reviewRef);
+    return snapshot.exists();
+  } catch (error) {
+    console.error('Помилка перевірки відгуку:', error);
+    return false;
+  }
+};
+
+// Створити відгук (якщо ще не існує)
+export const createReview = async (orderId: string, user: User, rating: number, text: string): Promise<boolean> => {
+  try {
+    // Валідація
+    if (rating < 1 || rating > 5) throw new Error('Некоректний рейтинг');
+    const exists = await hasReviewForOrder(orderId);
+    if (exists) return false; // вже є відгук
+
+    const reviewData: Review = {
+      id: orderId, // один відгук на замовлення
+      orderId,
+      userId: user.uid,
+      displayName: user.displayName || user.email || null,
+      rating,
+      text,
+      createdAt: Date.now(),
+    };
+    const reviewRef = ref(database, `reviews/${orderId}`);
+    await set(reviewRef, reviewData);
+    return true;
+  } catch (error) {
+    console.error('Помилка створення відгуку:', error);
+    return false;
+  }
+};
+
+// Отримати останні відгуки (для головної сторінки)
+export const fetchRecentReviews = async (limitCount: number = 5): Promise<Review[]> => {
+  try {
+    const reviewsRef = ref(database, 'reviews');
+    const snapshot = await get(reviewsRef);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const list: Review[] = Object.values(data);
+      return list.sort((a, b) => b.createdAt - a.createdAt).slice(0, limitCount);
+    }
+    return [];
+  } catch (error) {
+    console.error('Помилка отримання відгуків:', error);
+    return [];
+  }
+};
+
+// Отримати відгук по orderId
+export const fetchReviewByOrder = async (orderId: string): Promise<Review | null> => {
+  try {
+    const reviewRef = ref(database, `reviews/${orderId}`);
+    const snapshot = await get(reviewRef);
+    if (snapshot.exists()) {
+      return snapshot.val() as Review;
+    }
+    return null;
+  } catch (error) {
+    console.error('Помилка отримання відгуку:', error);
+    return null;
+  }
+};
+
+// Отримати всі відгуки (для адмін-панелі)
+export const fetchAllReviews = async (): Promise<Review[]> => {
+  try {
+    const reviewsRef = ref(database, 'reviews');
+    const snapshot = await get(reviewsRef);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const list: Review[] = Object.values(data);
+      return list.sort((a, b) => b.createdAt - a.createdAt);
+    }
+    return [];
+  } catch (error) {
+    console.error('Помилка отримання всіх відгуків:', error);
+    return [];
+  }
+};
+
+// Видалити відгук (тільки для адмінів)
+export const deleteReview = async (orderId: string): Promise<boolean> => {
+  try {
+    const reviewRef = ref(database, `reviews/${orderId}`);
+    await set(reviewRef, null); // Видаляємо запис
+    return true;
+  } catch (error) {
+    console.error('Помилка видалення відгуку:', error);
+    return false;
   }
 };
