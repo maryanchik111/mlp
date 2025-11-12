@@ -12,7 +12,8 @@ interface CartItem {
   quantity: number;
   image: string;
   category: string;
-    maxQuantity?: number; // Максимальна кількість на складі
+  maxQuantity?: number; // Максимальна кількість на складі
+  discount?: number; // Знижка на товар у %
 }
 
 export default function Basket() {
@@ -41,6 +42,11 @@ export default function Basket() {
       }
     };
 
+    // Слухаємо custom event для відкриття кошика з mobile nav
+    const handleOpenBasket = () => {
+      setIsOpen(true);
+    };
+
     // Слухаємо зміни в інших табах/вікнах
     const handleStorageChange = () => {
       const updatedCart = localStorage.getItem('mlp-cart');
@@ -54,10 +60,12 @@ export default function Basket() {
     };
 
     window.addEventListener('cart-updated', handleCartUpdate);
+    window.addEventListener('open-basket', handleOpenBasket);
     window.addEventListener('storage', handleStorageChange);
     
     return () => {
       window.removeEventListener('cart-updated', handleCartUpdate);
+      window.removeEventListener('open-basket', handleOpenBasket);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
@@ -115,7 +123,9 @@ export default function Basket() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartItems.reduce((sum, item) => {
     const price = parseInt(item.price);
-    return sum + price * item.quantity;
+    const discount = item.discount ? Number(item.discount) : 0;
+    const discountedPrice = discount > 0 ? Math.round(price * (1 - discount / 100)) : price;
+    return sum + discountedPrice * item.quantity;
   }, 0);
 
   const deliveryPrice = totalPrice >= 2000 ? 0 : 50;
@@ -128,20 +138,6 @@ export default function Basket() {
 
   return (
     <>
-      {/* Кнопка відкриття кошика (Floating Button) */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-8 right-8 bg-purple-600 text-white p-4 rounded-full shadow-lg hover:bg-purple-700 transition-all hover:scale-110 z-40 flex items-center justify-center w-16 h-16"
-        aria-label="Відкрити кошик"
-      >
-        <div className="text-2xl mr-1">🛒</div>
-        {totalItems > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
-            {totalItems}
-          </span>
-        )}
-      </button>
-
       {/* Модальне вікно кошика */}
       {isOpen && (
         <>
@@ -221,12 +217,28 @@ export default function Basket() {
                       {/* Ціна та кількість */}
                       <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-200">
                         <div className="flex-1">
-                          <p className="text-lg font-bold text-purple-600">
-                            {item.price}
-                          </p>
+                          {item.discount && item.discount > 0 ? (
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-gray-400 line-through">
+                                {item.price}
+                              </p>
+                              <p className="text-lg font-bold text-purple-600">
+                                {Math.round(parseInt(item.price) * (1 - item.discount / 100))}₴
+                              </p>
+                            </div>
+                          ) : (
+                            <p className="text-lg font-bold text-purple-600">
+                              {item.price}
+                            </p>
+                          )}
                           {item.quantity > 1 && (
-                            <p className="text-xs text-gray-600">
-                              {parseInt(item.price) * item.quantity}₴ разом
+                            <p className="text-xs text-gray-600 mt-1">
+                              {(() => {
+                                const price = parseInt(item.price);
+                                const discount = item.discount ? Number(item.discount) : 0;
+                                const discountedPrice = discount > 0 ? Math.round(price * (1 - discount / 100)) : price;
+                                return discountedPrice * item.quantity;
+                              })()}₴ разом
                             </p>
                           )}
                         </div>

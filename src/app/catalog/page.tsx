@@ -159,7 +159,8 @@ export default function CatalogPage() {
         quantity: 1,
         image: product.image,
         category: product.category,
-          maxQuantity: product.quantity, // Додаємо максимальну кількість на складі
+        maxQuantity: product.quantity, // Додаємо максимальну кількість на складі
+        discount: product.discount ?? 0,
       });
       setCartItems(prev => [...prev, product.id]);
       
@@ -428,9 +429,25 @@ export default function CatalogPage() {
 
                     {/* Ціна та кнопка */}
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-purple-600">
-                        {product.price}₴
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {product.discount && product.discount > 0 ? (
+                          <>
+                            <span className="text-sm text-gray-400 line-through">
+                              {product.price}₴
+                            </span>
+                            <span className="text-2xl font-bold text-purple-600">
+                              {Math.round(parseInt(product.price) * (1 - product.discount / 100))}₴
+                            </span>
+                            <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                              −{product.discount}%
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-2xl font-bold text-purple-600">
+                            {product.price}₴
+                          </span>
+                        )}
+                      </div>
                       <button 
                         onClick={() => handleToggleCart(product)}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all ${
@@ -452,9 +469,9 @@ export default function CatalogPage() {
                           : addedItems[product.id] === true 
                           ? "✓ Додано!" 
                           : cartItems.includes(product.id)
-                          ? "✓ Видалити"
+                          ? "🗑️"
                           : product.quantity > 0 
-                          ? "В кошик" 
+                          ? "🛒" 
                           : "Закінчився"}
                       </button>
                     </div>

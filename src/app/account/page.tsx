@@ -92,9 +92,7 @@ export default function AccountPage() {
   };
 
   const getDeliveryLabel = (method: string) => {
-    if (method === 'courier') return 'Кур\'єр';
-    if (method === 'nova') return 'Нова Пошта';
-    return method;
+  return 'Нова Пошта';
   };
 
   const formatDate = (timestamp: number) => {
@@ -297,7 +295,7 @@ export default function AccountPage() {
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm text-gray-600 mb-1">Спосіб оплати</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Оплата онлайн карткою</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Оплата онлайн</p>
                   </div>
                 </div>
               </section>
@@ -313,10 +311,10 @@ export default function AccountPage() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-900 text-sm sm:text-base break-words">{item.name}</p>
                         <p className="text-xs sm:text-sm text-gray-600">Категорія: {item.category}</p>
-                        <p className="text-xs sm:text-sm text-gray-600">Кіл-во: {item.quantity}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">Кількість: {item.quantity}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-semibold text-gray-900 text-xs sm:text-sm">{item.price}₴ за ед.</p>
+                        <p className="font-semibold text-gray-900 text-xs sm:text-sm">{item.price}₴ за од.</p>
                         <p className="text-xs sm:text-sm text-purple-600 font-bold">{parseInt(item.price) * item.quantity}₴</p>
                       </div>
                     </div>

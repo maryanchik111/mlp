@@ -25,10 +25,10 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Link href='/catalog' className="px-8 py-3 bg-white text-purple-600 font-bold rounded-lg hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl">
+              <Link href='/catalog' className="w-full text-center px-8 py-3 bg-white text-purple-600 font-bold rounded-lg hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl">
                 Перейти до каталогу
               </Link>
-              <Link href='/new' className="px-8 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl">
+              <Link href='/new' className="w-full text-center px-8 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl">
                 Переглянути новинки
               </Link>
             </div>

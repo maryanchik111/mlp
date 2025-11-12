@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
+import { AdminStats } from './admin-stats';
 
-type TabType = 'orders' | 'products' | 'reviews';
+type TabType = 'orders' | 'products' | 'reviews' | 'stats';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -95,6 +96,7 @@ export default function AdminPage() {
       category: product.category,
       image: product.image,
       images: (product as any).images || [],
+      discount: product.discount ?? 0,
     });
   };
 
@@ -104,6 +106,10 @@ export default function AdminPage() {
     setActionLoading(true);
     try {
       let payload = { ...editForm } as any;
+      // Якщо введено discount як рядок – парсимо
+      if (typeof payload.discount === 'string') {
+        payload.discount = parseInt(payload.discount) || 0;
+      }
       // Якщо введено images і це рядок з комами – парсимо
       if (typeof payload.images === 'string') {
         payload.images = payload.images
@@ -315,12 +321,22 @@ export default function AdminPage() {
           <p className="text-gray-600">Управління замовленнями та товарами</p>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs (адаптивні) */}
         <div className="bg-white rounded-lg shadow-sm p-2 mb-8">
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 md:flex gap-2">
+            <button
+              onClick={() => setActiveTab('stats')}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
+                activeTab === 'stats'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📊 Статистика
+            </button>
             <button
               onClick={() => setActiveTab('orders')}
-              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all ${
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
                 activeTab === 'orders'
                   ? 'bg-purple-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -330,7 +346,7 @@ export default function AdminPage() {
             </button>
             <button
               onClick={() => setActiveTab('products')}
-              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all ${
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
                 activeTab === 'products'
                   ? 'bg-purple-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -340,7 +356,7 @@ export default function AdminPage() {
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`flex-1 px-6 py-3 rounded-lg font-medium transition-all ${
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
                 activeTab === 'reviews'
                   ? 'bg-purple-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -351,13 +367,16 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* Stats Tab Content */}
+        {activeTab === 'stats' && <AdminStats orders={orders} products={products} />}
+
         {/* Orders Tab Content */}
         {activeTab === 'orders' && (
           <>
             {/* Фільтри */}
             <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Фільтр по статусу</h2>
-              <div className="flex flex-wrap gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap gap-3">
                 {(['all', 'pending', 'processing', 'completed', 'cancelled'] as const).map((status) => (
                   <button
                     key={status}
@@ -659,6 +678,19 @@ export default function AdminPage() {
               </div>
 
               <div>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Знижка на товар (%)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={90}
+                  value={editForm.discount ?? 0}
+                  onChange={e => setEditForm(f => ({ ...f, discount: parseInt(e.target.value) || 0 }))}
+                  className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
+                />
+                <span className="text-xs text-gray-500">Вкажіть від 0 до 90. Знижка буде показана у каталозі та при оформленні.</span>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Галерея (URL через кому або з нового рядка)</label>
                 <textarea
                   value={Array.isArray(editForm.images) ? editForm.images.join('\n') : (editForm.images as any) || ''}
@@ -807,7 +839,7 @@ export default function AdminPage() {
                   </div>
                   <div>
                     <p className="text-xs sm:text-sm text-gray-600 mb-1">Способ оплати</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Оплата онлайн карткою</p>
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Оплата онлайн</p>
                   </div>
                 </div>
               </section>
@@ -823,10 +855,10 @@ export default function AdminPage() {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-900 text-sm sm:text-base break-words">{item.name}</p>
                         <p className="text-xs sm:text-sm text-gray-600">Категорія: {item.category}</p>
-                        <p className="text-xs sm:text-sm text-gray-600">Кіл-во: {item.quantity}</p>
+                        <p className="text-xs sm:text-sm text-gray-600">Кількість: {item.quantity}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-semibold text-gray-900 text-xs sm:text-sm">{item.price}₴ за ед.</p>
+                        <p className="font-semibold text-gray-900 text-xs sm:text-sm">{item.price}₴ за од.</p>
                         <p className="text-xs sm:text-sm text-purple-600 font-bold">{parseInt(item.price) * item.quantity}₴</p>
                       </div>
                     </div>

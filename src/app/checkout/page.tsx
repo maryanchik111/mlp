@@ -13,7 +13,8 @@ interface CartItem {
   quantity: number;
   image: string;
   category: string;
-    maxQuantity?: number;
+  maxQuantity?: number;
+  discount?: number; // Знижка на товар у %
 }
 
 interface FormData {
@@ -24,7 +25,7 @@ interface FormData {
   address: string;
   city: string;
   postalCode: string;
-  deliveryMethod: 'courier' | 'nova';
+  deliveryMethod: 'nova';
   paymentMethod: 'card';
   comments: string;
 }
@@ -42,7 +43,7 @@ export default function CheckoutPage() {
     address: '',
     city: '',
     postalCode: '',
-    deliveryMethod: 'courier',
+    deliveryMethod: 'nova',
     paymentMethod: 'card',
     comments: '',
   });
@@ -101,7 +102,9 @@ export default function CheckoutPage() {
     if (!formData.city.trim()) newErrors.city = 'Введіть місто';
 
   // Оплата лише онлайн карткою — якщо за якоїсь причини інше значення, валідуємо
-  if (formData.paymentMethod !== 'card') newErrors.paymentMethod = 'Доступна лише оплата онлайн карткою';
+  if (formData.paymentMethod !== 'card') newErrors.paymentMethod = 'Доступна лише оплата онлайн';
+  // Доставка лише Нова Пошта
+  if (formData.deliveryMethod !== 'nova') newErrors.deliveryMethod = 'Доступна лише доставка Нова Пошта';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -140,14 +143,14 @@ export default function CheckoutPage() {
         paymentMethod: formData.paymentMethod,
         comments: formData.comments,
         items: cartItems,
-        totalPrice, // сума без знижки
+        totalPrice, // сума товарів з урахуванням знижок на товари (до знижки користувача)
         discountPercent: userDiscountPercent,
-        discountAmount,
-        discountedSubtotal,
+        discountAmount, // знижка користувача (від рівня/рейтингу)
+        discountedSubtotal, // сума після знижки користувача
         deliveryPrice,
         redeemedPoints: appliedRedeemedPoints,
         redeemedAmount: appliedRedeemedPoints,
-        finalPrice,
+        finalPrice, // фінальна сума до оплати
         status: 'pending',
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -190,17 +193,15 @@ export default function CheckoutPage() {
 
   // Розрахунки
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // Розрахунок знижки на кожен товар
   const totalPrice = cartItems.reduce((sum, item) => {
     const price = parseInt(item.price);
-    return sum + price * item.quantity;
+    const discount = item.discount ? Number(item.discount) : 0;
+    const discounted = discount > 0 ? Math.round(price * (1 - discount / 100)) : price;
+    return sum + discounted * item.quantity;
   }, 0);
 
-  const deliveryPrice = (() => {
-    // Без самовивозу: доставка залежить від способу та суми замовлення
-    if (totalPrice >= 2000) return 0;
-    if (formData.deliveryMethod === 'nova') return 100;
-    return 50; // courier
-  })();
+  const deliveryPrice = 120;
 
   const userDiscountPercent = profile?.discountPercent ?? 0;
   const discountAmount = Math.round((totalPrice * userDiscountPercent) / 100);
@@ -369,36 +370,21 @@ export default function CheckoutPage() {
               {/* Способ доставки */}
               <section>
                 <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  🚚 Способ доставки
+                  🚚 Спосіб доставки
                 </h2>
                 <div className="space-y-3">
-                  <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                    <input
-                      type="radio"
-                      name="deliveryMethod"
-                      value="courier"
-                      checked={formData.deliveryMethod === 'courier'}
-                      onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600"
-                    />
-                    <div className="ml-3 flex-1">
-                      <p className="font-semibold text-gray-900">Кур'єр ({totalPrice >= 2000 ? 'Безкоштовна' : '50₴'})</p>
-                      <p className="text-sm text-gray-600">Доставка по місту та області 1-2 дні</p>
-                    </div>
-                  </label>
-
-                  <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <label className="flex items-center p-4 border border-gray-300 rounded-lg bg-gray-50">
                     <input
                       type="radio"
                       name="deliveryMethod"
                       value="nova"
-                      checked={formData.deliveryMethod === 'nova'}
-                      onChange={handleInputChange}
+                      checked={true}
+                      readOnly
                       className="w-4 h-4 text-purple-600"
                     />
                     <div className="ml-3 flex-1">
-                      <p className="font-semibold text-gray-900">Нова Пошта (НП) ({totalPrice >= 2000 ? 'Безкоштовна' : '100₴'})</p>
-                      <p className="text-sm text-gray-600">Доставка в відділення НП або на адресу (2-5 днів)</p>
+                      <p className="font-semibold text-gray-900">Нова Пошта — 120₴</p>
+                      <p className="text-sm text-gray-600">Доставка у відділення або на адресу. Термін: 1-2 дні.</p>
                     </div>
                   </label>
                 </div>
@@ -420,8 +406,8 @@ export default function CheckoutPage() {
                       className="w-4 h-4 text-purple-600"
                     />
                     <div className="ml-3 flex-1">
-                      <p className="font-semibold text-gray-900">Оплата онлайн карткою</p>
-                      <p className="text-sm text-gray-600">Visa, Mastercard — оплата відбувається одразу при підтвердженні</p>
+                      <p className="font-semibold text-gray-900">Оплата онлайн</p>
+                      <p className="text-sm text-gray-600">QR-code, оплата за посиланням, переказ на картку — оплата відбувається одразу при підтвердженні</p>
                     </div>
                   </label>
                 </div>
@@ -450,17 +436,36 @@ export default function CheckoutPage() {
 
               {/* Список товарів */}
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {cartItems.map(item => (
-                  <div key={item.id} className="flex justify-between items-start pb-3 border-b border-gray-200">
-                    <div>
-                      <p className="font-semibold text-gray-900">{item.name}</p>
-                      <p className="text-sm text-gray-600">Кількість: {item.quantity}</p>
+                {cartItems.map(item => {
+                  const originalPrice = parseInt(item.price);
+                  const discount = item.discount ? Number(item.discount) : 0;
+                  const discountedPrice = discount > 0 ? Math.round(originalPrice * (1 - discount / 100)) : originalPrice;
+                  
+                  return (
+                    <div key={item.id} className="flex justify-between items-start pb-3 border-b border-gray-200">
+                      <div>
+                        <p className="font-semibold text-gray-900">{item.name}</p>
+                        <p className="text-sm text-gray-600">Кількість: {item.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        {discount > 0 ? (
+                          <>
+                            <p className="font-semibold text-purple-600">
+                              {discountedPrice * item.quantity}₴
+                            </p>
+                            <p className="text-xs text-gray-400 line-through">
+                              {originalPrice * item.quantity}₴
+                            </p>
+                          </>
+                        ) : (
+                          <p className="font-semibold text-purple-600">
+                            {originalPrice * item.quantity}₴
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <p className="font-semibold text-purple-600">
-                      {parseInt(item.price) * item.quantity}₴
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Розрахунки */}
@@ -519,18 +524,10 @@ export default function CheckoutPage() {
                     )}
                   </div>
                 )}
-                {deliveryPrice > 0 && (
-                  <div className="flex justify-between items-center text-gray-700">
-                    <span>Доставка:</span>
-                    <span className="font-semibold text-orange-600">+{deliveryPrice}₴</span>
-                  </div>
-                )}
-                {deliveryPrice === 0 && (
-                  <div className="flex justify-between items-center text-green-600">
-                    <span>Доставка:</span>
-                    <span className="font-semibold">Безкоштовна! ✓</span>
-                  </div>
-                )}
+                <div className="flex justify-between items-center text-gray-700">
+                  <span>Доставка:</span>
+                  <span className="font-semibold text-orange-600">+120₴</span>
+                </div>
               </div>
 
               {/* Сума */}

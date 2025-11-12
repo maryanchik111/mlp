@@ -211,7 +211,7 @@ export default function ProductPage() {
             </button>
 
             <div className="mt-6 text-sm text-gray-600">
-              <p>Доставка по Україні. Оплата онлайн карткою.</p>
+              <p>Доставка по Україні. Оплата онлайн.</p>
             </div>
           </div>
         </div>

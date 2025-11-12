@@ -51,6 +51,7 @@ export interface CartItem {
   image: string;
   category: string;
   maxQuantity?: number;
+  discount?: number; // Знижка на товар у %
 }
 
 export interface Order {
@@ -62,7 +63,7 @@ export interface Order {
   address: string;
   city: string;
   postalCode: string;
-  deliveryMethod: 'courier' | 'nova';
+  deliveryMethod: 'nova';
   paymentMethod: 'card';
   comments: string;
   items: CartItem[];
@@ -71,7 +72,7 @@ export interface Order {
   discountPercent?: number;
   discountAmount?: number;
   discountedSubtotal?: number;
-  deliveryPrice: number;
+  deliveryPrice: number; // always 120₴, only Nova Poshta
   // Списання балів
   redeemedPoints?: number;
   redeemedAmount?: number;
@@ -314,6 +315,7 @@ export interface Product {
   inStock: boolean;
   quantity: number;
   images?: string[]; // масив URL або emoji для сторінки товару
+  discount?: number; // знижка на товар у %
 }
 
 // Функція для отримання всіх товарів з Firebase
