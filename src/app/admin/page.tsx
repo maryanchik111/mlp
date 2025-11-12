@@ -347,7 +347,9 @@ export default function AdminPage() {
                           <p className="font-semibold text-gray-900 flex items-center gap-2 flex-wrap">
                             {order.firstName} {order.lastName}
                             {order.userId ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium" title={`Авторизований користувач`}>👤 auth</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium" title={`Авторизований користувач${userProfiles[order.userId]?.displayName ? ': ' + userProfiles[order.userId].displayName : ''}`}>
+                                👤 {userProfiles[order.userId]?.displayName || 'auth'}
+                              </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs" title="Гість">👥 guest</span>
                             )}
@@ -643,7 +645,14 @@ export default function AdminPage() {
                     <p className="text-xs sm:text-sm text-gray-600 mb-1">Тип клієнта</p>
                     {selectedOrder.userId ? (
                       <div>
-                        <p className="font-semibold text-green-700 text-sm sm:text-base flex items-center gap-2">Авторизований <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">UID: {selectedOrder.userId}</span></p>
+                        <p className="font-semibold text-green-700 text-sm sm:text-base flex items-center gap-2">
+                          Авторизований 
+                          {userProfiles[selectedOrder.userId]?.displayName && (
+                            <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">
+                              👤 {userProfiles[selectedOrder.userId].displayName}
+                            </span>
+                          )}
+                        </p>
                         {userProfiles[selectedOrder.userId] && (
                           <div className="mt-2 flex flex-wrap gap-2">
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs sm:text-sm" title="Рейтинг">⭐ Рейтинг: {userProfiles[selectedOrder.userId].rating}</span>
