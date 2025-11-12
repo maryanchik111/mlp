@@ -711,7 +711,18 @@ export default function AdminPage() {
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-4">
-                      <div className="text-4xl">{product.image}</div>
+                      {product.images && product.images.length > 0 ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img 
+                          src={product.images[0]} 
+                          alt={product.name}
+                          className="w-16 h-16 object-cover rounded-full border-2 border-purple-200"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full">
+                          {product.image || '📦'}
+                        </div>
+                      )}
                       <div>
                         <p className="text-lg font-bold text-gray-900">{product.name}</p>
                         <p className="text-sm text-gray-600">{product.category}</p>

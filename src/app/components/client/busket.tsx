@@ -14,6 +14,7 @@ interface CartItem {
   category: string;
   maxQuantity?: number; // Максимальна кількість на складі
   discount?: number; // Знижка на товар у %
+  images?: string[]; // Масив фото товару
 }
 
 export default function Basket() {
@@ -196,7 +197,18 @@ export default function Basket() {
                     >
                       {/* Заголовок товару */}
                       <div className="flex gap-3 mb-3">
-                        <div className="text-3xl flex-shrink-0">{item.image}</div>
+                        {item.images && item.images.length > 0 ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img 
+                            src={item.images[0]} 
+                            alt={item.name}
+                            className="w-12 h-12 object-cover rounded-full border-2 border-purple-200 flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 text-3xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex-shrink-0">
+                            {item.image || '📦'}
+                          </div>
+                        )}
                         <div className="flex-1 min-w-0">
                           <h3 className="font-bold text-gray-900 line-clamp-2 text-sm">
                             {item.name}

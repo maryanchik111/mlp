@@ -105,6 +105,7 @@ export default function ProductPage() {
       quantity: qty,
       maxQuantity: product.quantity,
       discount: product.discount ?? 0,
+      images: product.images || [], // Додаємо масив фото
     };
 
     cart.push(newItem);
@@ -195,8 +196,8 @@ export default function ProductPage() {
                 )}
               </div>
             ) : (
-              <div className="w-full h-80 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg shadow-sm flex items-center justify-center text-8xl">
-                {product.image}
+              <div className="w-full h-80 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg shadow-sm flex items-center justify-center">
+                <div className="text-8xl">{product.image || '📦'}</div>
               </div>
             )}
           </div>

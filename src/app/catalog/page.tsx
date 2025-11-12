@@ -182,6 +182,7 @@ export default function CatalogPage() {
         category: product.category,
         maxQuantity: product.quantity, // Додаємо максимальну кількість на складі
         discount: product.discount ?? 0,
+        images: product.images || [], // Додаємо масив фото
       });
       setCartItems(prev => [...prev, product.id]);
       
@@ -424,8 +425,17 @@ export default function CatalogPage() {
 
                   {/* Іконка продукту (галерея тільки на сторінці товару) */}
                   <Link href={`/catalog/product/${product.id}`} className="block">
-                    <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center text-6xl relative">
-                      {product.image}
+                    <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
+                      {product.images && product.images.length > 0 ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img 
+                          src={product.images[0]} 
+                          alt={product.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-6xl">{product.image || '📦'}</div>
+                      )}
                       {product.quantity === 0 && (
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                           <p className="text-white font-bold text-lg">Немає в наявності</p>

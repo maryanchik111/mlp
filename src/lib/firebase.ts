@@ -55,6 +55,7 @@ export interface CartItem {
   category: string;
   maxQuantity?: number;
   discount?: number; // Знижка на товар у %
+  images?: string[]; // Масив фото товару
 }
 
 export interface Order {

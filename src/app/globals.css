@@ -22,5 +22,5 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), Arial, sans-serif;
-  padding-bottom: 4rem;
+  padding-bottom: 0 !important;
 }
