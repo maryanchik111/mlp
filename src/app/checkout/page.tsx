@@ -195,7 +195,7 @@ export default function CheckoutPage() {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   // Розрахунок знижки на кожен товар
   const totalPrice = cartItems.reduce((sum, item) => {
-    const price = parseInt(item.price);
+    const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
     const discount = item.discount ? Number(item.discount) : 0;
     const discounted = discount > 0 ? Math.round(price * (1 - discount / 100)) : price;
     return sum + discounted * item.quantity;
@@ -437,7 +437,7 @@ export default function CheckoutPage() {
               {/* Список товарів */}
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {cartItems.map(item => {
-                  const originalPrice = parseInt(item.price);
+                  const originalPrice = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
                   const discount = item.discount ? Number(item.discount) : 0;
                   const discountedPrice = discount > 0 ? Math.round(originalPrice * (1 - discount / 100)) : originalPrice;
                   

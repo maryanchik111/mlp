@@ -198,7 +198,7 @@ export default function ProductPage() {
                       {product.price}₴
                     </span>
                     <span className="text-3xl font-extrabold text-purple-600">
-                      {Math.round(product.price * (1 - product.discount / 100))}₴
+                      {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
                     </span>
                     <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
                       −{product.discount}%

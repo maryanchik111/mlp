@@ -78,7 +78,7 @@ export default function CatalogPage() {
     // Фільтр по ціні
     if (priceRange) {
       filtered = filtered.filter(p => {
-        const price = parseInt(p.price);
+        const price = typeof p.price === 'string' ? parseInt(p.price) : p.price;
         return price >= priceRange[0] && price <= priceRange[1];
       });
     }
@@ -86,13 +86,17 @@ export default function CatalogPage() {
     // Сортування
     switch (sortBy) {
       case 'price-asc':
-        return filtered.sort((a, b) => 
-          parseInt(a.price) - parseInt(b.price)
-        );
+        return filtered.sort((a, b) => {
+          const priceA = typeof a.price === 'string' ? parseInt(a.price) : a.price;
+          const priceB = typeof b.price === 'string' ? parseInt(b.price) : b.price;
+          return priceA - priceB;
+        });
       case 'price-desc':
-        return filtered.sort((a, b) => 
-          parseInt(b.price) - parseInt(a.price)
-        );
+        return filtered.sort((a, b) => {
+          const priceA = typeof a.price === 'string' ? parseInt(a.price) : a.price;
+          const priceB = typeof b.price === 'string' ? parseInt(b.price) : b.price;
+          return priceB - priceA;
+        });
       default:
         return filtered;
     }
@@ -436,7 +440,7 @@ export default function CatalogPage() {
                               {product.price}₴
                             </span>
                             <span className="text-2xl font-bold text-purple-600">
-                              {Math.round(parseInt(product.price) * (1 - product.discount / 100))}₴
+                              {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
                             </span>
                             <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
                               −{product.discount}%

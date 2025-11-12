@@ -146,7 +146,7 @@ export default function AdminPage() {
     setIsCreatingProduct(true);
     setEditForm({
       name: '',
-      price: 0,
+      price: '' as any,
       description: '',
       quantity: 0,
       category: '',
@@ -1094,7 +1094,7 @@ export default function AdminPage() {
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className="font-semibold text-gray-900 text-xs sm:text-sm">{item.price}₴ за од.</p>
-                        <p className="text-xs sm:text-sm text-purple-600 font-bold">{parseInt(item.price) * item.quantity}₴</p>
+                        <p className="text-xs sm:text-sm text-purple-600 font-bold">{(typeof item.price === 'string' ? parseFloat(item.price) : item.price) * item.quantity}₴</p>
                       </div>
                     </div>
                   ))}

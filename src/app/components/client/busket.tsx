@@ -122,7 +122,7 @@ export default function Basket() {
   // Розрахунки
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cartItems.reduce((sum, item) => {
-    const price = parseInt(item.price);
+    const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
     const discount = item.discount ? Number(item.discount) : 0;
     const discountedPrice = discount > 0 ? Math.round(price * (1 - discount / 100)) : price;
     return sum + discountedPrice * item.quantity;
@@ -223,7 +223,7 @@ export default function Basket() {
                                 {item.price}
                               </p>
                               <p className="text-lg font-bold text-purple-600">
-                                {Math.round(parseInt(item.price) * (1 - item.discount / 100))}₴
+                                {Math.round((typeof item.price === 'string' ? parseFloat(item.price) : item.price) * (1 - item.discount / 100))}₴
                               </p>
                             </div>
                           ) : (
@@ -234,7 +234,7 @@ export default function Basket() {
                           {item.quantity > 1 && (
                             <p className="text-xs text-gray-600 mt-1">
                               {(() => {
-                                const price = parseInt(item.price);
+                                const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
                                 const discount = item.discount ? Number(item.discount) : 0;
                                 const discountedPrice = discount > 0 ? Math.round(price * (1 - discount / 100)) : price;
                                 return discountedPrice * item.quantity;
