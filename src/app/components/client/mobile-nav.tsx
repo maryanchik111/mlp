@@ -13,11 +13,25 @@ export default function MobileNav() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [previousPendingCount, setPreviousPendingCount] = useState(0);
 
   // Монтування компонента
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Функція для відтворення звуку нотифікації
+  const playNotificationSound = () => {
+    try {
+      const audio = new Audio('/notify.mp3');
+      audio.volume = 0.5; // Гучність 50%
+      audio.play().catch(error => {
+        console.error('Помилка відтворення звуку:', error);
+      });
+    } catch (error) {
+      console.error('Помилка завантаження звуку:', error);
+    }
+  };
 
   // Перевірка прав адміна
   useEffect(() => {
@@ -35,23 +49,40 @@ export default function MobileNav() {
   useEffect(() => {
     if (!isAdmin) {
       setPendingOrdersCount(0);
+      setPreviousPendingCount(0);
       return;
     }
 
     // Завантажуємо pending замовлення
     fetchOrdersByStatus('pending', (orders: Order[]) => {
-      setPendingOrdersCount(orders.length);
+      const newCount = orders.length;
+      
+      // Якщо кількість збільшилась (нове замовлення) - відтворюємо звук
+      if (mounted && previousPendingCount > 0 && newCount > previousPendingCount) {
+        playNotificationSound();
+      }
+      
+      setPreviousPendingCount(newCount);
+      setPendingOrdersCount(newCount);
     });
 
     // Оновлюємо кожні 30 секунд
     const interval = setInterval(() => {
       fetchOrdersByStatus('pending', (orders: Order[]) => {
-        setPendingOrdersCount(orders.length);
+        const newCount = orders.length;
+        
+        // Якщо кількість збільшилась - відтворюємо звук
+        if (newCount > previousPendingCount) {
+          playNotificationSound();
+        }
+        
+        setPreviousPendingCount(newCount);
+        setPendingOrdersCount(newCount);
       });
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [isAdmin]);
+  }, [isAdmin, mounted, previousPendingCount]);
 
   // Оновлення кількості товарів у кошику
   useEffect(() => {
