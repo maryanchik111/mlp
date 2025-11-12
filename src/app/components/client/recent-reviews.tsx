@@ -94,6 +94,26 @@ export default function RecentReviews() {
               <p className="text-sm text-gray-800 leading-relaxed">
                 {r.text?.length ? `"${r.text}"` : '⭐ Чудова покупка!'}
               </p>
+              
+              {/* Відповідь адміна якщо є */}
+              {r.adminReply && (
+                <div className="mt-4 pt-4 border-t border-purple-200">
+                  <div className="flex items-start gap-3 bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl">
+                    <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-purple-500">
+                      <img src="/storeimage.jpg" alt="Магазин MLP" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-bold text-purple-700">MLP Cutie Family</p>
+                        <span className="text-xs text-purple-500">
+                          {new Date(r.adminReplyAt || Date.now()).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{r.adminReply}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}

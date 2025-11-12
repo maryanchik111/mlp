@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
@@ -48,6 +48,8 @@ export default function AdminPage() {
   
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [replyingToReview, setReplyingToReview] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
   
   // User profiles cache for authorized orders
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
@@ -102,6 +104,33 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Помилка:', error);
       alert('❌ Помилка видалення відгуку');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Функція для відправки відповіді адміна
+  const handleSendReply = async (orderId: string) => {
+    if (!replyText.trim()) {
+      alert('❌ Введіть текст відповіді');
+      return;
+    }
+    
+    setActionLoading(true);
+    try {
+      const success = await addAdminReply(orderId, replyText);
+      if (success) {
+        alert('✅ Відповідь додано');
+        setReplyText('');
+        setReplyingToReview(null);
+        const allReviews = await fetchAllReviews();
+        setReviews(allReviews);
+      } else {
+        alert('❌ Помилка додавання відповіді');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка додавання відповіді');
     } finally {
       setActionLoading(false);
     }
@@ -815,6 +844,75 @@ export default function AdminPage() {
                       {review.text?.length ? `"${review.text}"` : '⭐ Без коментаря'}
                     </p>
                   </div>
+                  
+                  {/* Відповідь адміна якщо є */}
+                  {review.adminReply && (
+                    <div className="mt-4 ml-8 bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 p-4 rounded">
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-purple-500">
+                          <img src="/storeimage.jpg" alt="Магазин MLP" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-bold text-purple-700">MLP Cutie Family</p>
+                            <span className="text-xs text-purple-500">
+                              {new Date(review.adminReplyAt || Date.now()).toLocaleString('uk-UA')}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 leading-relaxed">{review.adminReply}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Форма для додавання відповіді */}
+                  {!review.adminReply && (
+                    <div className="mt-4">
+                      {replyingToReview === review.orderId ? (
+                        <div className="ml-8 space-y-3">
+                          <textarea
+                            value={replyText}
+                            onChange={(e) => setReplyText(e.target.value)}
+                            placeholder="Напишіть відповідь від імені магазину..."
+                            className="text-purple-600 w-full p-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                            rows={3}
+                            disabled={actionLoading}
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleSendReply(review.orderId)}
+                              disabled={actionLoading || !replyText.trim()}
+                              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                actionLoading || !replyText.trim()
+                                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                  : 'bg-purple-600 text-white hover:bg-purple-700'
+                              }`}
+                            >
+                              📤 Відправити
+                            </button>
+                            <button
+                              onClick={() => {
+                                setReplyingToReview(null);
+                                setReplyText('');
+                              }}
+                              disabled={actionLoading}
+                              className="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                            >
+                              Скасувати
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setReplyingToReview(review.orderId)}
+                          disabled={actionLoading}
+                          className="ml-8 px-4 py-2 rounded-lg font-medium bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+                        >
+                          💬 Відповісти
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))
             )}

@@ -55,7 +55,6 @@ export interface CartItem {
   category: string;
   maxQuantity?: number;
   discount?: number; // Знижка на товар у %
-  images?: string[]; // Масив фото товару
 }
 
 export interface Order {
@@ -112,6 +111,8 @@ export interface Review {
   rating: number;      // 1..5
   text: string;        // текст відгуку
   createdAt: number;   // час створення
+  adminReply?: string; // відповідь адміна (якщо є)
+  adminReplyAt?: number; // час відповіді адміна
 }
 
 // =====================
@@ -715,3 +716,29 @@ export const deleteReview = async (orderId: string): Promise<boolean> => {
     return false;
   }
 };
+
+// Додати відповідь адміна на відгук
+export const addAdminReply = async (orderId: string, replyText: string): Promise<boolean> => {
+  try {
+    if (!replyText.trim()) {
+      throw new Error('Текст відповіді не може бути порожнім');
+    }
+    
+    const reviewRef = ref(database, `reviews/${orderId}`);
+    const snapshot = await get(reviewRef);
+    
+    if (!snapshot.exists()) {
+      throw new Error('Відгук не знайдено');
+    }
+    
+    await update(reviewRef, {
+      adminReply: replyText.trim(),
+      adminReplyAt: Date.now(),
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Помилка додавання відповіді адміна:', error);
+    return false;
+  }
+};;
