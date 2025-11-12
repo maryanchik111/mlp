@@ -117,10 +117,10 @@ export default function AdminPage() {
           .map((s: string) => s.trim())
           .filter(Boolean);
       }
-      // Якщо images масив і перший елемент існує – виставимо перше як image (прев'ю)
-      if (Array.isArray(payload.images) && payload.images.length > 0) {
-        payload.image = payload.images[0];
-      }
+      // НЕ змінюємо image (емоджі), залишаємо як є
+      // image - це емоджі для картки в каталозі
+      // images - це галерея фото для сторінки товару
+      
       const success = await updateProduct(editingProduct.id, payload);
       if (success) {
         alert('✅ Товар оновлено успішно!');
