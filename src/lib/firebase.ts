@@ -416,6 +416,69 @@ export const fetchProductById = async (id: number): Promise<Product | null> => {
   }
 };
 
+// Функція для додавання нового товару
+export const addProduct = async (newProduct: Omit<Product, 'id'>): Promise<boolean> => {
+  try {
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+    
+    if (snapshot.exists()) {
+      const products = snapshot.val() as Product[];
+      // Знаходимо максимальний id
+      const maxId = Math.max(...products.map(p => p.id), 0);
+      const productToAdd: Product = {
+        ...newProduct,
+        id: maxId + 1,
+        inStock: newProduct.quantity > 0,
+      };
+      
+      // Додаємо товар в кінець масиву
+      const updatedProducts = [...products, productToAdd];
+      await set(productsRef, updatedProducts);
+      return true;
+    } else {
+      // Якщо немає товарів, створюємо перший
+      const productToAdd: Product = {
+        ...newProduct,
+        id: 1,
+        inStock: newProduct.quantity > 0,
+      };
+      await set(productsRef, [productToAdd]);
+      return true;
+    }
+  } catch (error) {
+    console.error('Помилка при додаванні товару:', error);
+    return false;
+  }
+};
+
+// Функція для видалення товару
+export const deleteProduct = async (productId: number): Promise<boolean> => {
+  try {
+    const productsRef = ref(database, 'products');
+    const snapshot = await get(productsRef);
+    
+    if (snapshot.exists()) {
+      const products = snapshot.val() as Product[];
+      // Видаляємо товар з масиву
+      const updatedProducts = products.filter(p => p.id !== productId);
+      
+      if (updatedProducts.length === products.length) {
+        // Товар не знайдено
+        return false;
+      }
+      
+      // Зберігаємо оновлений масив
+      await set(productsRef, updatedProducts);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Помилка при видаленні товару:', error);
+    return false;
+  }
+};
+
 // Функція для отримання статусу замовлення за ID
 export const fetchOrderStatus = async (orderId: string): Promise<string | null> => {
   try {
