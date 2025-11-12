@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, createProduct, deleteProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
@@ -34,6 +34,16 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
+  const [newProductForm, setNewProductForm] = useState<Omit<Product, 'id' | 'inStock'>>({
+    name: '',
+    category: '',
+    price: '',
+    image: '🎁',
+    description: '',
+    quantity: 0,
+    images: [],
+    discount: 0,
+  });
   
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -157,26 +167,26 @@ export default function AdminPage() {
     }
   };
 
-  // Функція для створення нового товару
+  // Відкрити модаль створення нового товару
   const handleCreateProduct = () => {
     setIsCreatingProduct(true);
-    setEditForm({
+    setNewProductForm({
       name: '',
-      price: '' as any,
+      category: '',
+      price: '',
+      image: '🎁',
       description: '',
       quantity: 0,
-      category: '',
-      image: '📦',
       images: [],
       discount: 0,
     });
   };
 
-  // Функція для збереження нового товару
-  const handleSaveNewProduct = async () => {
+  // Зберегти новий товар
+  const handleSubmitNewProduct = async () => {
     setActionLoading(true);
     try {
-      let payload = { ...editForm } as any;
+      let payload = { ...newProductForm } as any;
       
       // Валідація
       if (!payload.name || !payload.price || !payload.category) {
@@ -202,11 +212,20 @@ export default function AdminPage() {
           .filter(Boolean);
       }
       
-      const success = await createProduct(payload);
+      const success = await addProduct(payload);
       if (success) {
         alert('✅ Товар створено успішно!');
         setIsCreatingProduct(false);
-        setEditForm({});
+        setNewProductForm({
+          name: '',
+          category: '',
+          price: '',
+          image: '🎁',
+          description: '',
+          quantity: 0,
+          images: [],
+          discount: 0,
+        });
         fetchAllProducts((loadedProducts) => {
           setProducts(loadedProducts);
         });
@@ -712,8 +731,6 @@ export default function AdminPage() {
         )}
       </div>
 
-<<<<<<< Updated upstream
-=======
       {/* Модальне вікно створення нового товару */}
       {isCreatingProduct && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -837,7 +854,7 @@ export default function AdminPage() {
 
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 <button
-                  onClick={handleCreateProduct}
+                  onClick={handleSubmitNewProduct}
                   disabled={actionLoading}
                   className={`w-full font-bold py-2.5 rounded-lg transition-all ${
                     actionLoading
@@ -859,7 +876,6 @@ export default function AdminPage() {
         </div>
       )}
 
->>>>>>> Stashed changes
       {/* Модальне вікно редагування товару */}
       {editingProduct && (
         <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
@@ -1114,7 +1130,7 @@ export default function AdminPage() {
 
               <div className="pt-4 border-t border-gray-200 space-y-3">
                 <button
-                  onClick={handleSaveNewProduct}
+                  onClick={handleSaveProduct}
                   disabled={actionLoading}
                   className={`w-full font-bold py-2.5 rounded-lg transition-all ${
                     actionLoading

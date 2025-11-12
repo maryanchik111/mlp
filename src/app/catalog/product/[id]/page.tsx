@@ -19,6 +19,7 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState<'none' | 'added' | 'updated'>('none');
+  const [isInCart, setIsInCart] = useState(false);
   // IMPORTANT: hooks must not be conditional; declare here before any early returns
   const [activeIndex, setActiveIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -57,6 +58,14 @@ export default function ProductPage() {
         setProduct(p);
         setLoading(false);
         if (p) setQty(Math.min(1, Math.max(0, p.quantity)) || 1);
+        
+        // Перевіряємо чи товар вже в кошику
+        const cartRaw = localStorage.getItem('mlp-cart');
+        if (cartRaw && p) {
+          const cart = JSON.parse(cartRaw);
+          const exists = cart.some((item: any) => item.id === p.id);
+          setIsInCart(exists);
+        }
       }
     };
     load();
@@ -70,9 +79,22 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
+    
+    if (isInCart) {
+      // Видаляємо з кошика
+      const cartRaw = localStorage.getItem('mlp-cart');
+      if (!cartRaw) return;
+      const cart = JSON.parse(cartRaw);
+      const updatedCart = cart.filter((item: any) => item.id !== product.id);
+      localStorage.setItem('mlp-cart', JSON.stringify(updatedCart));
+      window.dispatchEvent(new CustomEvent('cart-updated', { detail: updatedCart }));
+      setIsInCart(false);
+      return;
+    }
+    
+    // Додаємо в кошик
     const cartRaw = localStorage.getItem('mlp-cart');
     const cart = cartRaw ? JSON.parse(cartRaw) : [];
-    const idx = cart.findIndex((i: any) => i.id === product.id);
 
     const newItem = {
       id: product.id,
@@ -85,14 +107,9 @@ export default function ProductPage() {
       discount: product.discount ?? 0,
     };
 
-    if (idx >= 0) {
-      const nextQty = Math.min(cart[idx].quantity + qty, product.quantity);
-      cart[idx] = { ...cart[idx], quantity: nextQty, maxQuantity: product.quantity, discount: product.discount ?? 0 };
-      setAdded('updated');
-    } else {
-      cart.push(newItem);
-      setAdded('added');
-    }
+    cart.push(newItem);
+    setAdded('added');
+    setIsInCart(true);
 
     localStorage.setItem('mlp-cart', JSON.stringify(cart));
     window.dispatchEvent(new CustomEvent('cart-updated', { detail: cart }));
@@ -217,14 +234,14 @@ export default function ProductPage() {
             <div className="flex items-center gap-3 mb-6">
               <label className="text-gray-700">Кількість:</label>
               <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                <button onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1} className={`px-3 py-1 rounded ${qty <= 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white'}`}>−</button>
+                <button onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1 || isInCart} className={`px-3 py-1 rounded ${qty <= 1 || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white'}`}>−</button>
                 <span className="text-purple-600 px-3 py-1 font-semibold min-w-8 text-center">{qty}</span>
-                <button onClick={() => setQty(Math.min(maxQty, qty + 1))} disabled={qty >= maxQty} className={`px-3 py-1 rounded ${qty >= maxQty ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white'}`}>+</button>
+                <button onClick={() => setQty(Math.min(maxQty, qty + 1))} disabled={qty >= maxQty || isInCart} className={`px-3 py-1 rounded ${qty >= maxQty || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white'}`}>+</button>
               </div>
             </div>
 
-            <button onClick={handleAddToCart} disabled={isOut || qty <= 0} className={`w-full py-3 rounded-lg font-bold transition-colors ${isOut ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-purple-600 text-white hover:bg-purple-700'}`}>
-              {added === 'added' ? '✓ Додано в кошик' : added === 'updated' ? '✓ Кількість оновлено' : 'Додати в кошик'}
+            <button onClick={handleAddToCart} disabled={isOut || qty <= 0} className={`w-full py-3 rounded-lg font-bold transition-colors ${isOut ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : isInCart ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-purple-600 text-white hover:bg-purple-700'}`}>
+              {isInCart ? '🗑️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик' : 'Додати в кошик')}
             </button>
 
             <div className="mt-6 text-sm text-gray-600">

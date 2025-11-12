@@ -128,7 +128,7 @@ export default function Basket() {
     return sum + discountedPrice * item.quantity;
   }, 0);
 
-  const deliveryPrice = totalPrice >= 2000 ? 0 : 50;
+  const deliveryPrice = totalPrice >= 2000 ? 0 : 120;
   const finalPrice = totalPrice + deliveryPrice;
   const estimatedPoints = Math.floor(finalPrice / 100);
 

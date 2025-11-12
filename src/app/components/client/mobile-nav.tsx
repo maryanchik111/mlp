@@ -101,7 +101,7 @@ export default function MobileNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white-80 backdrop-blur-md border-t border-gray-200/50 shadow-lg z-50">
       <div className={`flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-5' : ''}`}>
         {/* Головна */}
         <Link href="/" className={`flex flex-col items-center justify-center ${isAdmin ? '' : 'flex-1'} h-full transition-colors ${pathname === '/' ? 'text-purple-600' : 'text-gray-600'}`}>
