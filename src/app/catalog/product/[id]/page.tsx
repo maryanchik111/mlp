@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { fetchProductById, type Product } from '@/lib/firebase';
 import Basket from '@/app/components/client/busket';
+import AccountButton from '@/app/components/client/account-button';
 
 export default function ProductPage() {
   const params = useParams();
@@ -192,6 +193,7 @@ export default function ProductPage() {
       </div>
     </main>
     <Basket />
+    <AccountButton />
     </>
   );
 }

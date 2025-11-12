@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Basket from '../components/client/busket';
+import AccountButton from '../components/client/account-button';
 import { fetchAllProducts, type Product } from '@/lib/firebase';
 
 const ITEMS_PER_PAGE = 6;
@@ -585,6 +586,7 @@ export default function CatalogPage() {
       />
     </main>
     <Basket />
+    <AccountButton />
     </>
   );
 }

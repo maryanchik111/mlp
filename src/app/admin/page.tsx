@@ -700,22 +700,32 @@ export default function AdminPage() {
                     <span>Сума товарів:</span>
                     <span className="font-semibold">{selectedOrder.totalPrice}₴</span>
                   </div>
-                  {selectedOrder.discountAmount && selectedOrder.discountAmount > 0 && (
+                  {selectedOrder.discountAmount && selectedOrder.discountAmount > 0 ? (
+                    <>
+                      <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                        <span>Знижка ({selectedOrder.discountPercent}%):</span>
+                        <span className="font-semibold text-green-600">−{selectedOrder.discountAmount}₴</span>
+                      </div>
+                      <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                        <span>Після знижки:</span>
+                        <span className="font-semibold">{selectedOrder.discountedSubtotal}₴</span>
+                      </div>
+                    </>
+                  ) : (
                     <div className="flex justify-between text-gray-900 text-sm sm:text-base">
-                      <span>Знижка ({selectedOrder.discountPercent}%)</span>
-                      <span className="font-semibold text-green-600">−{selectedOrder.discountAmount}₴</span>
+                      <span>Знижка (0%):</span>
+                      <span className="font-semibold text-gray-500">0₴</span>
                     </div>
                   )}
-                  {selectedOrder.discountedSubtotal && (selectedOrder.discountAmount && selectedOrder.discountAmount > 0) && (
+                  {selectedOrder.redeemedPoints && selectedOrder.redeemedPoints > 0 ? (
                     <div className="flex justify-between text-gray-900 text-sm sm:text-base">
-                      <span>Після знижки:</span>
-                      <span className="font-semibold">{selectedOrder.discountedSubtotal}₴</span>
-                    </div>
-                  )}
-                  {selectedOrder.redeemedPoints && selectedOrder.redeemedPoints > 0 && (
-                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
-                      <span>Списано балів:</span>
+                      <span>Списано балів ({selectedOrder.redeemedPoints}):</span>
                       <span className="font-semibold text-yellow-600">−{selectedOrder.redeemedAmount}₴</span>
+                    </div>
+                  ) : (
+                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                      <span>Списано балів (0):</span>
+                      <span className="font-semibold text-gray-500">0₴</span>
                     </div>
                   )}
                   {selectedOrder.deliveryPrice > 0 && (
