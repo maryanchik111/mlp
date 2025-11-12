@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, type Order, type Product } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, fetchUserProfile, type Order, type Product, type UserProfile } from '@/lib/firebase';
 
 type TabType = 'orders' | 'products';
 
@@ -18,6 +18,9 @@ export default function AdminPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
+  
+  // User profiles cache for authorized orders
+  const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
 
   useEffect(() => {
     setMounted(true);
@@ -154,6 +157,34 @@ export default function AdminPage() {
     filtered = filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     
     setFilteredOrders(filtered);
+    
+    // Завантажуємо профілі користувачів для авторизованих замовлень
+    const loadUserProfiles = async () => {
+      const userIds = new Set<string>();
+      filtered.forEach(order => {
+        if (order.userId && typeof order.userId === 'string') {
+          userIds.add(order.userId);
+        }
+      });
+      
+      const profiles: Record<string, UserProfile> = {};
+      for (const uid of Array.from(userIds)) {
+        if (!userProfiles[uid]) {
+          const profile = await fetchUserProfile(uid);
+          if (profile) {
+            profiles[uid] = profile;
+          }
+        } else {
+          profiles[uid] = userProfiles[uid];
+        }
+      }
+      
+      if (Object.keys(profiles).length > 0) {
+        setUserProfiles(prev => ({ ...prev, ...profiles }));
+      }
+    };
+    
+    loadUserProfiles();
   }, [orders, statusFilter]);
 
   if (!mounted) {
@@ -284,7 +315,24 @@ export default function AdminPage() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div>
                           <p className="text-sm text-gray-600">Замовник</p>
-                          <p className="font-semibold text-gray-900">{order.firstName} {order.lastName}</p>
+                          <p className="font-semibold text-gray-900 flex items-center gap-2 flex-wrap">
+                            {order.firstName} {order.lastName}
+                            {order.userId ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium" title={`Авторизований користувач`}>👤 auth</span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs" title="Гість">👥 guest</span>
+                            )}
+                          </p>
+                          {order.userId && userProfiles[order.userId] && (
+                            <div className="mt-2 flex flex-wrap gap-1">
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs" title="Рейтинг">⭐ Рейтинг {userProfiles[order.userId].rating}</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs" title="Замовлень">📦 {userProfiles[order.userId].totalOrders}</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs" title="Знижка">💳 {userProfiles[order.userId].discountPercent}%</span>
+                            </div>
+                          )}
+                          {order.redeemedPoints && order.redeemedPoints > 0 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs mt-1" title="Списано балів">🎯 −{order.redeemedPoints} балів</span>
+                          )}
                         </div>
                         <div>
                           <p className="text-sm text-gray-600">Контакт</p>
@@ -562,6 +610,24 @@ export default function AdminPage() {
                     <p className="text-xs sm:text-sm text-gray-600 mb-1">Телефон</p>
                     <p className="font-semibold text-gray-900 text-sm sm:text-base">{selectedOrder.phone}</p>
                   </div>
+                  <div className="sm:col-span-2">
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Тип клієнта</p>
+                    {selectedOrder.userId ? (
+                      <div>
+                        <p className="font-semibold text-green-700 text-sm sm:text-base flex items-center gap-2">Авторизований <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">UID: {selectedOrder.userId}</span></p>
+                        {userProfiles[selectedOrder.userId] && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs sm:text-sm" title="Рейтинг">⭐ Рейтинг: {userProfiles[selectedOrder.userId].rating}</span>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm" title="Замовлень">📦 Замовлень: {userProfiles[selectedOrder.userId].totalOrders}</span>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs sm:text-sm" title="Знижка">💳 Знижка: {userProfiles[selectedOrder.userId].discountPercent}%</span>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs sm:text-sm" title="Бали">🎁 Бали: {userProfiles[selectedOrder.userId].points}</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="font-semibold text-gray-600 text-sm sm:text-base">Гість (без акаунту)</p>
+                    )}
+                  </div>
                 </div>
               </section>
 
@@ -634,6 +700,24 @@ export default function AdminPage() {
                     <span>Сума товарів:</span>
                     <span className="font-semibold">{selectedOrder.totalPrice}₴</span>
                   </div>
+                  {selectedOrder.discountAmount && selectedOrder.discountAmount > 0 && (
+                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                      <span>Знижка ({selectedOrder.discountPercent}%)</span>
+                      <span className="font-semibold text-green-600">−{selectedOrder.discountAmount}₴</span>
+                    </div>
+                  )}
+                  {selectedOrder.discountedSubtotal && (selectedOrder.discountAmount && selectedOrder.discountAmount > 0) && (
+                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                      <span>Після знижки:</span>
+                      <span className="font-semibold">{selectedOrder.discountedSubtotal}₴</span>
+                    </div>
+                  )}
+                  {selectedOrder.redeemedPoints && selectedOrder.redeemedPoints > 0 && (
+                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                      <span>Списано балів:</span>
+                      <span className="font-semibold text-yellow-600">−{selectedOrder.redeemedAmount}₴</span>
+                    </div>
+                  )}
                   {selectedOrder.deliveryPrice > 0 && (
                     <div className="flex justify-between text-gray-900 text-sm sm:text-base">
                       <span>Доставка:</span>

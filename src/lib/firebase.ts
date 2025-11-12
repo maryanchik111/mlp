@@ -48,12 +48,19 @@ export interface Order {
   comments: string;
   items: CartItem[];
   totalPrice: number;
+  // Знижки
+  discountPercent?: number;
+  discountAmount?: number;
+  discountedSubtotal?: number;
   deliveryPrice: number;
+  // Списання балів
+  redeemedPoints?: number;
+  redeemedAmount?: number;
   finalPrice: number;
   status: 'pending' | 'processing' | 'completed' | 'cancelled';
   createdAt: number;
   updatedAt: number;
-  userId?: string; // якщо замовлення створено авторизованим користувачем
+  userId?: string | null; // якщо замовлення створено авторизованим користувачем
 }
 
 export interface UserProfile {
@@ -142,18 +149,25 @@ export const fetchUserProfile = async (uid: string): Promise<UserProfile | null>
   }
 };
 
-export const updateUserStatsAfterOrder = async (uid: string, orderFinalPrice: number) => {
+export const updateUserStatsAfterOrder = async (
+  uid: string,
+  orderFinalPrice: number,
+  redeemedPoints: number = 0
+) => {
   try {
     const userRef = ref(database, `users/${uid}`);
     const snapshot = await get(userRef);
     if (!snapshot.exists()) return;
     const data = snapshot.val() as UserProfile;
+    // Спочатку списуємо бали (не даємо піти в мінус)
+    const newPointsBase = Math.max(0, (data.points || 0) - Math.max(0, redeemedPoints));
+    // Додаємо бали за покупку
     const addedPoints = Math.floor(orderFinalPrice / 100); // 1 бал за кожні 100₴
     const totalSpent = data.totalSpent + orderFinalPrice;
     const totalOrders = data.totalOrders + 1;
     const { rating, discountPercent } = computeRatingAndDiscount(totalOrders);
     await update(userRef, {
-      points: data.points + addedPoints,
+      points: newPointsBase + addedPoints,
       totalSpent,
       totalOrders,
       rating,
@@ -162,6 +176,23 @@ export const updateUserStatsAfterOrder = async (uid: string, orderFinalPrice: nu
     });
   } catch (e) {
     console.error('Помилка оновлення статистики користувача:', e);
+  }
+};
+
+// Топ покупців (за totalSpent)
+export const fetchTopBuyers = async (limitCount: number = 5): Promise<UserProfile[]> => {
+  try {
+    const usersRef = ref(database, 'users');
+    const snapshot = await get(usersRef);
+    if (!snapshot.exists()) return [];
+    const data = snapshot.val() as Record<string, UserProfile>;
+    const list = Object.values(data)
+      .sort((a, b) => (b.totalSpent || 0) - (a.totalSpent || 0))
+      .slice(0, limitCount);
+    return list;
+  } catch (e) {
+    console.error('Помилка отримання топ покупців:', e);
+    return [];
   }
 };
 

@@ -108,7 +108,19 @@ export default function AccountPage() {
         <section className="mb-12">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900">📦 Історія замовлень</h2>
-            <button onClick={() => refreshProfile()} className="text-sm px-3 py-2 rounded bg-gray-200 hover:bg-gray-300">Оновити</button>
+            <button
+              onClick={async () => {
+                if (!user) return;
+                setOrdersLoading(true);
+                await refreshProfile();
+                const list = await fetchUserOrders(user.uid);
+                setOrders(list);
+                setOrdersLoading(false);
+              }}
+              className="text-sm px-3 py-2 rounded bg-purple-700 font-bold hover:bg-gray-300"
+            >
+              Оновити
+            </button>
           </div>
           {ordersLoading ? (
             <p className="text-gray-600">Завантаження...</p>

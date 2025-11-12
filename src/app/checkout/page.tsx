@@ -47,6 +47,9 @@ export default function CheckoutPage() {
     comments: '',
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  // Списання балів (1 бал = 1₴, можна змінити логіку пізніше)
+  const [usePoints, setUsePoints] = useState(false);
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
 
   // Завантаження кошика
   useEffect(() => {
@@ -142,6 +145,8 @@ export default function CheckoutPage() {
         discountAmount,
         discountedSubtotal,
         deliveryPrice,
+        redeemedPoints: appliedRedeemedPoints,
+        redeemedAmount: appliedRedeemedPoints,
         finalPrice,
         status: 'pending',
         createdAt: Date.now(),
@@ -161,7 +166,7 @@ export default function CheckoutPage() {
 
       // Оновлюємо статистику користувача (бали, рейтинг) якщо авторизований
       if (user) {
-        await updateUserStatsAfterOrder(user.uid, finalPrice);
+        await updateUserStatsAfterOrder(user.uid, finalPrice, appliedRedeemedPoints);
       }
 
       // Очищаємо кошик
@@ -200,7 +205,10 @@ export default function CheckoutPage() {
   const userDiscountPercent = profile?.discountPercent ?? 0;
   const discountAmount = Math.round((totalPrice * userDiscountPercent) / 100);
   const discountedSubtotal = totalPrice - discountAmount;
-  const finalPrice = discountedSubtotal + deliveryPrice;
+  // Розрахунок списання балів
+  const maxRedeemablePoints = profile ? Math.min(profile.points, discountedSubtotal) : 0;
+  const appliedRedeemedPoints = usePoints ? Math.min(pointsToRedeem, maxRedeemablePoints) : 0;
+  const finalPrice = Math.max(0, discountedSubtotal - appliedRedeemedPoints + deliveryPrice);
 
   if (!mounted) {
     return null;
@@ -473,6 +481,44 @@ export default function CheckoutPage() {
                     </div>
                   </>
                 )}
+                {profile && profile.points > 0 && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-xs text-yellow-800 space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span>Ваші бали:</span>
+                      <span className="font-semibold">{profile.points}</span>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={usePoints}
+                        onChange={(e) => {
+                          setUsePoints(e.target.checked);
+                          if (!e.target.checked) setPointsToRedeem(0);
+                        }}
+                      />
+                      <span>Використати бали (1 бал = 1₴)</span>
+                    </label>
+                    {usePoints && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          min={0}
+                          max={maxRedeemablePoints}
+                          value={pointsToRedeem}
+                          onChange={(e) => setPointsToRedeem(Math.max(0, Math.min(parseInt(e.target.value) || 0, maxRedeemablePoints)))}
+                          className="w-24 px-2 py-1 border border-yellow-300 rounded text-xs"
+                        />
+                        <span className="text-xs text-gray-600">Макс: {maxRedeemablePoints}</span>
+                      </div>
+                    )}
+                    {appliedRedeemedPoints > 0 && (
+                      <div className="flex justify-between items-center text-gray-700">
+                        <span>Списано балів:</span>
+                        <span className="font-semibold text-orange-600">−{appliedRedeemedPoints}₴</span>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {deliveryPrice > 0 && (
                   <div className="flex justify-between items-center text-gray-700">
                     <span>Доставка:</span>
@@ -495,6 +541,9 @@ export default function CheckoutPage() {
                 </div>
                 {userDiscountPercent > 0 && (
                   <p className="text-xs text-gray-500">Включає вашу знижку {userDiscountPercent}% (рейтинг: {profile?.rating})</p>
+                )}
+                {appliedRedeemedPoints > 0 && (
+                  <p className="text-xs text-gray-500">Списано балів: {appliedRedeemedPoints}. Залишок після оформлення: {profile ? profile.points - appliedRedeemedPoints : 0}</p>
                 )}
               </div>
 
