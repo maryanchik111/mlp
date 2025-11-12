@@ -1,11 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, fetchUserProfile, type Order, type Product, type UserProfile } from '@/lib/firebase';
+import { useRouter } from 'next/navigation';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, fetchUserProfile, checkAdminAccess, type Order, type Product, type UserProfile } from '@/lib/firebase';
+import { useAuth } from '@/app/providers';
 
 type TabType = 'orders' | 'products';
 
 export default function AdminPage() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -21,6 +25,18 @@ export default function AdminPage() {
   
   // User profiles cache for authorized orders
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
+
+  // Перевірка доступу адміністратора
+  useEffect(() => {
+    if (authLoading) return; // Чекаємо завершення завантаження auth
+    
+    if (!user || !checkAdminAccess(user)) {
+      // Якщо не авторизований або не адмін - редірект на головну
+      router.push('/');
+    } else {
+      setMounted(true);
+    }
+  }, [user, authLoading, router]);
 
   useEffect(() => {
     setMounted(true);
@@ -187,7 +203,20 @@ export default function AdminPage() {
     loadUserProfiles();
   }, [orders, statusFilter]);
 
-  if (!mounted) {
+  // Показуємо екран завантаження під час перевірки доступу
+  if (authLoading || !mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Перевірка доступу...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Якщо немає користувача або він не адмін, не показуємо нічого (вже редірект)
+  if (!user || !checkAdminAccess(user)) {
     return null;
   }
 

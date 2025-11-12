@@ -20,6 +20,25 @@ export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
 // =====================
+// АДМІНІСТРАТОРИ
+// =====================
+// Додайте email адміністраторів сюди
+const ADMIN_EMAILS = [
+  // Замініть на реальні email адміністраторів
+  'seniorpandawork@gmail.com',
+  'your-email@gmail.com',
+];
+
+export const isAdmin = (email: string | null): boolean => {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.toLowerCase());
+};
+
+export const checkAdminAccess = (user: User | null): boolean => {
+  return user ? isAdmin(user.email) : false;
+};
+
+// =====================
 // МОДЕЛІ ТА ІНТЕРФЕЙСИ
 // =====================
 
