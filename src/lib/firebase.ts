@@ -26,7 +26,7 @@ const googleProvider = new GoogleAuthProvider();
 const ADMIN_EMAILS = [
   // Замініть на реальні email адміністраторів
   'seniorpandawork@gmail.com',
-  'your-email@gmail.com',
+  'maryanlikesyou@gmail.com',
 ];
 
 export const isAdmin = (email: string | null): boolean => {
