@@ -28,8 +28,8 @@ export default function Hero() {
               <Link href='/catalog' className="w-full text-center px-8 py-3 bg-white text-purple-600 font-bold rounded-lg hover:bg-gray-100 transition-colors shadow-lg hover:shadow-xl">
                 Перейти до каталогу
               </Link>
-              <Link href='/new' className="w-full text-center px-8 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-colors shadow-lg hover:shadow-xl">
-                Переглянути новинки
+              <Link href='/box-builder' className="w-full text-center px-8 py-3 bg-pink-600 text-white font-bold rounded-lg hover:bg-pink-700 transition-colors shadow-lg hover:shadow-xl">
+                🎁 Конструктор боксів
               </Link>
             </div>
 
