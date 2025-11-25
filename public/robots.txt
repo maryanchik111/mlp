@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Allow: /catalog
+Allow: /box-builder
+Allow: /account
+Allow: /checkout
+Disallow: /admin
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /api/
+
+Sitemap: https://mlp-store.com.ua/sitemap.xml
+
+# Google
+User-agent: Googlebot
+Allow: /
+
+# Yandex
+User-agent: YandexBot
+Allow: /
