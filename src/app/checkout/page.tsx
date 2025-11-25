@@ -226,17 +226,17 @@ export default function CheckoutPage() {
   // Якщо кошик порожній
   if (cartItems.length === 0) {
     return (
-      <main className="min-h-screen bg-gray-50 py-12">
+      <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <div className="text-5xl mb-4">🦄</div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Кошик порожній</h1>
-            <p className="text-gray-600 mb-6">Поверніться до каталогу, щоб додати товари</p>
+          <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-16 text-center">
+            <div className="text-7xl mb-6 animate-bounce-slow">🦄</div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">Кошик порожній</h1>
+            <p className="text-gray-600 mb-8 text-lg">Поверніться до каталогу, щоб додати товари</p>
             <Link
               href="/catalog"
-              className="inline-block bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+              className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-10 py-4 rounded-xl hover:shadow-lg hover:shadow-purple-600/50 transition-all font-bold text-lg hover:scale-105 active:scale-95"
             >
-              ← До каталогу
+              🛍️ До каталогу
             </Link>
           </div>
         </div>
@@ -245,24 +245,27 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12">
+    <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-12">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Заголовок */}
-        <div className="mb-8">
-          <Link href="/catalog" className="text-purple-600 hover:text-purple-700 mb-4 inline-block">
+        <div className="mb-10">
+          <Link href="/catalog" className="text-purple-600 hover:text-purple-700 mb-5 inline-block font-semibold hover:scale-110 transition-transform">
             ← Повернутися до каталогу
           </Link>
-          <h1 className="text-4xl font-bold text-gray-900">Оформлення замовлення</h1>
-          <p className="text-gray-600 mt-2">Заповніть форму для оформлення покупки</p>
+          <div className="flex items-center gap-3">
+            <span className="text-4xl">💳</span>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Оформлення замовлення</h1>
+          </div>
+          <p className="text-gray-600 mt-3 text-lg">Заповніть форму для оформлення покупки</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Основна форма - 2 колони */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
+            <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-8 space-y-8">
               {/* Контактна інформація */}
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
                   📋 Контактна інформація
                 </h2>
                 <div className="grid grid-cols-2 gap-4">
@@ -273,8 +276,8 @@ export default function CheckoutPage() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
-                        errors.firstName ? 'border-red-500' : 'border-gray-300'
+                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
+                        errors.firstName ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
                       }`}
                       placeholder="Ваше ім'я"
                     />
@@ -287,8 +290,8 @@ export default function CheckoutPage() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
-                        errors.lastName ? 'border-red-500' : 'border-gray-300'
+                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
+                        errors.lastName ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
                       }`}
                       placeholder="Ваше прізвище"
                     />
@@ -303,8 +306,8 @@ export default function CheckoutPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
-                        errors.email ? 'border-red-500' : 'border-gray-300'
+                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
+                        errors.email ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
                       }`}
                       placeholder="example@mail.com"
                     />
@@ -317,8 +320,8 @@ export default function CheckoutPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
-                        errors.phone ? 'border-red-500' : 'border-gray-300'
+                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
+                        errors.phone ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
                       }`}
                       placeholder="+380 XX XXX XX XX"
                     />
@@ -329,7 +332,7 @@ export default function CheckoutPage() {
 
               {/* Адреса */}
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
                   🏠 Адреса доставки
                 </h2>
                 <div>
@@ -339,8 +342,8 @@ export default function CheckoutPage() {
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
-                      errors.address ? 'border-red-500' : 'border-gray-300'
+                    className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
+                      errors.address ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
                     }`}
                     placeholder="Вулиця, будинок, квартира"
                   />
@@ -354,8 +357,8 @@ export default function CheckoutPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 ${
-                        errors.city ? 'border-red-500' : 'border-gray-300'
+                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
+                        errors.city ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
                       }`}
                       placeholder="Назва міста"
                     />
@@ -368,7 +371,7 @@ export default function CheckoutPage() {
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleInputChange}
-                      className="text-purple-700 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600"
+                      className="text-purple-700 w-full px-4 py-3 border-2 border-purple-200/50 bg-white/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all hover:border-purple-300"
                       placeholder="XX XXX"
                     />
                   </div>
@@ -377,22 +380,22 @@ export default function CheckoutPage() {
 
               {/* Способ доставки */}
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
                   🚚 Спосіб доставки
                 </h2>
                 <div className="space-y-3">
-                  <label className="flex items-center p-4 border border-gray-300 rounded-lg bg-gray-50">
+                  <label className="flex items-center p-5 border-2 border-purple-200/50 rounded-xl bg-gradient-to-r from-purple-50/50 to-pink-50/50 cursor-pointer hover:border-purple-400 transition-all hover:shadow-md">
                     <input
                       type="radio"
                       name="deliveryMethod"
                       value="nova"
                       checked={true}
                       readOnly
-                      className="w-4 h-4 text-purple-600"
+                      className="w-5 h-5 text-purple-600 accent-purple-600"
                     />
-                    <div className="ml-3 flex-1">
-                      <p className="font-semibold text-gray-900">Нова Пошта — 120₴</p>
-                      <p className="text-sm text-gray-600">Доставка у відділення або на адресу. Термін: 1-2 дні.</p>
+                    <div className="ml-4 flex-1">
+                      <p className="font-bold text-gray-900 text-lg">Нова Пошта — 120₴</p>
+                      <p className="text-sm text-gray-600 mt-1">Доставка у відділення або на адресу. Термін: 1-2 дні.</p>
                     </div>
                   </label>
                 </div>
@@ -400,22 +403,22 @@ export default function CheckoutPage() {
 
               {/* Спосіб оплати */}
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
                   💳 Спосіб оплати
                 </h2>
                 <div className="space-y-3">
-                  <label className="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <label className="flex items-center p-5 border-2 border-purple-200/50 rounded-xl bg-gradient-to-r from-blue-50/50 to-cyan-50/50 cursor-pointer hover:border-purple-400 transition-all hover:shadow-md">
                     <input
                       type="radio"
                       name="paymentMethod"
                       value="card"
                       checked={formData.paymentMethod === 'card'}
                       onChange={handleInputChange}
-                      className="w-4 h-4 text-purple-600"
+                      className="w-5 h-5 text-purple-600 accent-purple-600"
                     />
-                    <div className="ml-3 flex-1">
-                      <p className="font-semibold text-gray-900">Оплата онлайн</p>
-                      <p className="text-sm text-gray-600">QR-code, оплата за посиланням, переказ на картку — оплата відбувається одразу при підтвердженні</p>
+                    <div className="ml-4 flex-1">
+                      <p className="font-bold text-gray-900 text-lg">Оплата онлайн</p>
+                      <p className="text-sm text-gray-600 mt-1">QR-code, оплата за посиланням, переказ на картку — оплата відбувається одразу при підтвердженні</p>
                     </div>
                   </label>
                 </div>
@@ -423,7 +426,7 @@ export default function CheckoutPage() {
 
               {/* Коментарії */}
               <section>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
                   📝 Додаткові коментарії
                 </h2>
                 <textarea
@@ -431,7 +434,7 @@ export default function CheckoutPage() {
                   value={formData.comments}
                   onChange={handleInputChange}
                   placeholder="Вкажіть особливі побажання або примітки..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 h-24 resize-none"
+                  className="w-full px-4 py-3 border-2 border-purple-200/50 bg-white/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 h-28 resize-none transition-all hover:border-purple-300"
                 />
               </section>
             </div>
@@ -439,35 +442,35 @@ export default function CheckoutPage() {
 
           {/* Бічна панель - Заказ */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4 space-y-6">
-              <h2 className="text-xl font-bold text-gray-900">📦 Ваше замовлення</h2>
+            <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-8 sticky top-4 space-y-6">
+              <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">📦 Ваше замовлення</h2>
 
               {/* Список товарів */}
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-4 max-h-96 overflow-y-auto">
                 {cartItems.map(item => {
                   const originalPrice = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
                   const discount = item.discount ? Number(item.discount) : 0;
                   const discountedPrice = discount > 0 ? Math.round(originalPrice * (1 - discount / 100)) : originalPrice;
                   
                   return (
-                    <div key={item.id} className="pb-3 border-b border-gray-200">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-semibold text-gray-900">{item.name}</p>
-                          <p className="text-sm text-gray-600">Кількість: {item.quantity}</p>
+                    <div key={item.id} className="pb-4 border-b-2 border-purple-200/30 bg-gradient-to-r from-purple-50/40 to-pink-50/40 p-3 rounded-lg">
+                      <div className="flex justify-between items-start gap-3">
+                        <div className="flex-1">
+                          <p className="font-bold text-gray-900 text-sm">{item.name}</p>
+                          <p className="text-xs text-purple-600 font-semibold mt-1">Кількість: <span className="bg-purple-200/50 px-2 py-1 rounded">×{item.quantity}</span></p>
                         </div>
                         <div className="text-right">
                           {discount > 0 ? (
                             <>
-                              <p className="font-semibold text-purple-600">
+                              <p className="font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                                 {discountedPrice * item.quantity}₴
                               </p>
-                              <p className="text-xs text-gray-400 line-through">
+                              <p className="text-xs text-gray-400 line-through mt-1">
                                 {originalPrice * item.quantity}₴
                               </p>
                             </>
                           ) : (
-                            <p className="font-semibold text-purple-600">
+                            <p className="font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                               {originalPrice * item.quantity}₴
                             </p>
                           )}
@@ -493,30 +496,30 @@ export default function CheckoutPage() {
               </div>
 
               {/* Розрахунки */}
-              <div className="space-y-3 pt-4 border-t border-gray-200">
-                <div className="flex justify-between items-center text-gray-700">
-                  <span>Сума товарів:</span>
-                  <span className="font-semibold">{totalPrice}₴</span>
+              <div className="space-y-4 pt-5 border-t-2 border-purple-200/30">
+                <div className="flex justify-between items-center text-gray-700 font-semibold">
+                  <span>💵 Сума товарів:</span>
+                  <span className="text-lg text-gray-900">{totalPrice}₴</span>
                 </div>
                 {userDiscountPercent > 0 && (
                   <>
-                    <div className="flex justify-between items-center text-gray-700">
-                      <span>Знижка ({userDiscountPercent}%)</span>
-                      <span className="font-semibold text-green-600">−{discountAmount}₴</span>
+                    <div className="flex justify-between items-center text-gray-700 font-semibold bg-green-50/50 px-3 py-2 rounded-lg border-l-4 border-green-400">
+                      <span>✨ Знижка ({userDiscountPercent}%)</span>
+                      <span className="text-green-600">−{discountAmount}₴</span>
                     </div>
-                    <div className="flex justify-between items-center text-gray-700">
+                    <div className="flex justify-between items-center text-gray-700 font-semibold">
                       <span>Після знижки:</span>
-                      <span className="font-semibold">{discountedSubtotal}₴</span>
+                      <span className="text-lg">{discountedSubtotal}₴</span>
                     </div>
                   </>
                 )}
                 {profile && profile.points > 0 && (
-                  <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-xs text-yellow-800 space-y-1">
+                  <div className="bg-gradient-to-r from-yellow-50/70 to-amber-50/70 backdrop-blur-sm border-2 border-yellow-200/50 rounded-xl p-4 text-sm text-yellow-900 space-y-3 font-semibold">
                     <div className="flex justify-between items-center">
-                      <span>Ваші бали:</span>
-                      <span className="font-semibold">{profile.points}</span>
+                      <span>⭐ Ваші бали:</span>
+                      <span className="text-lg font-bold text-yellow-700">{profile.points}</span>
                     </div>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
                       <input
                         type="checkbox"
                         checked={usePoints}
@@ -524,41 +527,42 @@ export default function CheckoutPage() {
                           setUsePoints(e.target.checked);
                           if (!e.target.checked) setPointsToRedeem(0);
                         }}
+                        className="w-5 h-5 accent-yellow-600"
                       />
                       <span>Використати бали (1 бал = 1₴)</span>
                     </label>
                     {usePoints && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 bg-white/50 p-2 rounded-lg">
                         <input
                           type="number"
                           min={0}
                           max={maxRedeemablePoints}
                           value={pointsToRedeem}
                           onChange={(e) => setPointsToRedeem(Math.max(0, Math.min(parseInt(e.target.value) || 0, maxRedeemablePoints)))}
-                          className="w-24 px-2 py-1 border border-yellow-300 rounded text-xs"
+                          className="w-24 px-3 py-2 border-2 border-yellow-300 rounded-lg text-sm font-bold text-yellow-900"
                         />
-                        <span className="text-xs text-gray-600">Макс: {maxRedeemablePoints}</span>
+                        <span className="text-xs text-gray-700">Макс: {maxRedeemablePoints}</span>
                       </div>
                     )}
                     {appliedRedeemedPoints > 0 && (
-                      <div className="flex justify-between items-center text-gray-700">
+                      <div className="flex justify-between items-center text-gray-700 bg-white/30 px-2 py-2 rounded">
                         <span>Списано балів:</span>
-                        <span className="font-semibold text-orange-600">−{appliedRedeemedPoints}₴</span>
+                        <span className="font-bold text-orange-600">−{appliedRedeemedPoints}₴</span>
                       </div>
                     )}
                   </div>
                 )}
-                <div className="flex justify-between items-center text-gray-700">
-                  <span>Доставка:</span>
-                  <span className="font-semibold text-orange-600">+120₴</span>
+                <div className="flex justify-between items-center text-gray-700 font-semibold">
+                  <span>🚚 Доставка:</span>
+                  <span className="text-lg text-orange-700">+120₴</span>
                 </div>
               </div>
 
               {/* Сума */}
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-lg space-y-1">
+              <div className="bg-gradient-to-r from-purple-100/50 to-pink-100/50 border-2 border-purple-300/50 p-6 rounded-xl space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-gray-900">Всього до оплати:</span>
-                  <span className="text-2xl font-bold text-purple-600">{finalPrice}₴</span>
+                  <span className="font-bold text-gray-900 text-lg">Всього до оплати:</span>
+                  <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{finalPrice}₴</span>
                 </div>
                 {userDiscountPercent > 0 && (
                   <p className="text-xs text-gray-500">Включає вашу знижку {userDiscountPercent}% (рейтинг: {profile?.rating})</p>
@@ -569,29 +573,29 @@ export default function CheckoutPage() {
               </div>
 
               {/* Кнопки дій */}
-              <div className="space-y-3 pt-4 border-t border-gray-200">
+              <div className="space-y-3 pt-5 border-t-2 border-purple-200/30">
                 <button
                   onClick={handleSubmitOrder}
                   disabled={isLoading}
-                  className={`w-full font-bold py-3 rounded-lg transition-all ${
+                  className={`w-full font-bold py-4 rounded-xl transition-all text-lg ${
                     isLoading
-                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white hover:shadow-lg hover:scale-105'
+                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
+                      : 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white hover:shadow-2xl hover:shadow-purple-600/50 hover:-translate-y-1 active:scale-95 hover:scale-105'
                   }`}
                 >
                   {isLoading ? '⏳ Обробка...' : '✓ Оформити замовлення'}
                 </button>
                 <Link
                   href="/catalog"
-                  className="block text-center bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="block text-center bg-white/70 backdrop-blur-sm border-2 border-purple-300/50 text-purple-700 font-bold py-4 rounded-xl hover:bg-white/90 transition-all text-lg hover:scale-105 active:scale-95"
                 >
-                  ← Продовжити покупки
+                  🛍️ Продовжити покупки
                 </Link>
               </div>
 
               {/* Інформація */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800">
-                <p>✓ Ваші дані захищені і не будуть передані третім особам</p>
+              <div className="bg-gradient-to-r from-blue-50/70 to-cyan-50/70 backdrop-blur-sm border-2 border-blue-200/50 rounded-xl p-4 text-sm text-blue-900 font-semibold">
+                <p>🔒 Ваші дані захищені і не будуть передані третім особам</p>
               </div>
             </div>
           </div>

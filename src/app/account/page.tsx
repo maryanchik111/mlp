@@ -100,53 +100,53 @@ export default function AccountPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10">
+    <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-10">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">👤 Мій кабінет</h1>
-            <p className="text-gray-600">Керуйте своїми замовленнями та бонусами</p>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">👤 Мій кабінет</h1>
+            <p className="text-purple-600 font-medium mt-1">Керуйте своїми замовленнями та бонусами</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              {user.photoURL && <img src={user.photoURL} alt="avatar" className="w-12 h-12 rounded-full border" />}
+            <div className="flex items-center gap-3 bg-white/70 backdrop-blur-md px-4 py-3 rounded-2xl border-2 border-purple-200/30">
+              {user.photoURL && <img src={user.photoURL} alt="avatar" className="w-12 h-12 rounded-full border-2 border-purple-300" />}
               <div>
                 <p className="font-semibold text-gray-900">{user.displayName}</p>
                 <p className="text-xs text-gray-500">{user.email}</p>
               </div>
             </div>
-            <button onClick={() => signOut()} className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 font-medium hover:bg-gray-300">Вийти</button>
+            <button onClick={() => signOut()} className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:shadow-lg hover:-translate-y-1 transition-all duration-200">Вийти</button>
           </div>
         </div>
 
         {/* Показники */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <p className="text-sm text-gray-500 mb-1">Рейтинг</p>
+          <div className="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+            <p className="text-sm text-purple-600 font-medium mb-2">Рейтинг</p>
             <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${badge.color}`}>{badge.label}</span>
-            <p className="text-xs text-gray-400 mt-2">Рівень: {profile?.rating}</p>
+            <p className="text-xs text-gray-500 mt-3">Рівень: {profile?.rating}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <p className="text-sm text-gray-500 mb-1">Бали</p>
-            <p className="text-2xl font-bold text-purple-600">{profile?.points ?? 0}</p>
-            <p className="text-xs text-gray-400 mt-2">1 бал = 100₴ покупок</p>
+          <div className="bg-gradient-to-br from-purple-50/70 to-pink-50/70 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+            <p className="text-sm text-purple-600 font-medium mb-2">Бали</p>
+            <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{profile?.points ?? 0}</p>
+            <p className="text-xs text-gray-500 mt-3">1 бал = 100₴ покупок</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <p className="text-sm text-gray-500 mb-1">Знижка</p>
-            <p className="text-2xl font-bold text-green-600">{profile?.discountPercent ?? 0}%</p>
-            <p className="text-xs text-gray-400 mt-2">Надається автоматично</p>
+          <div className="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+            <p className="text-sm text-purple-600 font-medium mb-2">Знижка</p>
+            <p className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">{profile?.discountPercent ?? 0}%</p>
+            <p className="text-xs text-gray-500 mt-3">Надається автоматично</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
-            <p className="text-sm text-gray-500 mb-1">Замовлень</p>
-            <p className="text-2xl font-bold text-blue-600">{profile?.totalOrders ?? 0}</p>
-            <p className="text-xs text-gray-400 mt-2">Загалом: {(profile?.totalSpent ?? 0)}₴</p>
+          <div className="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+            <p className="text-sm text-purple-600 font-medium mb-2">Замовлень</p>
+            <p className="text-3xl font-bold text-blue-600">{profile?.totalOrders ?? 0}</p>
+            <p className="text-xs text-gray-500 mt-3">Загалом: {(profile?.totalSpent ?? 0)}₴</p>
           </div>
         </div>
 
         {/* Історія замовлень */}
         <section className="mb-12">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">📦 Історія замовлень</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">📦 Історія замовлень</h2>
             <button
               onClick={async () => {
                 if (!user) return;
@@ -156,42 +156,42 @@ export default function AccountPage() {
                 setOrders(list);
                 setOrdersLoading(false);
               }}
-              className="text-sm px-3 py-2 rounded bg-purple-700 font-bold hover:bg-gray-300"
+              className="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
             >
               Оновити
             </button>
           </div>
           {ordersLoading ? (
-            <p className="text-gray-600">Завантаження...</p>
+            <p className="text-purple-600 font-medium">Завантаження...</p>
           ) : orders.length === 0 ? (
-            <p className="text-gray-600">Замовлень ще немає</p>
+            <p className="text-purple-600 font-medium">Замовлень ще немає</p>
           ) : (
             <div className="space-y-4">
               {orders.map(order => (
-                <div key={order.id} className="bg-white p-5 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+                <div key={order.id} className="bg-white/70 backdrop-blur-md p-5 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
                   <div className="flex flex-wrap justify-between gap-4">
                     <div>
-                      <p className="font-semibold text-gray-900">№ {order.id}</p>
-                      <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleString('uk-UA')}</p>
+                      <p className="font-semibold text-gray-900 text-lg">№ {order.id}</p>
+                      <p className="text-xs text-gray-500 mt-1">{new Date(order.createdAt).toLocaleString('uk-UA')}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-purple-600 text-lg">{order.finalPrice}₴</p>
-                      <span className={`inline-block mt-1 px-2 py-1 rounded text-xs font-semibold ${getStatusColor(order.status)}`}>{getStatusLabel(order.status)}</span>
+                      <p className="font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{order.finalPrice}₴</p>
+                      <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>{getStatusLabel(order.status)}</span>
                     </div>
                   </div>
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-600">
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                     {order.items.slice(0,6).map(i => (
-                      <div key={i.id} className="flex items-center gap-2 bg-gray-50 px-2 py-1 rounded">
-                        <span className="text-xl">{i.image}</span>
-                        <span className="truncate">{i.name}</span>
-                        <span className="text-xs text-gray-400 ml-auto">x{i.quantity}</span>
+                      <div key={i.id} className="flex items-center gap-2 bg-gradient-to-r from-purple-50/50 to-pink-50/50 px-3 py-2 rounded-lg border border-purple-200/30">
+                        <span className="text-lg">{i.image}</span>
+                        <span className="truncate text-gray-700">{i.name}</span>
+                        <span className="text-xs text-gray-500 ml-auto">x{i.quantity}</span>
                       </div>
                     ))}
                   </div>
                   <div className="mt-4 flex justify-end">
                     <button
                       onClick={() => setSelectedOrder(order)}
-                      className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm"
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all font-medium text-sm"
                     >
                       📋 Деталі замовлення
                     </button>
@@ -202,21 +202,21 @@ export default function AccountPage() {
           )}
         </section>
 
-        <div className="text-center">
-          <Link href="/catalog" className="inline-block text-purple-600 hover:text-purple-700 font-semibold">← До каталогу</Link>
+        <div className="text-center pb-16">
+          <Link href="/catalog" className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg hover:-translate-y-1 transition-all">← До каталогу</Link>
         </div>
       </div>
 
       {/* Модальне вікно з деталями замовлення */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border-2 border-purple-200/30">
             {/* Заголовок модалю */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-4 sm:p-6 sticky top-0 z-10">
+            <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white p-6 sticky top-0 z-10 rounded-t-3xl">
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs sm:text-sm opacity-90">Замовлення №</p>
-                  <p className="text-xl sm:text-2xl font-bold truncate">{selectedOrder.id}</p>
+                  <p className="text-sm opacity-90 font-medium">Замовлення №</p>
+                  <p className="text-2xl font-bold truncate">{selectedOrder.id}</p>
                 </div>
                 <button
                   onClick={() => setSelectedOrder(null)}
@@ -229,55 +229,55 @@ export default function AccountPage() {
             </div>
 
             {/* Вміст модалю */}
-            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <div className="p-6 space-y-6">
               {/* Статус */}
               <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-gray-600 text-sm sm:text-base">Статус:</p>
-                <span className={`px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(selectedOrder.status)}`}>
+                <p className="text-gray-700 font-semibold">Статус:</p>
+                <span className={`px-4 py-2 rounded-full text-sm font-bold ${getStatusColor(selectedOrder.status)}`}>
                   {getStatusLabel(selectedOrder.status)}
                 </span>
               </div>
 
               {/* Контактна інформація */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
                   👤 Контактна інформація
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Ім'я</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{selectedOrder.firstName}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
+                    <p className="text-xs text-purple-600 font-semibold mb-1">Ім'я</p>
+                    <p className="font-semibold text-gray-900">{selectedOrder.firstName}</p>
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Прізвище</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{selectedOrder.lastName}</p>
+                  <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
+                    <p className="text-xs text-purple-600 font-semibold mb-1">Прізвище</p>
+                    <p className="font-semibold text-gray-900">{selectedOrder.lastName}</p>
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Email</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base break-all">{selectedOrder.email}</p>
+                  <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
+                    <p className="text-xs text-purple-600 font-semibold mb-1">Email</p>
+                    <p className="font-semibold text-gray-900 break-all">{selectedOrder.email}</p>
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Телефон</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{selectedOrder.phone}</p>
+                  <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
+                    <p className="text-xs text-purple-600 font-semibold mb-1">Телефон</p>
+                    <p className="font-semibold text-gray-900">{selectedOrder.phone}</p>
                   </div>
                 </div>
               </section>
 
               {/* Адреса доставки */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
                   🏠 Адреса доставки
                 </h3>
-                <div className="space-y-2">
-                  <p className="text-gray-900 text-sm sm:text-base">
-                    <span className="text-xs sm:text-sm text-gray-600">Місто:</span> <span className="font-semibold">{selectedOrder.city}</span>
+                <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30 space-y-2">
+                  <p className="text-gray-900">
+                    <span className="text-sm font-semibold text-purple-600">Місто:</span> <span className="font-semibold">{selectedOrder.city}</span>
                   </p>
-                  <p className="text-gray-900 text-sm sm:text-base break-words">
-                    <span className="text-xs sm:text-sm text-gray-600">Адреса:</span> <span className="font-semibold">{selectedOrder.address}</span>
+                  <p className="text-gray-900 break-words">
+                    <span className="text-sm font-semibold text-purple-600">Адреса:</span> <span className="font-semibold">{selectedOrder.address}</span>
                   </p>
                   {selectedOrder.postalCode && (
-                    <p className="text-gray-900 text-sm sm:text-base">
-                      <span className="text-xs sm:text-sm text-gray-600">Поштовий індекс:</span> <span className="font-semibold">{selectedOrder.postalCode}</span>
+                    <p className="text-gray-900">
+                      <span className="text-sm font-semibold text-purple-600">Поштовий індекс:</span> <span className="font-semibold">{selectedOrder.postalCode}</span>
                     </p>
                   )}
                 </div>
@@ -285,37 +285,37 @@ export default function AccountPage() {
 
               {/* Способ доставки та оплати */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
                   🚚 Доставка та оплата
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Спосіб доставки</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{getDeliveryLabel(selectedOrder.deliveryMethod)}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30">
+                    <p className="text-xs text-purple-600 font-semibold mb-2">Спосіб доставки</p>
+                    <p className="font-semibold text-gray-900">{getDeliveryLabel(selectedOrder.deliveryMethod)}</p>
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1">Спосіб оплати</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">Оплата онлайн</p>
+                  <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30">
+                    <p className="text-xs text-purple-600 font-semibold mb-2">Спосіб оплати</p>
+                    <p className="font-semibold text-gray-900">Оплата онлайн</p>
                   </div>
                 </div>
               </section>
 
               {/* Товари */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
                   📦 Товари ({selectedOrder.items.length})
                 </h3>
-                <div className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto">
+                <div className="space-y-3 max-h-48 overflow-y-auto">
                   {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-start p-2 sm:p-3 bg-gray-50 rounded-lg gap-2">
+                    <div key={item.id} className="flex justify-between items-start p-3 bg-gradient-to-r from-purple-50/50 to-pink-50/50 rounded-xl border border-purple-200/30 gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 text-sm sm:text-base break-words">{item.name}</p>
-                        <p className="text-xs sm:text-sm text-gray-600">Категорія: {item.category}</p>
-                        <p className="text-xs sm:text-sm text-gray-600">Кількість: {item.quantity}</p>
+                        <p className="font-semibold text-gray-900 break-words">{item.name}</p>
+                        <p className="text-xs text-gray-600 mt-1">Категорія: {item.category}</p>
+                        <p className="text-xs text-gray-600">Кількість: {item.quantity}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-semibold text-gray-900 text-xs sm:text-sm">{item.price}₴ за од.</p>
-                        <p className="text-xs sm:text-sm text-purple-600 font-bold">{parseInt(item.price) * item.quantity}₴</p>
+                        <p className="font-semibold text-gray-900 text-sm">{item.price}₴ за од.</p>
+                        <p className="text-sm font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{parseInt(item.price) * item.quantity}₴</p>
                       </div>
                     </div>
                   ))}
@@ -324,55 +324,55 @@ export default function AccountPage() {
 
               {/* Розрахунки */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
                   💰 Розрахунки
                 </h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                <div className="bg-gradient-to-r from-purple-50/70 to-pink-50/70 border-2 border-purple-200/30 rounded-xl p-4 space-y-3">
+                  <div className="flex justify-between text-gray-900 font-semibold">
                     <span>Сума товарів:</span>
-                    <span className="font-semibold">{selectedOrder.totalPrice}₴</span>
+                    <span>{selectedOrder.totalPrice}₴</span>
                   </div>
                   {selectedOrder.discountAmount && selectedOrder.discountAmount > 0 ? (
                     <>
-                      <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                      <div className="flex justify-between text-gray-900">
                         <span>Знижка ({selectedOrder.discountPercent}%):</span>
                         <span className="font-semibold text-green-600">−{selectedOrder.discountAmount}₴</span>
                       </div>
-                      <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                      <div className="flex justify-between text-gray-900 font-semibold">
                         <span>Після знижки:</span>
-                        <span className="font-semibold">{selectedOrder.discountedSubtotal}₴</span>
+                        <span>{selectedOrder.discountedSubtotal}₴</span>
                       </div>
                     </>
                   ) : (
-                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                    <div className="flex justify-between text-gray-600">
                       <span>Знижка (0%):</span>
-                      <span className="font-semibold text-gray-500">0₴</span>
+                      <span>0₴</span>
                     </div>
                   )}
                   {selectedOrder.redeemedPoints && selectedOrder.redeemedPoints > 0 ? (
-                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                    <div className="flex justify-between text-gray-900">
                       <span>Списано балів ({selectedOrder.redeemedPoints}):</span>
                       <span className="font-semibold text-yellow-600">−{selectedOrder.redeemedAmount}₴</span>
                     </div>
                   ) : (
-                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                    <div className="flex justify-between text-gray-600">
                       <span>Списано балів (0):</span>
-                      <span className="font-semibold text-gray-500">0₴</span>
+                      <span>0₴</span>
                     </div>
                   )}
                   {selectedOrder.deliveryPrice > 0 && (
-                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                    <div className="flex justify-between text-gray-900">
                       <span>Доставка:</span>
                       <span className="font-semibold text-orange-600">+{selectedOrder.deliveryPrice}₴</span>
                     </div>
                   )}
                   {selectedOrder.deliveryPrice === 0 && (
-                    <div className="flex justify-between text-gray-900 text-sm sm:text-base">
+                    <div className="flex justify-between text-gray-900">
                       <span>Доставка:</span>
                       <span className="font-semibold text-green-600">Безкоштовна ✓</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-base sm:text-lg font-bold text-purple-600 pt-2 sm:pt-3 border-t border-gray-200">
+                  <div className="flex justify-between text-lg font-bold text-white pt-3 border-t-2 border-purple-300/50 bg-gradient-to-r from-purple-600 to-pink-600 -mx-4 -mb-4 px-4 py-3 rounded-b-xl">
                     <span>До оплати:</span>
                     <span>{selectedOrder.finalPrice}₴</span>
                   </div>
@@ -382,35 +382,35 @@ export default function AccountPage() {
               {/* Коментарі */}
               {selectedOrder.comments && (
                 <section>
-                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                  <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
                     📝 Коментарі
                   </h3>
-                  <p className="text-gray-700 text-sm sm:text-base whitespace-pre-wrap break-words">{selectedOrder.comments}</p>
+                  <p className="text-gray-700 bg-purple-50/50 p-4 rounded-xl border border-purple-200/30 whitespace-pre-wrap break-words">{selectedOrder.comments}</p>
                 </section>
               )}
 
               {/* Дати */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
+                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
                   📅 Дати
                 </h3>
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600">Створено</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{formatDate(selectedOrder.createdAt)}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30">
+                    <p className="text-xs text-purple-600 font-semibold mb-2">Створено</p>
+                    <p className="font-semibold text-gray-900">{formatDate(selectedOrder.createdAt)}</p>
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600">Оновлено</p>
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base">{formatDate(selectedOrder.updatedAt)}</p>
+                  <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30">
+                    <p className="text-xs text-purple-600 font-semibold mb-2">Оновлено</p>
+                    <p className="font-semibold text-gray-900">{formatDate(selectedOrder.updatedAt)}</p>
                   </div>
                 </div>
               </section>
 
               {/* Кнопка закрити */}
-              <div className="pt-4 sm:pt-6 border-t border-gray-200">
+              <div className="pt-4 border-t-2 border-purple-200/30">
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="w-full bg-gray-200 text-gray-800 font-bold py-2 sm:py-2.5 rounded-lg hover:bg-gray-300 transition-colors text-sm sm:text-base"
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transition-all"
                 >
                   Закрити
                 </button>
