@@ -169,7 +169,10 @@ export default function CheckoutPage() {
 
       // Зменшуємо кількість товарів у базі
       for (const item of cartItems) {
-        await decreaseProductQuantity(item.id, item.quantity);
+        const itemId = typeof item.id === 'string' ? parseInt(item.id) : item.id;
+        if (!isNaN(itemId)) {
+          await decreaseProductQuantity(itemId, item.quantity);
+        }
       }
 
       // Оновлюємо статистику користувача (бали, рейтинг) якщо авторизований
