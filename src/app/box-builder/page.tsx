@@ -352,7 +352,7 @@ export default function BoxBuilderPage() {
 
           {/* Крок 1: Вибір боксу */}
           {currentStep === 1 && (
-            <section>
+            <section className='pb-24'>
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">Крок 1: Виберіть розмір боксу</h2>
                 <p className="text-gray-600">Виберіть розмір, який вам подобається</p>

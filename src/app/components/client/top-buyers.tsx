@@ -45,12 +45,12 @@ export default function TopBuyers({ limit = 5 }: TopBuyersProps) {
       <ol className="space-y-3">
         {buyers.map((u, idx) => {
           const ratingBadges = [
-            { level: 0, label: 'Новачок', color: 'bg-gray-200 text-gray-800' },
-            { level: 1, label: 'Початківець', color: 'bg-blue-100 text-blue-800' },
-            { level: 2, label: 'Дослідник', color: 'bg-purple-100 text-purple-800' },
-            { level: 3, label: 'Експерт', color: 'bg-pink-100 text-pink-800' },
-            { level: 4, label: 'Майстер', color: 'bg-amber-100 text-amber-800' },
-            { level: 5, label: 'Легенда', color: 'bg-green-100 text-green-800' },
+            { level: 0, label: '🐎 Новий друг Еквестрії', color: 'bg-gray-200 text-gray-800' },
+            { level: 1, label: '🌙 Друг місяця', color: 'bg-blue-100 text-blue-800' },
+            { level: 2, label: '⭐ Істинний шанувальник', color: 'bg-purple-100 text-purple-800' },
+            { level: 3, label: '💎 Колекціонер MLP', color: 'bg-pink-100 text-pink-800' },
+            { level: 4, label: '👑 Королева Понів', color: 'bg-amber-100 text-amber-800' },
+            { level: 5, label: '✨ Легенда Еквестрії', color: 'bg-green-100 text-green-800' },
           ];
           const badge = ratingBadges.find(b => b.level === u.rating) || ratingBadges[0];
           return (

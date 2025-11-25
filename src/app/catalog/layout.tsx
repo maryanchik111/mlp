@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { JsonLd, organizationSchema } from '../../lib/schema';
 
 export const metadata: Metadata = {
   title: "Каталог - My Little Pony Store | Іграшки і колекції",

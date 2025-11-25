@@ -569,7 +569,7 @@ export default function CatalogPage() {
       </div>
 
       {/* FAQ секція для SEO */}
-      <section className="bg-white border-t border-gray-200 py-12 mt-12">
+      <section className="bg-white border-t border-gray-200 py-12 mt-12 pb-24">
         <div className="container mx-auto px-4 max-w-7xl">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">
             Часті питання про My Little Pony іграшки

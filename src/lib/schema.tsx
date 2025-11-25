@@ -1,6 +1,3 @@
-
-
-// @jsxImportSource react
 import * as React from 'react';
 
 export function JsonLd({ data }: { data: unknown }): React.ReactElement {
