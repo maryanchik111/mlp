@@ -288,6 +288,68 @@ export default function BoxBuilderPage() {
         </section>
 
         <div className="container mx-auto px-4 max-w-7xl py-12">
+          {/* Як створити власний бокс - інструкція */}
+          {currentStep === 1 && (
+            <section className="mb-16">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">Як створити власний бокс?</h2>
+                <p className="text-gray-600">Це просто! Слідуй кроками нижче</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                {/* Крок 1 */}
+                <div className="text-center">
+                  <div className="mb-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-600 text-white rounded-full font-bold text-lg mb-4">
+                      1
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Обери коробочку</h3>
+                  <p className="text-sm text-gray-600">Обери підходящу коробочку, в яку ми все запакуємо</p>
+                </div>
+
+                {/* Крок 2 */}
+                <div className="text-center">
+                  <div className="mb-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-600 text-white rounded-full font-bold text-lg mb-4">
+                      2
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Додай улюблені товари</h3>
+                  <p className="text-sm text-gray-600">Додай те, що тобі подобається! В нас ти знайдеш унікальні товари!</p>
+                </div>
+
+                {/* Крок 3 */}
+                <div className="text-center">
+                  <div className="mb-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-600 text-white rounded-full font-bold text-lg mb-4">
+                      3
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Обери потрібні предмети</h3>
+                  <p className="text-sm text-gray-600">Додай цікаві аксесуари, картки, фігурки чи декор!</p>
+                </div>
+
+                {/* Крок 4 */}
+                <div className="text-center">
+                  <div className="mb-4">
+                    <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-600 text-white rounded-full font-bold text-lg mb-4">
+                      4
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">Оформи замовлення</h3>
+                  <p className="text-sm text-gray-600">Перейди до кошика та перевірь кількість товарів. Якщо треба їх подвоїти - тисни "+".</p>
+                </div>
+
+                {/* CTA */}
+                <div className="flex flex-col items-center justify-center">
+                  <div className="text-4xl mb-4">🎁</div>
+                  <p className="text-sm text-gray-600 mb-4">Почнемо збирати наш бокс!</p>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Крок 1: Вибір боксу */}
           {currentStep === 1 && (
             <section>
@@ -443,7 +505,7 @@ export default function BoxBuilderPage() {
                             />
                           ) : (
                             <div className="w-full h-48 flex items-center justify-center text-5xl bg-gray-100">
-                              {item.emoji || '🎁'}
+                              🎁
                             </div>
                           )}
                           {isSelected && (
@@ -482,7 +544,7 @@ export default function BoxBuilderPage() {
 
         {/* Підсумок */}
         {currentStep === 2 && selectedBoxType && calculation && (
-          <div className="mt-12 mb-24 bg-white rounded-2xl shadow-lg p-8">
+          <div className="mt-12 pb-24 bg-white rounded-2xl shadow-lg p-8">
             <h3 className="text-2xl font-bold text-gray-900 mb-8">Підсумок замовлення</h3>
             
             {/* Інформація про доставку */}
