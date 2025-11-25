@@ -7,14 +7,19 @@ import { useAuth } from '@/app/providers';
 import { ref, set } from 'firebase/database';
 
 interface CartItem {
-  id: number;
+  id: number | string;
   name: string;
-  price: string;
+  price: string | number;
   quantity: number;
   image: string;
   category: string;
   maxQuantity?: number;
   discount?: number; // Знижка на товар у %
+  images?: string[];
+  customBox?: {
+    type: string;
+    items: Array<{ id: number; name: string }>;
+  };
 }
 
 interface FormData {
@@ -442,27 +447,43 @@ export default function CheckoutPage() {
                   const discountedPrice = discount > 0 ? Math.round(originalPrice * (1 - discount / 100)) : originalPrice;
                   
                   return (
-                    <div key={item.id} className="flex justify-between items-start pb-3 border-b border-gray-200">
-                      <div>
-                        <p className="font-semibold text-gray-900">{item.name}</p>
-                        <p className="text-sm text-gray-600">Кількість: {item.quantity}</p>
-                      </div>
-                      <div className="text-right">
-                        {discount > 0 ? (
-                          <>
+                    <div key={item.id} className="pb-3 border-b border-gray-200">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold text-gray-900">{item.name}</p>
+                          <p className="text-sm text-gray-600">Кількість: {item.quantity}</p>
+                        </div>
+                        <div className="text-right">
+                          {discount > 0 ? (
+                            <>
+                              <p className="font-semibold text-purple-600">
+                                {discountedPrice * item.quantity}₴
+                              </p>
+                              <p className="text-xs text-gray-400 line-through">
+                                {originalPrice * item.quantity}₴
+                              </p>
+                            </>
+                          ) : (
                             <p className="font-semibold text-purple-600">
-                              {discountedPrice * item.quantity}₴
-                            </p>
-                            <p className="text-xs text-gray-400 line-through">
                               {originalPrice * item.quantity}₴
                             </p>
-                          </>
-                        ) : (
-                          <p className="font-semibold text-purple-600">
-                            {originalPrice * item.quantity}₴
-                          </p>
-                        )}
+                          )}
+                        </div>
                       </div>
+                      
+                      {/* Вміст коробки (якщо це конструктор боксу) */}
+                      {item.customBox && (
+                        <div className="mt-3 pt-3 border-t border-gray-100 text-sm">
+                          <p className="text-xs font-semibold text-gray-700 mb-2">Вміст боксу:</p>
+                          <ul className="space-y-1">
+                            {item.customBox.items.map((customItem, idx) => (
+                              <li key={idx} className="text-xs text-gray-600">
+                                • {customItem.name}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

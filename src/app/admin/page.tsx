@@ -1602,6 +1602,18 @@ export default function AdminPage() {
                         <p className="font-semibold text-gray-900 text-sm sm:text-base break-words">{item.name}</p>
                         <p className="text-xs sm:text-sm text-gray-600">Категорія: {item.category}</p>
                         <p className="text-xs sm:text-sm text-gray-600">Кількість: {item.quantity}</p>
+                        
+                        {/* Вміст коробки (якщо це конструктор боксу) */}
+                        {(item as any).customBox && (
+                          <div className="mt-2 pt-2 border-t border-gray-200">
+                            <p className="text-xs font-semibold text-gray-700 mb-1">Вміст боксу:</p>
+                            <ul className="text-xs text-gray-600 space-y-0.5">
+                              {(item as any).customBox.items.map((customItem: any, idx: number) => (
+                                <li key={idx}>• {customItem.name}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className="font-semibold text-gray-900 text-xs sm:text-sm">{item.price}₴ за од.</p>
