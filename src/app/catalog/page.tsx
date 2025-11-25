@@ -233,37 +233,44 @@ export default function CatalogPage() {
 
   return (
     <>
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white">
       {/* Хлібні крихти */}
-      <nav className="bg-white border-b border-gray-200" aria-label="Breadcrumb">
-        <div className="container mx-auto px-4 py-3 max-w-7xl">
+      <nav className="bg-white/80 backdrop-blur-sm border-b border-purple-200/30" aria-label="Breadcrumb">
+        <div className="container mx-auto px-4 py-4 max-w-7xl">
           <ol className="flex items-center gap-2 text-sm text-gray-600">
-            <li><a href="/" className="hover:text-purple-600">Головна</a></li>
-            <li>/</li>
-            <li className="text-gray-900 font-semibold">Каталог</li>
+            <li><a href="/" className="hover:text-purple-600 transition-colors">Головна</a></li>
+            <li className="text-purple-300">/</li>
+            <li className="text-purple-700 font-semibold">Каталог</li>
           </ol>
         </div>
       </nav>
 
       {/* Заголовок сторінки з розширеним описом для SEO */}
-      <section className="bg-white border-b border-gray-200 py-8">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-            Каталог My Little Pony
-          </h1>
-          <p className="text-lg text-gray-600 mb-4">
+      <section className="relative overflow-hidden py-12 md:py-16">
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl"></div>
+        </div>
+        <div className="container mx-auto px-4 max-w-7xl relative z-10">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="text-5xl md:text-6xl animate-bounce-slow">🦄</div>
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+              Каталог My Little Pony
+            </h1>
+          </div>
+          <p className="text-lg text-gray-700 mb-6 max-w-2xl leading-relaxed">
             Купіть оригінальні іграшки та колекційні фігурки My Little Pony з доставкою по Україні. 
             Великий вибір персонажів, наборів та аксесуарів за найкращими цінами.
           </p>
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
-              {allProducts.length}+ товарів
+            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-shadow">
+              <span className="text-xl">✨</span> {allProducts.length}+ товарів
             </span>
-            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-              Швидка доставка
+            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-shadow">
+              <span className="text-xl">🚀</span> Швидка доставка
             </span>
-            <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full">
-              100% оригіналу
+            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-green-200 text-green-800 px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-shadow">
+              <span className="text-xl">✅</span> 100% оригіналу
             </span>
           </div>
         </div>
@@ -273,18 +280,20 @@ export default function CatalogPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Бічна панель з фільтрами */}
           <aside className="lg:col-span-1">
-            <div className="bg-white p-6 rounded-lg shadow-sm sticky top-4">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Категорії</h2>
+            <div className="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow sticky top-4 border border-purple-200/30">
+              <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 flex items-center gap-2">
+                <span className="text-2xl">🎨</span> Категорії
+              </h2>
               <nav className="space-y-2">
                 <button
                   onClick={() => {
                     setSelectedCategory(null);
                     setCurrentPage(1);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-lg font-medium transition-colors ${
+                  className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-200 ${
                     selectedCategory === null
-                      ? "bg-purple-600 text-white"
-                      : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/50 scale-105"
+                      : "text-gray-700 hover:bg-purple-50 hover:text-purple-600 hover:translate-x-1"
                   }`}
                 >
                   Всі категорії
@@ -296,17 +305,17 @@ export default function CatalogPage() {
                       setSelectedCategory(category.name);
                       setCurrentPage(1);
                     }}
-                    className={`w-full text-left flex items-center justify-between p-3 rounded-lg transition-colors ${
+                    className={`w-full text-left flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
                       selectedCategory === category.name
-                        ? "bg-purple-600 text-white"
-                        : "text-gray-700 hover:bg-purple-50 hover:text-purple-600"
+                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/50"
+                        : "text-gray-700 hover:bg-purple-50 hover:text-purple-600 hover:translate-x-1"
                     }`}
                   >
                     <span className="font-medium">{category.name}</span>
-                    <span className={`text-xs px-2 py-1 rounded ${
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${
                       selectedCategory === category.name
-                        ? "bg-purple-700"
-                        : "bg-gray-100"
+                        ? "bg-white/30"
+                        : "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700"
                     }`}>
                       {category.count}
                     </span>
@@ -315,73 +324,75 @@ export default function CatalogPage() {
               </nav>
 
               {/* Фільтри ціни */}
-              <div className="mt-8 pt-8 border-t border-gray-200">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Ціна</h3>
-                <div className="space-y-2">
+              <div className="mt-8 pt-8 border-t border-purple-200/30">
+                <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 flex items-center gap-2">
+                  <span className="text-xl">💰</span> Ціна
+                </h3>
+                <div className="space-y-3">
                   <label className="flex items-center cursor-pointer group">
                     <input 
                       type="radio" 
                       name="price"
-                      className="w-4 h-4 text-purple-600"
+                      className="w-5 h-5 text-purple-600 accent-purple-600"
                       checked={priceRange === null}
                       onChange={() => {
                         setPriceRange(null);
                         setCurrentPage(1);
                       }}
                     />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600">Усі ціни</span>
+                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">Усі ціни</span>
                   </label>
                   <label className="flex items-center cursor-pointer group">
                     <input 
                       type="radio" 
                       name="price"
-                      className="w-4 h-4 text-purple-600"
+                      className="w-5 h-5 text-purple-600 accent-purple-600"
                       checked={priceRange?.[0] === 0 && priceRange?.[1] === 300}
                       onChange={() => {
                         setPriceRange([0, 300]);
                         setCurrentPage(1);
                       }}
                     />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600">До 300₴</span>
+                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">До 300₴</span>
                   </label>
                   <label className="flex items-center cursor-pointer group">
                     <input 
                       type="radio" 
                       name="price"
-                      className="w-4 h-4 text-purple-600"
+                      className="w-5 h-5 text-purple-600 accent-purple-600"
                       checked={priceRange?.[0] === 300 && priceRange?.[1] === 700}
                       onChange={() => {
                         setPriceRange([300, 700]);
                         setCurrentPage(1);
                       }}
                     />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600">300₴ - 700₴</span>
+                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">300₴ - 700₴</span>
                   </label>
                   <label className="flex items-center cursor-pointer group">
                     <input 
                       type="radio" 
                       name="price"
-                      className="w-4 h-4 text-purple-600"
+                      className="w-5 h-5 text-purple-600 accent-purple-600"
                       checked={priceRange?.[0] === 700 && priceRange?.[1] === 1500}
                       onChange={() => {
                         setPriceRange([700, 1500]);
                         setCurrentPage(1);
                       }}
                     />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600">700₴ - 1500₴</span>
+                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">700₴ - 1500₴</span>
                   </label>
                   <label className="flex items-center cursor-pointer group">
                     <input 
                       type="radio" 
                       name="price"
-                      className="w-4 h-4 text-purple-600"
+                      className="w-5 h-5 text-purple-600 accent-purple-600"
                       checked={priceRange?.[0] === 1500 && priceRange?.[1] === 10000}
                       onChange={() => {
                         setPriceRange([1500, 10000]);
                         setCurrentPage(1);
                       }}
                     />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600">Понад 1500₴</span>
+                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">Понад 1500₴</span>
                   </label>
                 </div>
               </div>
@@ -390,9 +401,9 @@ export default function CatalogPage() {
 
           {/* Основна сітка товарів */}
           <section className="lg:col-span-3">
-            <div className="mb-6 flex items-center justify-between">
-              <p className="text-gray-600">
-                Показано <strong>{currentProducts.length}</strong> з <strong>{sortedProducts.length}</strong> товарів
+            <div className="mb-8 flex items-center justify-between bg-white/70 backdrop-blur-md p-6 rounded-2xl border border-purple-200/30">
+              <p className="text-gray-700 font-semibold">
+                Показано <span className="text-purple-600 font-bold">{currentProducts.length}</span> з <span className="text-purple-600 font-bold">{sortedProducts.length}</span> товарів
               </p>
               <select 
                 value={sortBy}
@@ -400,11 +411,11 @@ export default function CatalogPage() {
                   setSortBy(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-600"
+                className="px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg text-gray-700 font-semibold hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all cursor-pointer"
               >
-                <option value="popular">За популярністю</option>
-                <option value="price-asc">За ціною (зростання)</option>
-                <option value="price-desc">За ціною (спадання)</option>
+                <option value="popular">✨ За популярністю</option>
+                <option value="price-asc">💰 За ціною (зростання)</option>
+                <option value="price-desc">💰 За ціною (спадання)</option>
               </select>
             </div>
 
@@ -412,7 +423,7 @@ export default function CatalogPage() {
               {currentProducts.map((product: Product) => (
                 <article 
                   key={product.id} 
-                  className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow overflow-hidden"
+                  className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-purple-200/30 hover:border-purple-400/50 hover:-translate-y-2"
                   itemScope
                   itemType="https://schema.org/Product"
                 >
@@ -425,72 +436,74 @@ export default function CatalogPage() {
 
                   {/* Іконка продукту (галерея тільки на сторінці товару) */}
                   <Link href={`/catalog/product/${product.id}`} className="block">
-                    <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center relative overflow-hidden">
+                    <div className="w-full h-56 bg-gradient-to-br from-purple-100 via-pink-100 to-purple-50 flex items-center justify-center relative overflow-hidden">
                       {product.images && product.images.length > 0 ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
                           src={product.images[0]} 
                           alt={product.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="text-6xl">{product.image || '📦'}</div>
+                        <div className="text-7xl group-hover:scale-125 transition-transform duration-300">{product.image || '📦'}</div>
                       )}
                       {product.quantity === 0 && (
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                          <p className="text-white font-bold text-lg">Немає в наявності</p>
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-red-900/50 flex items-center justify-center backdrop-blur-sm">
+                          <p className="text-white font-bold text-lg text-center">❌ Немає в наявності</p>
+                        </div>
+                      )}
+                      {product.discount && product.discount > 0 && (
+                        <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold px-3 py-2 rounded-full shadow-lg">
+                          −{product.discount}%
                         </div>
                       )}
                     </div>
                   </Link>
 
                   {/* Інформація про продукт */}
-                  <div className="p-4">
-                    <p className="text-xs font-semibold text-purple-600 uppercase tracking-wide mb-2">
+                  <div className="p-5">
+                    <p className="text-xs font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text uppercase tracking-widest mb-3">
                       {product.category}
                     </p>
                     <Link href={`/catalog/product/${product.id}`} className="block">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 hover:text-purple-600">
+                      <h3 className="text-base font-bold text-gray-900 mb-2 hover:text-transparent hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:bg-clip-text transition-all line-clamp-2">
                         {product.name}
                       </h3>
                     </Link>
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                       {product.description}
                     </p>
 
                     {/* Ціна та кнопка */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4">
                       <div className="flex items-center gap-2">
                         {product.discount && product.discount > 0 ? (
                           <>
-                            <span className="text-sm text-gray-400 line-through">
+                            <span className="text-xs text-gray-400 line-through font-semibold">
                               {product.price}₴
                             </span>
-                            <span className="text-2xl font-bold text-purple-600">
+                            <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                               {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
-                            </span>
-                            <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                              −{product.discount}%
                             </span>
                           </>
                         ) : (
-                          <span className="text-2xl font-bold text-purple-600">
+                          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                             {product.price}₴
                           </span>
                         )}
                       </div>
                       <button 
                         onClick={() => handleToggleCart(product)}
-                        className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                        className={`w-full px-4 py-3 rounded-lg font-bold transition-all duration-200 ${
                           addedItems[product.id] === 'removed'
-                            ? "bg-red-500 text-white scale-105"
+                            ? "bg-red-500 text-white scale-105 shadow-lg"
                             : addedItems[product.id] === true
-                            ? "bg-green-500 text-white scale-105"
+                            ? "bg-green-500 text-white scale-105 shadow-lg"
                             : cartItems.includes(product.id)
-                            ? "bg-blue-600 text-white hover:bg-red-600"
+                            ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-red-600 hover:to-red-500 shadow-lg"
                             : product.quantity > 0
-                            ? "bg-purple-600 text-white hover:bg-purple-700"
-                            : "bg-gray-300 text-gray-600 cursor-not-allowed"
+                            ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
+                            : "bg-gray-300 text-gray-600 cursor-not-allowed opacity-60"
                         }`}
                         disabled={product.quantity === 0}
                         title={cartItems.includes(product.id) ? "Видалити з кошика" : "Додати в кошик"}
@@ -500,10 +513,10 @@ export default function CatalogPage() {
                           : addedItems[product.id] === true 
                           ? "✓ Додано!" 
                           : cartItems.includes(product.id)
-                          ? "🗑️"
+                          ? "🗑️ Видалити"
                           : product.quantity > 0 
-                          ? "🛒" 
-                          : "Закінчився"}
+                          ? "🛒 В кошик" 
+                          : "❌ Закінчився"}
                       </button>
                     </div>
                   </div>
@@ -517,10 +530,10 @@ export default function CatalogPage() {
               <button 
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 border rounded-lg font-medium transition-colors ${
+                className={`px-5 py-3 border-2 rounded-lg font-bold transition-all duration-200 ${
                   currentPage === 1
-                    ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"
-                    : "border-gray-300 text-gray-700 hover:bg-purple-50 hover:border-purple-600 hover:text-purple-600"
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50 opacity-50"
+                    : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
                 }`}
               >
                 ← Назад
@@ -530,14 +543,14 @@ export default function CatalogPage() {
               {getPageNumbers().map((page, index) => (
                 <div key={index}>
                   {page === '...' ? (
-                    <span className="px-2 py-2 text-gray-500">...</span>
+                    <span className="px-2 py-2 text-gray-400 text-lg font-bold">•••</span>
                   ) : (
                     <button
                       onClick={() => handlePageChange(page)}
-                      className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                      className={`px-4 py-3 rounded-lg font-bold transition-all duration-200 ${
                         currentPage === page
-                          ? "bg-purple-600 text-white"
-                          : "border border-gray-300 text-gray-700 hover:bg-purple-50 hover:border-purple-600 hover:text-purple-600"
+                          ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/50"
+                          : "border-2 border-purple-300 text-purple-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:border-purple-600"
                       }`}
                     >
                       {page}
@@ -550,10 +563,10 @@ export default function CatalogPage() {
               <button 
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 border rounded-lg font-medium transition-colors ${
+                className={`px-5 py-3 border-2 rounded-lg font-bold transition-all duration-200 ${
                   currentPage === totalPages
-                    ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"
-                    : "border-gray-300 text-gray-700 hover:bg-purple-50 hover:border-purple-600 hover:text-purple-600"
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50 opacity-50"
+                    : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
                 }`}
               >
                 Далі →
@@ -561,42 +574,58 @@ export default function CatalogPage() {
             </nav>
 
             {/* Інформація про пагінацію */}
-            <div className="mt-6 text-center text-gray-600">
-              <p>Сторінка <strong>{currentPage}</strong> з <strong>{totalPages}</strong></p>
+            <div className="mt-8 text-center">
+              <p className="text-gray-700 font-semibold">
+                Сторінка <span className="text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text font-bold">{currentPage}</span> з <span className="text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text font-bold">{totalPages}</span>
+              </p>
             </div>
           </section>
         </div>
       </div>
 
       {/* FAQ секція для SEO */}
-      <section className="bg-white border-t border-gray-200 py-12 mt-12 pb-24">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">
-            Часті питання про My Little Pony іграшки
-          </h2>
+      <section className="relative overflow-hidden py-16 mt-12 pb-24 bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 border-t border-purple-200/30">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl"></div>
+        </div>
+        <div className="container mx-auto px-4 max-w-7xl relative z-10">
+          <div className="flex items-center gap-3 mb-12">
+            <span className="text-4xl">❓</span>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Часті питання про My Little Pony іграшки
+            </h2>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
               {
                 q: "Чи оригінальні всі товари?",
                 a: "Так, ми продаємо тільки оригінальну продукцію від офіційних виробників.",
+                emoji: "✅"
               },
               {
                 q: "Скільки коштує доставка?",
                 a: "Доставка безкоштовна при замовленні від 2000₴. В інших випадках - 50₴.",
+                emoji: "🚚"
               },
               {
                 q: "Який час доставки?",
                 a: "Доставляємо по Україні за 1-3 робочі дні.",
+                emoji: "⏱️"
               },
               {
                 q: "Можна повернути товар?",
                 a: "Так, протягом 14 днів без причини або при виявленні дефектів.",
+                emoji: "↩️"
               },
             ].map((item, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4">
-                <h3 className="font-bold text-gray-900 mb-2">{item.q}</h3>
-                <p className="text-gray-600">{item.a}</p>
+              <div key={index} className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl p-6 hover:shadow-lg hover:border-purple-400/50 transition-all duration-200 hover:-translate-y-1">
+                <h3 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
+                  <span className="text-2xl">{item.emoji}</span>
+                  {item.q}
+                </h3>
+                <p className="text-gray-700 leading-relaxed">{item.a}</p>
               </div>
             ))}
           </div>
