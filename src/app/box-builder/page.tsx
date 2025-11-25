@@ -652,7 +652,7 @@ export default function BoxBuilderPage() {
                           onClick={() => setPhotoIndex(prev => (prev - 1 + detailModal.images!.length) % detailModal.images!.length)}
                           className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                         >
-                          ← Попередня
+                          ←
                         </button>
                         <span className="text-sm font-semibold text-gray-600">
                           {photoIndex + 1} / {detailModal.images.length}
@@ -661,7 +661,7 @@ export default function BoxBuilderPage() {
                           onClick={() => setPhotoIndex(prev => (prev + 1) % detailModal.images!.length)}
                           className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                         >
-                          Наступна →
+                          →
                         </button>
                       </div>
                     )}
