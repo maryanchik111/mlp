@@ -34,7 +34,7 @@ export default function RecentReviews() {
 
   if (loading) {
     return (
-      <div className="bg-white/20 backdrop-blur-sm rounded-2xl shadow-sm p-6">
+      <div className="bg-purple-200 rounded-2xl shadow-xl p-6 border-2 border-purple-400/60">
         <p className="text-sm text-white/80 text-center">Завантаження відгуків...</p>
       </div>
     );
@@ -42,7 +42,7 @@ export default function RecentReviews() {
 
   if (!reviews.length) {
     return (
-      <div className="bg-white/20 backdrop-blur-sm rounded-2xl shadow-sm p-6">
+      <div className="bg-purple-200 rounded-2xl shadow-xl p-6 border-2 border-purple-400/60">
         <h2 className="text-2xl font-bold mb-3 text-white text-center">💬 Відгуки покупців</h2>
         <p className="text-white/80 text-sm text-center">Поки що немає відгуків. Будьте першим!</p>
       </div>
@@ -50,7 +50,7 @@ export default function RecentReviews() {
   }
 
   return (
-    <div className="bg-white/20 backdrop-blur-sm rounded-2xl shadow-sm p-6">
+    <div className="bg-purple-200 rounded-2xl shadow-xl p-6 border-2 border-purple-400/60">
       {/* Заголовок з середнім рейтингом */}
       <div className="mb-6 text-center">
         <h2 className="text-2xl font-bold text-white mb-4 flex items-center justify-center gap-3">
@@ -74,7 +74,7 @@ export default function RecentReviews() {
           const firstName = (r.displayName || 'Користувач').split(' ')[0];
           
           return (
-            <div key={r.id} className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all">
+            <div key={r.id} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border border-purple-200">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">

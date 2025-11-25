@@ -40,7 +40,7 @@ export default function TopBuyers({ limit = 5 }: TopBuyersProps) {
   }
 
   return (
-    <div className="bg-white/20 backdrop-blur-sm rounded-2xl shadow-sm p-6 mb-12">
+    <div className="bg-pink-200 rounded-2xl shadow-xl p-6 mb-12 border-2 border-pink-400/60">
       <h2 className="text-2xl font-bold mb-6 text-white text-center flex items-center justify-center gap-2">🏆 Топ покупці</h2>
       <ol className="space-y-3">
         {buyers.map((u, idx) => {
@@ -56,7 +56,7 @@ export default function TopBuyers({ limit = 5 }: TopBuyersProps) {
           return (
             <li
               key={u.uid}
-              className="flex items-center justify-between bg-white/80 backdrop-blur-sm border border-white/40 rounded-lg p-3 hover:shadow-md transition-shadow"
+              className="flex items-center justify-between bg-white rounded-lg p-3 border border-pink-200 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="text-lg font-bold text-purple-600 w-6 text-center">{idx + 1}</div>
