@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
@@ -24,6 +24,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [usersCount, setUsersCount] = useState(0);
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'cancelled'>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -66,10 +67,6 @@ export default function AdminPage() {
     }
   }, [user, authLoading, router]);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   // Функція для завантаження товарів
   useEffect(() => {
     if (!mounted) return;
@@ -86,6 +83,16 @@ export default function AdminPage() {
       setReviews(allReviews);
     };
     loadReviews();
+  }, [mounted]);
+
+  // Кількість зареєстрованих акаунтів
+  useEffect(() => {
+    if (!mounted) return;
+    const loadUsersCount = async () => {
+      const count = await fetchUsersCount();
+      setUsersCount(count);
+    };
+    loadUsersCount();
   }, [mounted]);
 
   // Функція для видалення відгуку
@@ -602,7 +609,7 @@ export default function AdminPage() {
         </div>
 
         {/* Stats Tab Content */}
-        {activeTab === 'stats' && <AdminStats orders={orders} products={products} />}
+        {activeTab === 'stats' && <AdminStats orders={orders} products={products} usersCount={usersCount} />}
 
         {/* Orders Tab Content */}
         {activeTab === 'orders' && (

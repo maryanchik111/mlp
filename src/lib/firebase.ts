@@ -234,6 +234,18 @@ export const fetchTopBuyers = async (limitCount: number = 5): Promise<UserProfil
   }
 };
 
+// Кількість зареєстрованих акаунтів (users)
+export const fetchUsersCount = async (): Promise<number> => {
+  try {
+    const snapshot = await get(ref(database, 'users'));
+    if (!snapshot.exists()) return 0;
+    return snapshot.numChildren();
+  } catch (e) {
+    console.error('Помилка отримання кількості користувачів:', e);
+    return 0;
+  }
+};
+
 export const fetchUserOrders = async (uid: string): Promise<Order[]> => {
   try {
     const ordersRef = ref(database, 'orders');

@@ -23,25 +23,25 @@ export default function TopBuyers({ limit = 5 }: TopBuyersProps) {
 
   if (loading) {
     return (
-      <div className="bg-white/20 backdrop-blur-sm rounded-2xl shadow-sm p-6 mb-12">
-        <h2 className="text-2xl font-bold mb-4 text-white text-center flex items-center justify-center gap-2">🏆 Топ покупці</h2>
-        <p className="text-white/90 text-sm text-center">Завантаження...</p>
+      <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-12 border border-pink-200">
+        <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center flex items-center justify-center gap-2">🏆 Топ покупці</h2>
+        <p className="text-gray-700 text-sm text-center">Завантаження...</p>
       </div>
     );
   }
 
   if (buyers.length === 0) {
     return (
-      <div className="bg-white/20 backdrop-blur-sm rounded-2xl shadow-sm p-6 mb-12">
-        <h2 className="text-2xl font-bold mb-4 text-white text-center flex items-center justify-center gap-2">🏆 Топ покупці</h2>
-        <p className="text-white/90 text-sm text-center">Поки що немає даних.</p>
+      <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow-lg p-6 mb-12 border border-pink-200">
+        <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center flex items-center justify-center gap-2">🏆 Топ покупці</h2>
+        <p className="text-gray-700 text-sm text-center">Поки що немає даних.</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-pink-200 rounded-2xl shadow-xl p-6 mb-12 border-2 border-pink-400/60">
-      <h2 className="text-2xl font-bold mb-6 text-white text-center flex items-center justify-center gap-2">🏆 Топ покупці</h2>
+    <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-12 border border-pink-200">
+      <h2 className="text-2xl font-bold mb-6 text-purple-700 text-center flex items-center justify-center gap-2">🏆 Топ покупці</h2>
       <ol className="space-y-3">
         {buyers.map((u, idx) => {
           const ratingBadges = [

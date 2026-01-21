@@ -34,36 +34,36 @@ export default function RecentReviews() {
 
   if (loading) {
     return (
-      <div className="bg-purple-200 rounded-2xl shadow-xl p-6 border-2 border-purple-400/60">
-        <p className="text-sm text-white/80 text-center">Завантаження відгуків...</p>
+      <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-purple-200">
+        <p className="text-sm text-gray-700 text-center">Завантаження відгуків...</p>
       </div>
     );
   }
 
   if (!reviews.length) {
     return (
-      <div className="bg-purple-200 rounded-2xl shadow-xl p-6 border-2 border-purple-400/60">
-        <h2 className="text-2xl font-bold mb-3 text-white text-center">💬 Відгуки покупців</h2>
-        <p className="text-white/80 text-sm text-center">Поки що немає відгуків. Будьте першим!</p>
+      <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-purple-200">
+        <h2 className="text-2xl font-bold mb-3 text-purple-700 text-center">💬 Відгуки покупців</h2>
+        <p className="text-gray-700 text-sm text-center">Поки що немає відгуків. Будьте першим!</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-purple-200 rounded-2xl shadow-xl p-6 border-2 border-purple-400/60">
+    <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-purple-200">
       {/* Заголовок з середнім рейтингом */}
       <div className="mb-6 text-center">
-        <h2 className="text-2xl font-bold text-white mb-4 flex items-center justify-center gap-3">
+        <h2 className="text-2xl font-bold text-purple-700 mb-4 flex items-center justify-center gap-3">
           💬 Відгуки покупців
         </h2>
         <div className="flex items-center justify-center gap-3">
           <div className="flex gap-1">
             {[1,2,3,4,5].map(i => (
-              <span key={i} className={`text-2xl ${i <= Math.round(parseFloat(averageRating)) ? 'text-yellow-300' : 'text-white/30'}`}>★</span>
+              <span key={i} className={`text-2xl ${i <= Math.round(parseFloat(averageRating)) ? 'text-yellow-500' : 'text-gray-300'}`}>★</span>
             ))}
           </div>
-          <span className="text-2xl font-bold text-white">{averageRating}</span>
-          <span className="text-white/80 text-sm">({reviews.length} {reviews.length === 1 ? 'відгук' : 'відгуків'})</span>
+          <span className="text-2xl font-bold text-purple-700">{averageRating}</span>
+          <span className="text-gray-600 text-sm">({reviews.length} {reviews.length === 1 ? 'відгук' : 'відгуків'})</span>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export default function RecentReviews() {
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-bold text-purple-700">MLP Cutie Family</p>
                         <span className="text-xs text-purple-500">
-                          {new Date(r.adminReplyAt || Date.now()).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })}
+                          {new Date(r.adminReplyAt ?? r.createdAt).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' })}
                         </span>
                       </div>
                       <p className="text-sm text-gray-700 leading-relaxed">{r.adminReply}</p>
@@ -129,7 +129,7 @@ export default function RecentReviews() {
               className={`w-10 h-10 rounded-lg font-bold transition-all ${
                 currentPage === page
                   ? 'bg-white text-purple-600 shadow-lg'
-                  : 'bg-white/40 text-white hover:bg-white/60'
+                  : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
               }`}
             >
               {page}

@@ -100,43 +100,43 @@ export default function AccountPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-10">
+    <main className="min-h-screen bg-gray-50 py-10">
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">👤 Мій кабінет</h1>
-            <p className="text-purple-600 font-medium mt-1">Керуйте своїми замовленнями та бонусами</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">👤 Мій кабінет</h1>
+            <p className="text-gray-600 font-medium mt-1">Керуйте своїми замовленнями та бонусами</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 bg-white/70 backdrop-blur-md px-4 py-3 rounded-2xl border-2 border-purple-200/30">
+            <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm">
               {user.photoURL && <img src={user.photoURL} alt="avatar" className="w-12 h-12 rounded-full border-2 border-purple-300" />}
               <div>
                 <p className="font-semibold text-gray-900">{user.displayName}</p>
                 <p className="text-xs text-gray-500">{user.email}</p>
               </div>
             </div>
-            <button onClick={() => signOut()} className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:shadow-lg hover:-translate-y-1 transition-all duration-200">Вийти</button>
+            <button onClick={() => signOut()} className="px-4 py-2 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors">Вийти</button>
           </div>
         </div>
 
         {/* Показники */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
             <p className="text-sm text-purple-600 font-medium mb-2">Рейтинг</p>
             <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${badge.color}`}>{badge.label}</span>
             <p className="text-xs text-gray-500 mt-3">Рівень: {profile?.rating}</p>
           </div>
-          <div className="bg-gradient-to-br from-purple-50/70 to-pink-50/70 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
             <p className="text-sm text-purple-600 font-medium mb-2">Бали</p>
-            <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{profile?.points ?? 0}</p>
+            <p className="text-3xl font-bold text-purple-700">{profile?.points ?? 0}</p>
             <p className="text-xs text-gray-500 mt-3">1 бал = 100₴ покупок</p>
           </div>
-          <div className="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
             <p className="text-sm text-purple-600 font-medium mb-2">Знижка</p>
-            <p className="text-3xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 bg-clip-text text-transparent">{profile?.discountPercent ?? 0}%</p>
+            <p className="text-3xl font-bold text-emerald-700">{profile?.discountPercent ?? 0}%</p>
             <p className="text-xs text-gray-500 mt-3">Надається автоматично</p>
           </div>
-          <div className="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
             <p className="text-sm text-purple-600 font-medium mb-2">Замовлень</p>
             <p className="text-3xl font-bold text-blue-600">{profile?.totalOrders ?? 0}</p>
             <p className="text-xs text-gray-500 mt-3">Загалом: {(profile?.totalSpent ?? 0)}₴</p>
@@ -146,7 +146,7 @@ export default function AccountPage() {
         {/* Історія замовлень */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">📦 Історія замовлень</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">📦 Історія замовлень</h2>
             <button
               onClick={async () => {
                 if (!user) return;
@@ -156,7 +156,7 @@ export default function AccountPage() {
                 setOrders(list);
                 setOrdersLoading(false);
               }}
-              className="text-sm px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              className="text-sm px-4 py-2 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition-colors"
             >
               Оновити
             </button>
@@ -168,20 +168,20 @@ export default function AccountPage() {
           ) : (
             <div className="space-y-4">
               {orders.map(order => (
-                <div key={order.id} className="bg-white/70 backdrop-blur-md p-5 rounded-2xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all border-2 border-purple-200/30">
+                <div key={order.id} className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
                   <div className="flex flex-wrap justify-between gap-4">
                     <div>
                       <p className="font-semibold text-gray-900 text-lg">№ {order.id}</p>
                       <p className="text-xs text-gray-500 mt-1">{new Date(order.createdAt).toLocaleString('uk-UA')}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-lg bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{order.finalPrice}₴</p>
+                      <p className="font-bold text-lg text-purple-700">{order.finalPrice}₴</p>
                       <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>{getStatusLabel(order.status)}</span>
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                     {order.items.slice(0,6).map(i => (
-                      <div key={i.id} className="flex items-center gap-2 bg-gradient-to-r from-purple-50/50 to-pink-50/50 px-3 py-2 rounded-lg border border-purple-200/30">
+                      <div key={i.id} className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                         <span className="text-lg">{i.image}</span>
                         <span className="truncate text-gray-700">{i.name}</span>
                         <span className="text-xs text-gray-500 ml-auto">x{i.quantity}</span>
@@ -191,7 +191,7 @@ export default function AccountPage() {
                   <div className="mt-4 flex justify-end">
                     <button
                       onClick={() => setSelectedOrder(order)}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all font-medium text-sm"
+                      className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-colors font-medium text-sm"
                     >
                       📋 Деталі замовлення
                     </button>
@@ -203,16 +203,16 @@ export default function AccountPage() {
         </section>
 
         <div className="text-center pb-16">
-          <Link href="/catalog" className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg hover:-translate-y-1 transition-all">← До каталогу</Link>
+          <Link href="/catalog" className="inline-block bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-purple-700 transition-colors">← До каталогу</Link>
         </div>
       </div>
 
       {/* Модальне вікно з деталями замовлення */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border-2 border-purple-200/30">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-200">
             {/* Заголовок модалю */}
-            <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white p-6 sticky top-0 z-10 rounded-t-3xl">
+            <div className="bg-purple-600 text-white p-6 sticky top-0 z-10 rounded-t-3xl">
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm opacity-90 font-medium">Замовлення №</p>
@@ -245,7 +245,7 @@ export default function AccountPage() {
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-1">Ім'я</p>
+                    <p className="text-xs text-purple-600 font-semibold mb-1">Ім&apos;я</p>
                     <p className="font-semibold text-gray-900">{selectedOrder.firstName}</p>
                   </div>
                   <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">

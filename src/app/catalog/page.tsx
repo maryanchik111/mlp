@@ -233,43 +233,39 @@ export default function CatalogPage() {
 
   return (
     <>
-    <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white">
+    <main className="min-h-screen bg-gray-50">
       {/* Хлібні крихти */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-purple-200/30" aria-label="Breadcrumb">
+      <nav className="bg-white border-b border-gray-200" aria-label="Breadcrumb">
         <div className="container mx-auto px-4 py-4 max-w-7xl">
           <ol className="flex items-center gap-2 text-sm text-gray-600">
             <li><a href="/" className="hover:text-purple-600 transition-colors">Головна</a></li>
-            <li className="text-purple-300">/</li>
+            <li className="text-gray-300">/</li>
             <li className="text-purple-700 font-semibold">Каталог</li>
           </ol>
         </div>
       </nav>
 
-      {/* Заголовок сторінки з розширеним описом для SEO */}
-      <section className="relative overflow-hidden py-12 md:py-16">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl"></div>
-        </div>
-        <div className="container mx-auto px-4 max-w-7xl relative z-10">
+      {/* Заголовок сторінки */}
+      <section className="py-12 md:py-16 bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center gap-4 mb-6">
-            <div className="text-5xl md:text-6xl animate-bounce-slow">🦄</div>
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
+            <div className="text-5xl md:text-6xl">🦄</div>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
               Каталог My Little Pony
             </h1>
           </div>
-          <p className="text-lg text-gray-700 mb-6 max-w-2xl leading-relaxed">
+          <p className="text-lg text-gray-600 mb-6 max-w-2xl leading-relaxed">
             Купіть оригінальні іграшки та колекційні фігурки My Little Pony з доставкою по Україні. 
             Великий вибір персонажів, наборів та аксесуарів за найкращими цінами.
           </p>
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-shadow">
+            <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full font-semibold">
               <span className="text-xl">✨</span> {allProducts.length}+ товарів
             </span>
-            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-shadow">
+            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-semibold">
               <span className="text-xl">🚀</span> Швидка доставка
             </span>
-            <span className="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-green-200 text-green-800 px-4 py-2 rounded-full font-semibold hover:shadow-lg transition-shadow">
+            <span className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full font-semibold">
               <span className="text-xl">✅</span> 100% оригіналу
             </span>
           </div>
@@ -280,8 +276,8 @@ export default function CatalogPage() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Бічна панель з фільтрами */}
           <aside className="lg:col-span-1">
-            <div className="bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-lg hover:shadow-xl transition-shadow sticky top-4 border border-purple-200/30">
-              <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 flex items-center gap-2">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <span className="text-2xl">🎨</span> Категорії
               </h2>
               <nav className="space-y-2">
@@ -401,7 +397,7 @@ export default function CatalogPage() {
 
           {/* Основна сітка товарів */}
           <section className="lg:col-span-3">
-            <div className="mb-8 flex items-center justify-between bg-white/70 backdrop-blur-md p-6 rounded-2xl border border-purple-200/30">
+            <div className="mb-8 flex items-center justify-between bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
               <p className="text-gray-700 font-semibold">
                 Показано <span className="text-purple-600 font-bold">{currentProducts.length}</span> з <span className="text-purple-600 font-bold">{sortedProducts.length}</span> товарів
               </p>
@@ -411,7 +407,7 @@ export default function CatalogPage() {
                   setSortBy(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-4 py-2 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg text-gray-700 font-semibold hover:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-600/50 transition-all cursor-pointer"
+                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 font-semibold hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all cursor-pointer"
               >
                 <option value="popular">✨ За популярністю</option>
                 <option value="price-asc">💰 За ціною (зростання)</option>
@@ -423,7 +419,7 @@ export default function CatalogPage() {
               {currentProducts.map((product: Product) => (
                 <article 
                   key={product.id} 
-                  className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-purple-200/30 hover:border-purple-400/50 hover:-translate-y-2"
+                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden group border border-gray-200"
                   itemScope
                   itemType="https://schema.org/Product"
                 >
@@ -436,7 +432,7 @@ export default function CatalogPage() {
 
                   {/* Іконка продукту (галерея тільки на сторінці товару) */}
                   <Link href={`/catalog/product/${product.id}`} className="block">
-                    <div className="w-full h-56 bg-gradient-to-br from-purple-100 via-pink-100 to-purple-50 flex items-center justify-center relative overflow-hidden">
+                    <div className="w-full h-56 bg-gray-100 flex items-center justify-center relative overflow-hidden">
                       {product.images && product.images.length > 0 ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
@@ -448,7 +444,7 @@ export default function CatalogPage() {
                         <div className="text-7xl group-hover:scale-125 transition-transform duration-300">{product.image || '📦'}</div>
                       )}
                       {product.quantity === 0 && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-red-900/50 flex items-center justify-center backdrop-blur-sm">
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                           <p className="text-white font-bold text-lg text-center">❌ Немає в наявності</p>
                         </div>
                       )}

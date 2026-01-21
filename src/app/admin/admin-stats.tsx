@@ -4,9 +4,10 @@ import { Product, Order } from "@/lib/firebase";
 interface AdminStatsProps {
   orders: Order[];
   products: Product[];
+  usersCount?: number;
 }
 
-export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products }) => {
+export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersCount = 0 }) => {
   // Фільтруємо тільки виконані замовлення для статистики
   const completedOrders = orders.filter(order => order.status === 'completed');
   
@@ -22,15 +23,15 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products }) => {
     if (!order.items) return;
     
     // Знижка користувача (від рівня/рейтингу)
-    let orderUserDiscount = order.discountAmount || 0;
+    const orderUserDiscount = order.discountAmount || 0;
     totalUserDiscounts += orderUserDiscount;
     
     // Списані бали
-    let orderPoints = order.redeemedAmount || 0;
+    const orderPoints = order.redeemedAmount || 0;
     totalPoints += orderPoints;
     
     // Фінальна виручка (після всіх знижок)
-    let orderRevenue = order.finalPrice || 0;
+    const orderRevenue = order.finalPrice || 0;
     totalRevenue += orderRevenue;
     
     // Підрахунок знижок на товари
@@ -62,7 +63,11 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
       <h2 className="text-xl font-bold text-gray-900 mb-4">Статистика продажів</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+        <div className="bg-indigo-50 p-4 rounded-lg">
+          <p className="text-sm text-gray-500 mb-1">Зареєстровані акаунти</p>
+          <p className="text-2xl font-bold text-indigo-700">{usersCount}</p>
+        </div>
         <div className="bg-purple-50 p-4 rounded-lg">
           <p className="text-sm text-gray-500 mb-1">Всього продано товарів</p>
           <p className="text-2xl font-bold text-purple-700">{totalSold}</p>
