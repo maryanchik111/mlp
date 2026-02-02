@@ -239,7 +239,8 @@ export const fetchUsersCount = async (): Promise<number> => {
   try {
     const snapshot = await get(ref(database, 'users'));
     if (!snapshot.exists()) return 0;
-    return snapshot.numChildren();
+    const data = snapshot.val() as Record<string, UserProfile>;
+    return Object.keys(data).length;
   } catch (e) {
     console.error('Помилка отримання кількості користувачів:', e);
     return 0;
