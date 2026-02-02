@@ -55,6 +55,8 @@ export interface CartItem {
   category: string;
   maxQuantity?: number;
   discount?: number; // Знижка на товар у %
+  deliveryPrice?: string; // Ціна доставки для цього товару
+  deliveryDays?: string; // Термін доставки для цього товару
 }
 
 export interface Order {
@@ -328,12 +330,15 @@ export interface Product {
   name: string;
   category: string;
   price: string;
+  costPrice?: string; // ціна закупки (для адміна, для статистики)
   image: string;
   description: string;
   inStock: boolean;
   quantity: number;
   images?: string[]; // масив URL або emoji для сторінки товару
   discount?: number; // знижка на товар у %
+  deliveryPrice?: string; // ціна доставки (наприклад "120" для України, "150" для закордону)
+  deliveryDays?: string; // термін доставки (наприклад "1-2" для України, "7-14" для закордону)
 }
 
 // Функція для отримання всіх товарів з Firebase

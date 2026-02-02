@@ -106,6 +106,8 @@ export default function ProductPage() {
       maxQuantity: product.quantity,
       discount: product.discount ?? 0,
       images: product.images || [], // Додаємо масив фото
+      deliveryPrice: product.deliveryPrice, // Ціна доставки
+      deliveryDays: product.deliveryDays, // Термін доставки
     };
 
     cart.push(newItem);
@@ -154,7 +156,7 @@ export default function ProductPage() {
 
   return (
     <>
-    <main className="min-h-screen bg-gray-50 py-8">
+    <main className="min-h-screen bg-gray-50 py-8 pb-32">
       <div className="container mx-auto px-4 max-w-6xl">
         <nav className="text-sm text-gray-600 mb-6">
           <Link href="/" className="hover:text-purple-600">Головна</Link> <span>/</span> <Link href="/catalog" className="hover:text-purple-600">Каталог</Link> <span>/</span> <span className="text-gray-900 font-semibold">{product.name}</span>
@@ -203,51 +205,107 @@ export default function ProductPage() {
           </div>
 
           {/* Інформація */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-            <p className="text-sm text-gray-600 mb-4">{product.category}</p>
-            <p className="text-gray-700 mb-6">{product.description}</p>
-
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                {product.discount && product.discount > 0 ? (
-                  <>
-                    <span className="text-lg text-gray-400 line-through">
-                      {product.price}₴
-                    </span>
-                    <span className="text-3xl font-extrabold text-purple-600">
-                      {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
-                    </span>
-                    <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                      −{product.discount}%
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-3xl font-extrabold text-purple-600">{product.price}₴</span>
-                )}
+          <div className="space-y-6">
+            {/* Заголовок й категорія */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-purple-600 bg-purple-50 px-3 py-1 rounded-full">{product.category || ''}</span>
+                    {Number(product.discount) > 0 && (
+                      <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                        Знижка −{product.discount}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span className={`text-sm px-3 py-1 rounded-full whitespace-nowrap ml-2 ${isOut ? 'bg-red-100 text-red-800 font-semibold' : 'bg-green-100 text-green-800 font-semibold'}`}>
+                  {isOut ? 'Немає' : `${product.quantity} шт`}
+                </span>
               </div>
-              <span className={`text-sm px-3 py-1 rounded-full ${isOut ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
-                {isOut ? 'Немає в наявності' : `В наявності: ${product.quantity}`}
-              </span>
+              <p className="text-gray-700 leading-relaxed">{product.description}</p>
+            </div>
+
+            {/* Ціна й основна інформація */}
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg shadow-sm p-6 border border-purple-100">
+              <div className="flex items-baseline justify-between mb-4">
+                <div>
+                  {product.discount && product.discount > 0 ? (
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-lg text-gray-500 line-through">
+                        {product.price}₴
+                      </span>
+                      <span className="text-4xl font-extrabold text-purple-600">
+                        {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-4xl font-extrabold text-purple-600">{product.price}₴</span>
+                  )}
+                  <p className="text-sm text-gray-600 mt-1">Ціна товару</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Доставка */}
+            <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="text-2xl">🚚</span> Доставка
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-blue-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-600 mb-1">Вартість</p>
+                  <p className="text-2xl font-bold text-blue-600">{product.deliveryPrice || '120'}₴</p>
+                </div>
+                <div className="bg-blue-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-600 mb-1">Термін</p>
+                  <p className="text-2xl font-bold text-blue-600">{product.deliveryDays || '1-2'} днів</p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600 mt-3 px-3 py-2 bg-gray-50 rounded">
+                ✓ Нова Пошта у відділення або на адресу
+              </p>
             </div>
 
             {/* Кількість */}
-            <div className="flex items-center gap-3 mb-6">
-              <label className="text-gray-700">Кількість:</label>
-              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-                <button onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1 || isInCart} className={`px-3 py-1 rounded ${qty <= 1 || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white'}`}>−</button>
-                <span className="text-purple-600 px-3 py-1 font-semibold min-w-8 text-center">{qty}</span>
-                <button onClick={() => setQty(Math.min(maxQty, qty + 1))} disabled={qty >= maxQty || isInCart} className={`px-3 py-1 rounded ${qty >= maxQty || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white'}`}>+</button>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <label className="block text-sm font-semibold text-gray-900 mb-3">Кількість:</label>
+              <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-2 w-fit">
+                <button 
+                  onClick={() => setQty(Math.max(1, qty - 1))} 
+                  disabled={qty <= 1 || isInCart} 
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty <= 1 || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
+                >
+                  −
+                </button>
+                <span className="text-purple-600 px-4 py-1 font-bold text-lg min-w-12 text-center">{qty}</span>
+                <button 
+                  onClick={() => setQty(Math.min(maxQty, qty + 1))} 
+                  disabled={qty >= maxQty || isInCart} 
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty >= maxQty || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
+                >
+                  +
+                </button>
               </div>
             </div>
 
-            <button onClick={handleAddToCart} disabled={isOut || qty <= 0} className={`w-full py-3 rounded-lg font-bold transition-colors ${isOut ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : isInCart ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-purple-600 text-white hover:bg-purple-700'}`}>
-              {isInCart ? '🗑️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик' : 'Додати в кошик')}
+            {/* Кнопка */}
+            <button 
+              onClick={handleAddToCart} 
+              disabled={isOut || qty <= 0} 
+              className={`w-full py-4 rounded-lg font-bold text-lg transition-all shadow-md hover:shadow-lg active:scale-95 ${
+                isOut 
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed' 
+                  : isInCart 
+                    ? 'bg-red-500 text-white hover:bg-red-600' 
+                    : added === 'added'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-purple-600 text-white hover:bg-purple-700'
+              }`}
+            >
+              {isInCart ? '🗑️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик!' : '🛒 Додати в кошик')}
             </button>
-
-            <div className="mt-6 text-sm text-gray-600">
-              <p>Доставка по Україні. Оплата онлайн.</p>
-            </div>
           </div>
         </div>
 

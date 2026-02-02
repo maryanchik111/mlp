@@ -209,7 +209,14 @@ export default function CheckoutPage() {
     return sum + discounted * item.quantity;
   }, 0);
 
-  const deliveryPrice = 120;
+  // Обчислення вартості доставки: сума ціни доставки для кожного товару (з fallback на 120)
+  const deliveryPrice = cartItems.reduce((sum, item) => {
+    // Якщо товар має deliveryPrice, використовуємо його; інакше 120₴
+    const itemDeliveryPrice = item.deliveryPrice 
+      ? (typeof item.deliveryPrice === 'string' ? parseInt(item.deliveryPrice) : item.deliveryPrice)
+      : 120;
+    return sum + itemDeliveryPrice;
+  }, 0);
 
   const userDiscountPercent = profile?.discountPercent ?? 0;
   const discountAmount = Math.round((totalPrice * userDiscountPercent) / 100);
@@ -226,15 +233,15 @@ export default function CheckoutPage() {
   // Якщо кошик порожній
   if (cartItems.length === 0) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-12">
+      <main className="min-h-screen bg-white py-12">
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-16 text-center">
-            <div className="text-7xl mb-6 animate-bounce-slow">🦄</div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">Кошик порожній</h1>
-            <p className="text-gray-600 mb-8 text-lg">Поверніться до каталогу, щоб додати товари</p>
+          <div className="bg-white border border-gray-300 rounded-lg shadow-md p-12 text-center">
+            <div className="text-6xl mb-4">🦄</div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Кошик порожній</h1>
+            <p className="text-gray-600 mb-6 text-base">Поверніться до каталогу, щоб додати товари</p>
             <Link
               href="/catalog"
-              className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-10 py-4 rounded-xl hover:shadow-lg hover:shadow-purple-600/50 transition-all font-bold text-lg hover:scale-105 active:scale-95"
+              className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg transition-colors font-semibold"
             >
               🛍️ До каталогу
             </Link>
@@ -245,30 +252,30 @@ export default function CheckoutPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-12">
+    <main className="min-h-screen bg-white py-12">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Заголовок */}
-        <div className="mb-10">
-          <Link href="/catalog" className="text-purple-600 hover:text-purple-700 mb-5 inline-block font-semibold hover:scale-110 transition-transform">
+        <div className="mb-8">
+          <Link href="/catalog" className="text-indigo-600 hover:text-indigo-700 mb-4 inline-block font-semibold">
             ← Повернутися до каталогу
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-4xl">💳</span>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Оформлення замовлення</h1>
+            <span className="text-3xl">💳</span>
+            <h1 className="text-3xl font-bold text-gray-900">Оформлення замовлення</h1>
           </div>
-          <p className="text-gray-600 mt-3 text-lg">Заповніть форму для оформлення покупки</p>
+          <p className="text-gray-600 mt-2 text-sm">Заповніть форму для оформлення покупки</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Основна форма - 2 колони */}
           <div className="lg:col-span-2">
-            <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-8 space-y-8">
+            <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 space-y-6">
               {/* Контактна інформація */}
               <section>
-                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   📋 Контактна інформація
                 </h2>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Ім'я *</label>
                     <input
@@ -276,12 +283,12 @@ export default function CheckoutPage() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
-                        errors.firstName ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
+                        errors.firstName ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
                       }`}
                       placeholder="Ваше ім'я"
                     />
-                    {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
+                    {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Прізвище *</label>
@@ -290,15 +297,15 @@ export default function CheckoutPage() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
-                        errors.lastName ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
+                        errors.lastName ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
                       }`}
                       placeholder="Ваше прізвище"
                     />
-                    {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
+                    {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-2 gap-3 mt-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                     <input
@@ -306,12 +313,12 @@ export default function CheckoutPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
-                        errors.email ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
+                        errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
                       }`}
                       placeholder="example@mail.com"
                     />
-                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Телефон *</label>
@@ -320,19 +327,19 @@ export default function CheckoutPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
-                        errors.phone ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
+                        errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
                       }`}
                       placeholder="+380 XX XXX XX XX"
                     />
-                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                   </div>
                 </div>
               </section>
 
               {/* Адреса */}
               <section>
-                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   🏠 Адреса доставки
                 </h2>
                 <div>
@@ -342,14 +349,14 @@ export default function CheckoutPage() {
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
-                      errors.address ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
+                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
+                      errors.address ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
                     }`}
                     placeholder="Вулиця, будинок, квартира"
                   />
-                  {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+                  {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
                 </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-2 gap-3 mt-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Місто *</label>
                     <input
@@ -357,12 +364,12 @@ export default function CheckoutPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleInputChange}
-                      className={`text-purple-700 w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all ${
-                        errors.city ? 'border-red-500 bg-red-50' : 'border-purple-200/50 bg-white/50 hover:border-purple-300'
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
+                        errors.city ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
                       }`}
                       placeholder="Назва міста"
                     />
-                    {errors.city && <p className="text-red-500 text-sm mt-1">{errors.city}</p>}
+                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Поштовий індекс</label>
@@ -371,7 +378,7 @@ export default function CheckoutPage() {
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleInputChange}
-                      className="text-purple-700 w-full px-4 py-3 border-2 border-purple-200/50 bg-white/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 transition-all hover:border-purple-300"
+                      className="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900"
                       placeholder="XX XXX"
                     />
                   </div>
@@ -380,22 +387,22 @@ export default function CheckoutPage() {
 
               {/* Способ доставки */}
               <section>
-                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   🚚 Спосіб доставки
                 </h2>
-                <div className="space-y-3">
-                  <label className="flex items-center p-5 border-2 border-purple-200/50 rounded-xl bg-gradient-to-r from-purple-50/50 to-pink-50/50 cursor-pointer hover:border-purple-400 transition-all hover:shadow-md">
+                <div className="space-y-2">
+                  <label className="flex items-center p-3 border border-gray-300 rounded-lg bg-gray-50 cursor-pointer hover:border-indigo-400 transition-colors">
                     <input
                       type="radio"
                       name="deliveryMethod"
                       value="nova"
                       checked={true}
                       readOnly
-                      className="w-5 h-5 text-purple-600 accent-purple-600"
+                      className="w-5 h-5 text-indigo-600 accent-indigo-600"
                     />
-                    <div className="ml-4 flex-1">
-                      <p className="font-bold text-gray-900 text-lg">Нова Пошта — 120₴</p>
-                      <p className="text-sm text-gray-600 mt-1">Доставка у відділення або на адресу. Термін: 1-2 дні.</p>
+                    <div className="ml-3 flex-1">
+                      <p className="font-semibold text-gray-900 text-sm">Нова Пошта — {deliveryPrice}₴</p>
+                      <p className="text-xs text-gray-600 mt-0.5">Доставка у відділення або на адресу.</p>
                     </div>
                   </label>
                 </div>
@@ -403,22 +410,22 @@ export default function CheckoutPage() {
 
               {/* Спосіб оплати */}
               <section>
-                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   💳 Спосіб оплати
                 </h2>
-                <div className="space-y-3">
-                  <label className="flex items-center p-5 border-2 border-purple-200/50 rounded-xl bg-gradient-to-r from-blue-50/50 to-cyan-50/50 cursor-pointer hover:border-purple-400 transition-all hover:shadow-md">
+                <div className="space-y-2">
+                  <label className="flex items-center p-3 border border-gray-300 rounded-lg bg-blue-50 cursor-pointer hover:border-indigo-400 transition-colors">
                     <input
                       type="radio"
                       name="paymentMethod"
                       value="card"
                       checked={formData.paymentMethod === 'card'}
                       onChange={handleInputChange}
-                      className="w-5 h-5 text-purple-600 accent-purple-600"
+                      className="w-5 h-5 text-indigo-600 accent-indigo-600"
                     />
-                    <div className="ml-4 flex-1">
-                      <p className="font-bold text-gray-900 text-lg">Оплата онлайн</p>
-                      <p className="text-sm text-gray-600 mt-1">QR-code, оплата за посиланням, переказ на картку — оплата відбувається одразу при підтвердженні</p>
+                    <div className="ml-3 flex-1">
+                      <p className="font-semibold text-gray-900 text-sm">Оплата онлайн</p>
+                      <p className="text-xs text-gray-600 mt-0.5">QR-code, оплата за посиланням або переказ на картку</p>
                     </div>
                   </label>
                 </div>
@@ -426,7 +433,7 @@ export default function CheckoutPage() {
 
               {/* Коментарії */}
               <section>
-                <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 pb-3 border-b-2 border-purple-200/50">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   📝 Додаткові коментарії
                 </h2>
                 <textarea
@@ -434,43 +441,43 @@ export default function CheckoutPage() {
                   value={formData.comments}
                   onChange={handleInputChange}
                   placeholder="Вкажіть особливі побажання або примітки..."
-                  className="w-full px-4 py-3 border-2 border-purple-200/50 bg-white/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-600 h-28 resize-none transition-all hover:border-purple-300"
+                  className="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 h-24 resize-none text-sm text-gray-900"
                 />
               </section>
             </div>
           </div>
 
-          {/* Бічна панель - Заказ */}
+          {/* Бічна панель - Замовлення */}
           <div className="lg:col-span-1">
-            <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-8 sticky top-4 space-y-6">
-              <h2 className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">📦 Ваше замовлення</h2>
+            <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 sticky top-4 space-y-4">
+              <h2 className="text-lg font-bold text-gray-900">📦 Ваше замовлення</h2>
 
               {/* Список товарів */}
-              <div className="space-y-4 max-h-96 overflow-y-auto">
+              <div className="space-y-2 max-h-72 overflow-y-auto">
                 {cartItems.map(item => {
                   const originalPrice = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
                   const discount = item.discount ? Number(item.discount) : 0;
                   const discountedPrice = discount > 0 ? Math.round(originalPrice * (1 - discount / 100)) : originalPrice;
                   
                   return (
-                    <div key={item.id} className="pb-4 border-b-2 border-purple-200/30 bg-gradient-to-r from-purple-50/40 to-pink-50/40 p-3 rounded-lg">
-                      <div className="flex justify-between items-start gap-3">
+                    <div key={item.id} className="pb-2 border-b border-gray-300 bg-gray-50 p-2 rounded-lg">
+                      <div className="flex justify-between items-start gap-2">
                         <div className="flex-1">
-                          <p className="font-bold text-gray-900 text-sm">{item.name}</p>
-                          <p className="text-xs text-purple-600 font-semibold mt-1">Кількість: <span className="bg-purple-200/50 px-2 py-1 rounded">×{item.quantity}</span></p>
+                          <p className="font-semibold text-gray-900 text-sm">{item.name}</p>
+                          <p className="text-xs text-gray-600 mt-0.5">Кількість: <span className="bg-gray-200 px-1.5 py-0.5 rounded font-semibold">×{item.quantity}</span></p>
                         </div>
                         <div className="text-right">
                           {discount > 0 ? (
                             <>
-                              <p className="font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                              <p className="font-semibold text-indigo-600 text-sm">
                                 {discountedPrice * item.quantity}₴
                               </p>
-                              <p className="text-xs text-gray-400 line-through mt-1">
+                              <p className="text-xs text-gray-400 line-through mt-0.5">
                                 {originalPrice * item.quantity}₴
                               </p>
                             </>
                           ) : (
-                            <p className="font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            <p className="font-semibold text-gray-900 text-sm">
                               {originalPrice * item.quantity}₴
                             </p>
                           )}
@@ -479,11 +486,11 @@ export default function CheckoutPage() {
                       
                       {/* Вміст коробки (якщо це конструктор боксу) */}
                       {item.customBox && (
-                        <div className="mt-3 pt-3 border-t border-gray-100 text-sm">
-                          <p className="text-xs font-semibold text-gray-700 mb-2">Вміст боксу:</p>
-                          <ul className="space-y-1">
+                        <div className="mt-2 pt-2 border-t border-gray-200 text-xs">
+                          <p className="font-semibold text-gray-700 mb-1">Вміст боксу:</p>
+                          <ul className="space-y-0.5">
                             {item.customBox.items.map((customItem, idx) => (
-                              <li key={idx} className="text-xs text-gray-600">
+                              <li key={idx} className="text-gray-600">
                                 • {customItem.name}
                               </li>
                             ))}
@@ -496,30 +503,30 @@ export default function CheckoutPage() {
               </div>
 
               {/* Розрахунки */}
-              <div className="space-y-4 pt-5 border-t-2 border-purple-200/30">
-                <div className="flex justify-between items-center text-gray-700 font-semibold">
-                  <span>💵 Сума товарів:</span>
-                  <span className="text-lg text-gray-900">{totalPrice}₴</span>
+              <div className="space-y-3 pt-3 border-t border-gray-300">
+                <div className="flex justify-between items-center text-gray-700 font-semibold text-sm">
+                  <span>Сума товарів:</span>
+                  <span className="text-gray-900">{totalPrice}₴</span>
                 </div>
                 {userDiscountPercent > 0 && (
                   <>
-                    <div className="flex justify-between items-center text-gray-700 font-semibold bg-green-50/50 px-3 py-2 rounded-lg border-l-4 border-green-400">
+                    <div className="flex justify-between items-center text-gray-700 font-semibold text-sm bg-green-50 px-2 py-1.5 rounded border-l-4 border-green-400">
                       <span>✨ Знижка ({userDiscountPercent}%)</span>
                       <span className="text-green-600">−{discountAmount}₴</span>
                     </div>
-                    <div className="flex justify-between items-center text-gray-700 font-semibold">
+                    <div className="flex justify-between items-center text-gray-700 font-semibold text-sm">
                       <span>Після знижки:</span>
-                      <span className="text-lg">{discountedSubtotal}₴</span>
+                      <span>{discountedSubtotal}₴</span>
                     </div>
                   </>
                 )}
                 {profile && profile.points > 0 && (
-                  <div className="bg-gradient-to-r from-yellow-50/70 to-amber-50/70 backdrop-blur-sm border-2 border-yellow-200/50 rounded-xl p-4 text-sm text-yellow-900 space-y-3 font-semibold">
+                  <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs text-amber-900 space-y-2 font-semibold">
                     <div className="flex justify-between items-center">
                       <span>⭐ Ваші бали:</span>
-                      <span className="text-lg font-bold text-yellow-700">{profile.points}</span>
+                      <span className="text-sm font-bold text-amber-700">{profile.points}</span>
                     </div>
-                    <label className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
+                    <label className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
                       <input
                         type="checkbox"
                         checked={usePoints}
@@ -527,75 +534,75 @@ export default function CheckoutPage() {
                           setUsePoints(e.target.checked);
                           if (!e.target.checked) setPointsToRedeem(0);
                         }}
-                        className="w-5 h-5 accent-yellow-600"
+                        className="w-4 h-4 accent-amber-600"
                       />
-                      <span>Використати бали (1 бал = 1₴)</span>
+                      <span>Використати бали (1 = 1₴)</span>
                     </label>
                     {usePoints && (
-                      <div className="flex items-center gap-2 bg-white/50 p-2 rounded-lg">
+                      <div className="flex items-center gap-2 bg-white/70 p-1.5 rounded">
                         <input
                           type="number"
                           min={0}
                           max={maxRedeemablePoints}
                           value={pointsToRedeem}
                           onChange={(e) => setPointsToRedeem(Math.max(0, Math.min(parseInt(e.target.value) || 0, maxRedeemablePoints)))}
-                          className="w-24 px-3 py-2 border-2 border-yellow-300 rounded-lg text-sm font-bold text-yellow-900"
+                          className="w-20 px-2 py-1 border border-amber-300 rounded text-xs font-bold text-amber-900"
                         />
-                        <span className="text-xs text-gray-700">Макс: {maxRedeemablePoints}</span>
+                        <span className="text-xs text-gray-700">макс: {maxRedeemablePoints}</span>
                       </div>
                     )}
                     {appliedRedeemedPoints > 0 && (
-                      <div className="flex justify-between items-center text-gray-700 bg-white/30 px-2 py-2 rounded">
-                        <span>Списано балів:</span>
+                      <div className="flex justify-between items-center text-gray-700 bg-white/50 px-1.5 py-1 rounded text-xs">
+                        <span>Списано:</span>
                         <span className="font-bold text-orange-600">−{appliedRedeemedPoints}₴</span>
                       </div>
                     )}
                   </div>
                 )}
-                <div className="flex justify-between items-center text-gray-700 font-semibold">
-                  <span>🚚 Доставка:</span>
-                  <span className="text-lg text-orange-700">+120₴</span>
+                <div className="flex justify-between items-center text-gray-700 font-semibold text-sm">
+                  <span>Доставка:</span>
+                  <span className="text-orange-600">+{deliveryPrice}₴</span>
                 </div>
               </div>
 
               {/* Сума */}
-              <div className="bg-gradient-to-r from-purple-100/50 to-pink-100/50 border-2 border-purple-300/50 p-6 rounded-xl space-y-2">
+              <div className="bg-gray-100 border border-gray-300 p-4 rounded-lg space-y-1">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-gray-900 text-lg">Всього до оплати:</span>
-                  <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{finalPrice}₴</span>
+                  <span className="font-bold text-gray-900 text-sm">До оплати:</span>
+                  <span className="text-2xl font-bold text-indigo-600">{finalPrice}₴</span>
                 </div>
                 {userDiscountPercent > 0 && (
-                  <p className="text-xs text-gray-500">Включає вашу знижку {userDiscountPercent}% (рейтинг: {profile?.rating})</p>
+                  <p className="text-xs text-gray-600">Знижка {userDiscountPercent}% (рейтинг: {profile?.rating})</p>
                 )}
                 {appliedRedeemedPoints > 0 && (
-                  <p className="text-xs text-gray-500">Списано балів: {appliedRedeemedPoints}. Залишок після оформлення: {profile ? profile.points - appliedRedeemedPoints : 0}</p>
+                  <p className="text-xs text-gray-600">Залишок балів: {profile ? profile.points - appliedRedeemedPoints : 0}</p>
                 )}
               </div>
 
               {/* Кнопки дій */}
-              <div className="space-y-3 pt-5 border-t-2 border-purple-200/30">
+              <div className="space-y-2 pt-3 border-t border-gray-300">
                 <button
                   onClick={handleSubmitOrder}
                   disabled={isLoading}
-                  className={`w-full font-bold py-4 rounded-xl transition-all text-lg ${
+                  className={`w-full font-bold py-3 rounded-lg transition-colors text-base ${
                     isLoading
                       ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
-                      : 'bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white hover:shadow-2xl hover:shadow-purple-600/50 hover:-translate-y-1 active:scale-95 hover:scale-105'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                   }`}
                 >
-                  {isLoading ? '⏳ Обробка...' : '✓ Оформити замовлення'}
+                  {isLoading ? '⏳ Обробка...' : '✓ Оформити'}
                 </button>
                 <Link
                   href="/catalog"
-                  className="block text-center bg-white/70 backdrop-blur-sm border-2 border-purple-300/50 text-purple-700 font-bold py-4 rounded-xl hover:bg-white/90 transition-all text-lg hover:scale-105 active:scale-95"
+                  className="block text-center bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-bold py-3 rounded-lg transition-colors text-base"
                 >
-                  🛍️ Продовжити покупки
+                  🛍️ Покупки
                 </Link>
               </div>
 
               {/* Інформація */}
-              <div className="bg-gradient-to-r from-blue-50/70 to-cyan-50/70 backdrop-blur-sm border-2 border-blue-200/50 rounded-xl p-4 text-sm text-blue-900 font-semibold">
-                <p>🔒 Ваші дані захищені і не будуть передані третім особам</p>
+              <div className="bg-blue-50 border border-blue-300 rounded-lg p-3 text-xs text-blue-900 font-semibold">
+                <p>🔒 Ваші дані захищені</p>
               </div>
             </div>
           </div>

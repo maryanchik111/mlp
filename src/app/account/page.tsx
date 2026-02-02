@@ -100,53 +100,54 @@ export default function AccountPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-10">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">👤 Мій кабінет</h1>
-            <p className="text-gray-600 font-medium mt-1">Керуйте своїми замовленнями та бонусами</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm">
-              {user.photoURL && <img src={user.photoURL} alt="avatar" className="w-12 h-12 rounded-full border-2 border-purple-300" />}
-              <div>
-                <p className="font-semibold text-gray-900">{user.displayName}</p>
-                <p className="text-xs text-gray-500">{user.email}</p>
+    <main className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-10">
+        {/* Заголовок + юзер (мобільний стек) */}
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">👤 Мій кабінет</h1>
+          <p className="text-sm sm:text-base text-gray-600 font-medium mb-6">Керуйте замовленнями та бонусами</p>
+
+          {/* Карточка з інфо юзера */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm">
+            <div className="flex items-center gap-3">
+              {user.photoURL && <img src={user.photoURL} alt="avatar" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-purple-300" />}
+              <div className="min-w-0">
+                <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">{user.displayName}</p>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
               </div>
             </div>
-            <button onClick={() => signOut()} className="px-4 py-2 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition-colors">Вийти</button>
+            <button onClick={() => signOut()} className="w-full sm:w-auto px-4 py-2 rounded-xl bg-purple-600 text-white font-medium text-sm sm:text-base hover:bg-purple-700 transition-colors">Вийти</button>
           </div>
         </div>
 
-        {/* Показники */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
-            <p className="text-sm text-purple-600 font-medium mb-2">Рейтинг</p>
-            <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${badge.color}`}>{badge.label}</span>
-            <p className="text-xs text-gray-500 mt-3">Рівень: {profile?.rating}</p>
+        {/* Показники - мобільний скрол або сітка */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-10">
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Рейтинг</p>
+            <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${badge.color}`}>{badge.label}</span>
+            <p className="text-xs text-gray-500 mt-2">Рівень: {profile?.rating}</p>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
-            <p className="text-sm text-purple-600 font-medium mb-2">Бали</p>
-            <p className="text-3xl font-bold text-purple-700">{profile?.points ?? 0}</p>
-            <p className="text-xs text-gray-500 mt-3">1 бал = 100₴ покупок</p>
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Бали</p>
+            <p className="text-2xl sm:text-3xl font-bold text-purple-700">{profile?.points ?? 0}</p>
+            <p className="text-xs text-gray-500 mt-2">1 = 100₴</p>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
-            <p className="text-sm text-purple-600 font-medium mb-2">Знижка</p>
-            <p className="text-3xl font-bold text-emerald-700">{profile?.discountPercent ?? 0}%</p>
-            <p className="text-xs text-gray-500 mt-3">Надається автоматично</p>
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Знижка</p>
+            <p className="text-2xl sm:text-3xl font-bold text-emerald-700">{profile?.discountPercent ?? 0}%</p>
+            <p className="text-xs text-gray-500 mt-2">Автоматично</p>
           </div>
-          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
-            <p className="text-sm text-purple-600 font-medium mb-2">Замовлень</p>
-            <p className="text-3xl font-bold text-blue-600">{profile?.totalOrders ?? 0}</p>
-            <p className="text-xs text-gray-500 mt-3">Загалом: {(profile?.totalSpent ?? 0)}₴</p>
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Замовлень</p>
+            <p className="text-2xl sm:text-3xl font-bold text-blue-600">{profile?.totalOrders ?? 0}</p>
+            <p className="text-xs text-gray-500 mt-2">{(profile?.totalSpent ?? 0)}₴</p>
           </div>
         </div>
 
         {/* Історія замовлень */}
         <section className="mb-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">📦 Історія замовлень</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">📦 Замовлення</h2>
             <button
               onClick={async () => {
                 if (!user) return;
@@ -156,46 +157,44 @@ export default function AccountPage() {
                 setOrders(list);
                 setOrdersLoading(false);
               }}
-              className="text-sm px-4 py-2 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-sm sm:text-base hover:bg-purple-700 transition-colors"
             >
               Оновити
             </button>
           </div>
           {ordersLoading ? (
-            <p className="text-purple-600 font-medium">Завантаження...</p>
+            <p className="text-purple-600 font-medium text-sm">Завантаження...</p>
           ) : orders.length === 0 ? (
-            <p className="text-purple-600 font-medium">Замовлень ще немає</p>
+            <p className="text-gray-600 text-sm">Замовлень ще немає</p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {orders.map(order => (
-                <div key={order.id} className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
-                  <div className="flex flex-wrap justify-between gap-4">
+                <div key={order.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
                     <div>
-                      <p className="font-semibold text-gray-900 text-lg">№ {order.id}</p>
-                      <p className="text-xs text-gray-500 mt-1">{new Date(order.createdAt).toLocaleString('uk-UA')}</p>
+                      <p className="font-semibold text-gray-900">№ {order.id}</p>
+                      <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString('uk-UA')}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg text-purple-700">{order.finalPrice}₴</p>
-                      <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>{getStatusLabel(order.status)}</span>
+                    <div className="flex flex-col sm:items-end gap-2">
+                      <p className="font-bold text-purple-700">{order.finalPrice}₴</p>
+                      <span className={`inline-block px-2 py-1 rounded text-xs font-semibold w-fit sm:w-auto ${getStatusColor(order.status)}`}>{getStatusLabel(order.status)}</span>
                     </div>
                   </div>
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-xs">
                     {order.items.slice(0,6).map(i => (
-                      <div key={i.id} className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                        <span className="text-lg">{i.image}</span>
+                      <div key={i.id} className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded border border-gray-200">
+                        <span>{i.image}</span>
                         <span className="truncate text-gray-700">{i.name}</span>
-                        <span className="text-xs text-gray-500 ml-auto">x{i.quantity}</span>
+                        <span className="text-gray-500 ml-auto">x{i.quantity}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      onClick={() => setSelectedOrder(order)}
-                      className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-colors font-medium text-sm"
-                    >
-                      📋 Деталі замовлення
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => setSelectedOrder(order)}
+                    className="w-full sm:w-auto bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-colors font-medium text-sm"
+                  >
+                    📋 Деталі
+                  </button>
                 </div>
               ))}
             </div>
@@ -203,24 +202,24 @@ export default function AccountPage() {
         </section>
 
         <div className="text-center pb-16">
-          <Link href="/catalog" className="inline-block bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-purple-700 transition-colors">← До каталогу</Link>
+          <Link href="/catalog" className="inline-block bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold text-sm sm:text-base hover:bg-purple-700 transition-colors">← До каталогу</Link>
         </div>
       </div>
 
       {/* Модальне вікно з деталями замовлення */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-200">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200">
             {/* Заголовок модалю */}
-            <div className="bg-purple-600 text-white p-6 sticky top-0 z-10 rounded-t-3xl">
+            <div className="bg-purple-600 text-white p-4 sm:p-6 sticky top-0 z-10 rounded-t-2xl">
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm opacity-90 font-medium">Замовлення №</p>
-                  <p className="text-2xl font-bold truncate">{selectedOrder.id}</p>
+                  <p className="text-xs opacity-90 font-medium">Замовлення №</p>
+                  <p className="text-xl sm:text-2xl font-bold truncate">{selectedOrder.id}</p>
                 </div>
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="text-white text-2xl font-bold hover:scale-110 transition-transform flex-shrink-0"
+                  className="text-white text-xl font-bold hover:scale-110 transition-transform flex-shrink-0"
                   aria-label="Закрити"
                 >
                   ✕
@@ -229,55 +228,55 @@ export default function AccountPage() {
             </div>
 
             {/* Вміст модалю */}
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-6">
               {/* Статус */}
               <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-gray-700 font-semibold">Статус:</p>
-                <span className={`px-4 py-2 rounded-full text-sm font-bold ${getStatusColor(selectedOrder.status)}`}>
+                <p className="text-gray-700 font-semibold text-sm">Статус:</p>
+                <span className={`px-3 py-1.5 rounded text-xs sm:text-sm font-bold ${getStatusColor(selectedOrder.status)}`}>
                   {getStatusLabel(selectedOrder.status)}
                 </span>
               </div>
 
               {/* Контактна інформація */}
               <section>
-                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
                   👤 Контактна інформація
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-1">Ім&apos;я</p>
-                    <p className="font-semibold text-gray-900">{selectedOrder.firstName}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 font-semibold mb-1">Ім&apos;я</p>
+                    <p className="font-semibold text-gray-900 text-sm">{selectedOrder.firstName}</p>
                   </div>
-                  <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-1">Прізвище</p>
-                    <p className="font-semibold text-gray-900">{selectedOrder.lastName}</p>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 font-semibold mb-1">Прізвище</p>
+                    <p className="font-semibold text-gray-900 text-sm">{selectedOrder.lastName}</p>
                   </div>
-                  <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-1">Email</p>
-                    <p className="font-semibold text-gray-900 break-all">{selectedOrder.email}</p>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 font-semibold mb-1">Email</p>
+                    <p className="font-semibold text-gray-900 text-sm break-all">{selectedOrder.email}</p>
                   </div>
-                  <div className="bg-purple-50/50 p-3 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-1">Телефон</p>
-                    <p className="font-semibold text-gray-900">{selectedOrder.phone}</p>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 font-semibold mb-1">Телефон</p>
+                    <p className="font-semibold text-gray-900 text-sm">{selectedOrder.phone}</p>
                   </div>
                 </div>
               </section>
 
               {/* Адреса доставки */}
               <section>
-                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
-                  🏠 Адреса доставки
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200">
+                  📍 Адреса доставки
                 </h3>
-                <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30 space-y-2">
+                <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-2 text-sm">
                   <p className="text-gray-900">
-                    <span className="text-sm font-semibold text-purple-600">Місто:</span> <span className="font-semibold">{selectedOrder.city}</span>
+                    <span className="font-semibold text-gray-600">Місто:</span> {selectedOrder.city}
                   </p>
                   <p className="text-gray-900 break-words">
-                    <span className="text-sm font-semibold text-purple-600">Адреса:</span> <span className="font-semibold">{selectedOrder.address}</span>
+                    <span className="font-semibold text-gray-600">Адреса:</span> {selectedOrder.address}
                   </p>
                   {selectedOrder.postalCode && (
                     <p className="text-gray-900">
-                      <span className="text-sm font-semibold text-purple-600">Поштовий індекс:</span> <span className="font-semibold">{selectedOrder.postalCode}</span>
+                      <span className="font-semibold text-gray-600">Поштовий код:</span> {selectedOrder.postalCode}
                     </p>
                   )}
                 </div>
@@ -285,37 +284,37 @@ export default function AccountPage() {
 
               {/* Способ доставки та оплати */}
               <section>
-                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
                   🚚 Доставка та оплата
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-2">Спосіб доставки</p>
-                    <p className="font-semibold text-gray-900">{getDeliveryLabel(selectedOrder.deliveryMethod)}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 font-semibold mb-1">Спосіб доставки</p>
+                    <p className="text-sm font-semibold text-gray-900">{getDeliveryLabel(selectedOrder.deliveryMethod)}</p>
                   </div>
-                  <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-2">Спосіб оплати</p>
-                    <p className="font-semibold text-gray-900">Оплата онлайн</p>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 font-semibold mb-1">Спосіб оплати</p>
+                    <p className="text-sm font-semibold text-gray-900">Оплата онлайн</p>
                   </div>
                 </div>
               </section>
 
               {/* Товари */}
               <section>
-                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
                   📦 Товари ({selectedOrder.items.length})
                 </h3>
-                <div className="space-y-3 max-h-48 overflow-y-auto">
+                <div className="space-y-2 max-h-48 overflow-y-auto">
                   {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-start p-3 bg-gradient-to-r from-purple-50/50 to-pink-50/50 rounded-xl border border-purple-200/30 gap-2">
+                    <div key={item.id} className="flex justify-between items-start p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 gap-2">
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 break-words">{item.name}</p>
-                        <p className="text-xs text-gray-600 mt-1">Категорія: {item.category}</p>
+                        <p className="text-xs sm:text-sm font-semibold text-gray-900 break-words">{item.name}</p>
+                        <p className="text-xs text-gray-600 mt-0.5">Категорія: {item.category}</p>
                         <p className="text-xs text-gray-600">Кількість: {item.quantity}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-semibold text-gray-900 text-sm">{item.price}₴ за од.</p>
-                        <p className="text-sm font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{parseInt(item.price) * item.quantity}₴</p>
+                        <p className="text-xs sm:text-sm font-semibold text-gray-900">{item.price}₴ за од.</p>
+                        <p className="text-xs sm:text-sm font-bold text-indigo-600">{parseInt(item.price) * item.quantity}₴</p>
                       </div>
                     </div>
                   ))}
@@ -324,55 +323,55 @@ export default function AccountPage() {
 
               {/* Розрахунки */}
               <section>
-                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
                   💰 Розрахунки
                 </h3>
-                <div className="bg-gradient-to-r from-purple-50/70 to-pink-50/70 border-2 border-purple-200/30 rounded-xl p-4 space-y-3">
-                  <div className="flex justify-between text-gray-900 font-semibold">
+                <div className="bg-white border border-gray-300 rounded-lg p-3 sm:p-4 space-y-2">
+                  <div className="flex justify-between text-sm text-gray-900 font-semibold">
                     <span>Сума товарів:</span>
                     <span>{selectedOrder.totalPrice}₴</span>
                   </div>
                   {selectedOrder.discountAmount && selectedOrder.discountAmount > 0 ? (
                     <>
-                      <div className="flex justify-between text-gray-900">
+                      <div className="flex justify-between text-sm text-gray-900">
                         <span>Знижка ({selectedOrder.discountPercent}%):</span>
                         <span className="font-semibold text-green-600">−{selectedOrder.discountAmount}₴</span>
                       </div>
-                      <div className="flex justify-between text-gray-900 font-semibold">
+                      <div className="flex justify-between text-sm text-gray-900 font-semibold">
                         <span>Після знижки:</span>
                         <span>{selectedOrder.discountedSubtotal}₴</span>
                       </div>
                     </>
                   ) : (
-                    <div className="flex justify-between text-gray-600">
+                    <div className="flex justify-between text-sm text-gray-600">
                       <span>Знижка (0%):</span>
                       <span>0₴</span>
                     </div>
                   )}
                   {selectedOrder.redeemedPoints && selectedOrder.redeemedPoints > 0 ? (
-                    <div className="flex justify-between text-gray-900">
+                    <div className="flex justify-between text-sm text-gray-900">
                       <span>Списано балів ({selectedOrder.redeemedPoints}):</span>
                       <span className="font-semibold text-yellow-600">−{selectedOrder.redeemedAmount}₴</span>
                     </div>
                   ) : (
-                    <div className="flex justify-between text-gray-600">
+                    <div className="flex justify-between text-sm text-gray-600">
                       <span>Списано балів (0):</span>
                       <span>0₴</span>
                     </div>
                   )}
                   {selectedOrder.deliveryPrice > 0 && (
-                    <div className="flex justify-between text-gray-900">
+                    <div className="flex justify-between text-sm text-gray-900">
                       <span>Доставка:</span>
                       <span className="font-semibold text-orange-600">+{selectedOrder.deliveryPrice}₴</span>
                     </div>
                   )}
                   {selectedOrder.deliveryPrice === 0 && (
-                    <div className="flex justify-between text-gray-900">
+                    <div className="flex justify-between text-sm text-gray-900">
                       <span>Доставка:</span>
                       <span className="font-semibold text-green-600">Безкоштовна ✓</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-lg font-bold text-white pt-3 border-t-2 border-purple-300/50 bg-gradient-to-r from-purple-600 to-pink-600 -mx-4 -mb-4 px-4 py-3 rounded-b-xl">
+                  <div className="flex justify-between text-sm sm:text-base font-bold text-white pt-2 border-t border-gray-400 bg-indigo-600 -mx-3 -mb-3 sm:-mx-4 sm:-mb-4 px-3 sm:px-4 py-2 sm:py-3 rounded-b-lg">
                     <span>До оплати:</span>
                     <span>{selectedOrder.finalPrice}₴</span>
                   </div>
@@ -382,35 +381,35 @@ export default function AccountPage() {
               {/* Коментарі */}
               {selectedOrder.comments && (
                 <section>
-                  <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
+                  <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
                     📝 Коментарі
                   </h3>
-                  <p className="text-gray-700 bg-purple-50/50 p-4 rounded-xl border border-purple-200/30 whitespace-pre-wrap break-words">{selectedOrder.comments}</p>
+                  <p className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200 whitespace-pre-wrap break-words">{selectedOrder.comments}</p>
                 </section>
               )}
 
               {/* Дати */}
               <section>
-                <h3 className="text-lg font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 pb-3 border-b-2 border-purple-200/30">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
                   📅 Дати
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-2">Створено</p>
-                    <p className="font-semibold text-gray-900">{formatDate(selectedOrder.createdAt)}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 font-semibold mb-1">Створено</p>
+                    <p className="text-sm font-semibold text-gray-900">{formatDate(selectedOrder.createdAt)}</p>
                   </div>
-                  <div className="bg-purple-50/50 p-4 rounded-xl border border-purple-200/30">
-                    <p className="text-xs text-purple-600 font-semibold mb-2">Оновлено</p>
-                    <p className="font-semibold text-gray-900">{formatDate(selectedOrder.updatedAt)}</p>
+                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 font-semibold mb-1">Оновлено</p>
+                    <p className="text-sm font-semibold text-gray-900">{formatDate(selectedOrder.updatedAt)}</p>
                   </div>
                 </div>
               </section>
 
               {/* Кнопка закрити */}
-              <div className="pt-4 border-t-2 border-purple-200/30">
+              <div className="pt-3 border-t border-gray-300">
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 rounded-xl hover:shadow-lg transition-all"
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 sm:py-2.5 rounded-lg transition-colors"
                 >
                   Закрити
                 </button>

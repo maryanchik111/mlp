@@ -183,6 +183,8 @@ export default function CatalogPage() {
         maxQuantity: product.quantity, // Додаємо максимальну кількість на складі
         discount: product.discount ?? 0,
         images: product.images || [], // Додаємо масив фото
+        deliveryPrice: product.deliveryPrice, // Ціна доставки
+        deliveryDays: product.deliveryDays, // Термін доставки
       });
       setCartItems(prev => [...prev, product.id]);
       
@@ -238,9 +240,9 @@ export default function CatalogPage() {
       <nav className="bg-white border-b border-gray-200" aria-label="Breadcrumb">
         <div className="container mx-auto px-4 py-4 max-w-7xl">
           <ol className="flex items-center gap-2 text-sm text-gray-600">
-            <li><a href="/" className="hover:text-purple-600 transition-colors">Головна</a></li>
+            <li><a href="/" className="hover:text-indigo-600 transition-colors">Головна</a></li>
             <li className="text-gray-300">/</li>
-            <li className="text-purple-700 font-semibold">Каталог</li>
+            <li className="text-indigo-600 font-semibold">Каталог</li>
           </ol>
         </div>
       </nav>
@@ -259,13 +261,13 @@ export default function CatalogPage() {
             Великий вибір персонажів, наборів та аксесуарів за найкращими цінами.
           </p>
           <div className="flex flex-wrap gap-3 text-sm">
-            <span className="inline-flex items-center gap-2 bg-purple-100 text-purple-800 px-4 py-2 rounded-full font-semibold">
+            <span className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full font-semibold">
               <span className="text-xl">✨</span> {allProducts.length}+ товарів
             </span>
-            <span className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-semibold">
+            <span className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full font-semibold">
               <span className="text-xl">🚀</span> Швидка доставка
             </span>
-            <span className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full font-semibold">
+            <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full font-semibold">
               <span className="text-xl">✅</span> 100% оригіналу
             </span>
           </div>
@@ -288,8 +290,8 @@ export default function CatalogPage() {
                   }}
                   className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-200 ${
                     selectedCategory === null
-                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/50 scale-105"
-                      : "text-gray-700 hover:bg-purple-50 hover:text-purple-600 hover:translate-x-1"
+                      ? "bg-indigo-600 text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600 hover:translate-x-1"
                   }`}
                 >
                   Всі категорії
@@ -303,15 +305,15 @@ export default function CatalogPage() {
                     }}
                     className={`w-full text-left flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
                       selectedCategory === category.name
-                        ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/50"
-                        : "text-gray-700 hover:bg-purple-50 hover:text-purple-600 hover:translate-x-1"
+                        ? "bg-indigo-600 text-white shadow-md"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600 hover:translate-x-1"
                     }`}
                   >
                     <span className="font-medium">{category.name}</span>
                     <span className={`text-xs font-bold px-3 py-1 rounded-full ${
                       selectedCategory === category.name
                         ? "bg-white/30"
-                        : "bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700"
+                        : "bg-gray-200 text-gray-700"
                     }`}>
                       {category.count}
                     </span>
@@ -320,76 +322,50 @@ export default function CatalogPage() {
               </nav>
 
               {/* Фільтри ціни */}
-              <div className="mt-8 pt-8 border-t border-purple-200/30">
-                <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 flex items-center gap-2">
+              <div className="mt-8 pt-8 border-t border-gray-300">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="text-xl">💰</span> Ціна
                 </h3>
                 <div className="space-y-3">
-                  <label className="flex items-center cursor-pointer group">
+                  <div className="flex gap-2">
                     <input 
-                      type="radio" 
-                      name="price"
-                      className="w-5 h-5 text-purple-600 accent-purple-600"
-                      checked={priceRange === null}
-                      onChange={() => {
-                        setPriceRange(null);
+                      type="number"
+                      placeholder="Від"
+                      min="0"
+                      value={priceRange?.[0] || ''}
+                      onChange={(e) => {
+                        const from = e.target.value ? parseInt(e.target.value) : 0;
+                        const to = priceRange?.[1] || 10000;
+                        setPriceRange([from, to]);
                         setCurrentPage(1);
                       }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900"
                     />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">Усі ціни</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer group">
+                  </div>
+                  <div className="flex gap-2">
                     <input 
-                      type="radio" 
-                      name="price"
-                      className="w-5 h-5 text-purple-600 accent-purple-600"
-                      checked={priceRange?.[0] === 0 && priceRange?.[1] === 300}
-                      onChange={() => {
-                        setPriceRange([0, 300]);
+                      type="number"
+                      placeholder="До"
+                      min="0"
+                      value={priceRange?.[1] || ''}
+                      onChange={(e) => {
+                        const from = priceRange?.[0] || 0;
+                        const to = e.target.value ? parseInt(e.target.value) : 10000;
+                        setPriceRange([from, to]);
                         setCurrentPage(1);
                       }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900"
                     />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">До 300₴</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer group">
-                    <input 
-                      type="radio" 
-                      name="price"
-                      className="w-5 h-5 text-purple-600 accent-purple-600"
-                      checked={priceRange?.[0] === 300 && priceRange?.[1] === 700}
-                      onChange={() => {
-                        setPriceRange([300, 700]);
-                        setCurrentPage(1);
-                      }}
-                    />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">300₴ - 700₴</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer group">
-                    <input 
-                      type="radio" 
-                      name="price"
-                      className="w-5 h-5 text-purple-600 accent-purple-600"
-                      checked={priceRange?.[0] === 700 && priceRange?.[1] === 1500}
-                      onChange={() => {
-                        setPriceRange([700, 1500]);
-                        setCurrentPage(1);
-                      }}
-                    />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">700₴ - 1500₴</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer group">
-                    <input 
-                      type="radio" 
-                      name="price"
-                      className="w-5 h-5 text-purple-600 accent-purple-600"
-                      checked={priceRange?.[0] === 1500 && priceRange?.[1] === 10000}
-                      onChange={() => {
-                        setPriceRange([1500, 10000]);
-                        setCurrentPage(1);
-                      }}
-                    />
-                    <span className="ml-3 text-gray-700 group-hover:text-purple-600 font-medium transition-colors">Понад 1500₴</span>
-                  </label>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setPriceRange(null);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-semibold hover:bg-gray-200 transition-colors text-sm"
+                  >
+                    Очистити фільтр
+                  </button>
                 </div>
               </div>
             </div>
@@ -397,9 +373,9 @@ export default function CatalogPage() {
 
           {/* Основна сітка товарів */}
           <section className="lg:col-span-3">
-            <div className="mb-8 flex items-center justify-between bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-              <p className="text-gray-700 font-semibold">
-                Показано <span className="text-purple-600 font-bold">{currentProducts.length}</span> з <span className="text-purple-600 font-bold">{sortedProducts.length}</span> товарів
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+              <p className="text-gray-700 font-semibold text-sm sm:text-base">
+                Показано <span className="text-indigo-600 font-bold">{currentProducts.length}</span> з <span className="text-indigo-600 font-bold">{sortedProducts.length}</span> товарів
               </p>
               <select 
                 value={sortBy}
@@ -407,7 +383,7 @@ export default function CatalogPage() {
                   setSortBy(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 font-semibold hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all cursor-pointer"
+                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 font-semibold hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all cursor-pointer text-sm sm:text-base"
               >
                 <option value="popular">✨ За популярністю</option>
                 <option value="price-asc">💰 За ціною (зростання)</option>
@@ -449,7 +425,7 @@ export default function CatalogPage() {
                         </div>
                       )}
                       {product.discount && product.discount > 0 && (
-                        <div className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-pink-500 text-white font-bold px-3 py-2 rounded-full shadow-lg">
+                        <div className="absolute top-4 right-4 bg-red-500 text-white font-bold px-3 py-2 rounded-full shadow-md">
                           −{product.discount}%
                         </div>
                       )}
@@ -458,11 +434,11 @@ export default function CatalogPage() {
 
                   {/* Інформація про продукт */}
                   <div className="p-5">
-                    <p className="text-xs font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text uppercase tracking-widest mb-3">
+                    <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mb-3">
                       {product.category}
                     </p>
                     <Link href={`/catalog/product/${product.id}`} className="block">
-                      <h3 className="text-base font-bold text-gray-900 mb-2 hover:text-transparent hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:bg-clip-text transition-all line-clamp-2">
+                      <h3 className="text-base font-bold text-gray-900 mb-2 hover:text-indigo-600 transition-colors line-clamp-2">
                         {product.name}
                       </h3>
                     </Link>
@@ -470,51 +446,62 @@ export default function CatalogPage() {
                       {product.description}
                     </p>
 
-                    {/* Ціна та кнопка */}
-                    <div className="flex flex-col gap-4">
+                    {/* Ціна та доставка */}
+                    <div className="flex flex-col gap-3 mb-4">
                       <div className="flex items-center gap-2">
                         {product.discount && product.discount > 0 ? (
                           <>
                             <span className="text-xs text-gray-400 line-through font-semibold">
                               {product.price}₴
                             </span>
-                            <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            <span className="text-2xl font-bold text-indigo-600">
                               {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
                             </span>
                           </>
                         ) : (
-                          <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                          <span className="text-2xl font-bold text-indigo-600">
                             {product.price}₴
                           </span>
                         )}
                       </div>
-                      <button 
-                        onClick={() => handleToggleCart(product)}
-                        className={`w-full px-4 py-3 rounded-lg font-bold transition-all duration-200 ${
-                          addedItems[product.id] === 'removed'
-                            ? "bg-red-500 text-white scale-105 shadow-lg"
-                            : addedItems[product.id] === true
-                            ? "bg-green-500 text-white scale-105 shadow-lg"
-                            : cartItems.includes(product.id)
-                            ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white hover:from-red-600 hover:to-red-500 shadow-lg"
-                            : product.quantity > 0
-                            ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-xl hover:-translate-y-0.5 active:scale-95"
-                            : "bg-gray-300 text-gray-600 cursor-not-allowed opacity-60"
-                        }`}
-                        disabled={product.quantity === 0}
-                        title={cartItems.includes(product.id) ? "Видалити з кошика" : "Додати в кошик"}
-                      >
-                        {addedItems[product.id] === 'removed'
-                          ? "✓ Видалено!"
-                          : addedItems[product.id] === true 
-                          ? "✓ Додано!" 
-                          : cartItems.includes(product.id)
-                          ? "🗑️ Видалити"
-                          : product.quantity > 0 
-                          ? "🛒 В кошик" 
-                          : "❌ Закінчився"}
-                      </button>
+                      
+                      {/* Доставка */}
+                      <div className="flex items-center gap-2 text-xs bg-blue-50 rounded-lg p-2 border border-blue-100">
+                        <span className="text-sm">🚚</span>
+                        <span className="text-gray-700">
+                          <span className="font-semibold text-blue-600">{product.deliveryPrice || '120'}₴</span> доставка
+                        </span>
+                        <span className="text-gray-500">({product.deliveryDays || '1-2'} дн.)</span>
+                      </div>
                     </div>
+                    
+                    {/* Кнопка */}
+                    <button 
+                      onClick={() => handleToggleCart(product)}
+                      className={`w-full px-4 py-3 rounded-lg font-bold transition-all duration-200 ${
+                        addedItems[product.id] === 'removed'
+                          ? "bg-red-500 text-white scale-105 shadow-lg"
+                          : addedItems[product.id] === true
+                          ? "bg-green-500 text-white scale-105 shadow-lg"
+                          : cartItems.includes(product.id)
+                          ? "bg-blue-600 text-white hover:bg-red-600 shadow-md"
+                          : product.quantity > 0
+                          ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md"
+                          : "bg-gray-300 text-gray-600 cursor-not-allowed opacity-60"
+                      }`}
+                      disabled={product.quantity === 0}
+                      title={cartItems.includes(product.id) ? "Видалити з кошика" : "Додати в кошик"}
+                    >
+                      {addedItems[product.id] === 'removed'
+                        ? "✓ Видалено!"
+                        : addedItems[product.id] === true 
+                        ? "✓ Додано!" 
+                        : cartItems.includes(product.id)
+                        ? "🗑️ Видалити"
+                        : product.quantity > 0 
+                        ? "🛒 В кошик" 
+                        : "❌ Закінчився"}
+                    </button>
                   </div>
                 </article>
               ))}
@@ -545,8 +532,8 @@ export default function CatalogPage() {
                       onClick={() => handlePageChange(page)}
                       className={`px-4 py-3 rounded-lg font-bold transition-all duration-200 ${
                         currentPage === page
-                          ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-600/50"
-                          : "border-2 border-purple-300 text-purple-600 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 hover:border-purple-600"
+                          ? "bg-indigo-600 text-white shadow-md"
+                          : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
                       }`}
                     >
                       {page}
@@ -572,7 +559,7 @@ export default function CatalogPage() {
             {/* Інформація про пагінацію */}
             <div className="mt-8 text-center">
               <p className="text-gray-700 font-semibold">
-                Сторінка <span className="text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text font-bold">{currentPage}</span> з <span className="text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text font-bold">{totalPages}</span>
+                Сторінка <span className="font-bold text-indigo-600">{currentPage}</span> з <span className="font-bold text-indigo-600">{totalPages}</span>
               </p>
             </div>
           </section>
@@ -580,15 +567,10 @@ export default function CatalogPage() {
       </div>
 
       {/* FAQ секція для SEO */}
-      <section className="relative overflow-hidden py-16 mt-12 pb-24 bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 border-t border-purple-200/30">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-0 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl"></div>
-        </div>
-        <div className="container mx-auto px-4 max-w-7xl relative z-10">
-          <div className="flex items-center gap-3 mb-12">
-            <span className="text-4xl">❓</span>
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+      <section className="py-16 mt-12 pb-24 bg-white border-t border-gray-300">
+        <div className="container mx-auto px-4 max-w-7xl">
+          <div className="mb-12">
+            <h2 className="text-4xl font-bold text-gray-900">
               Часті питання про My Little Pony іграшки
             </h2>
           </div>
@@ -602,7 +584,7 @@ export default function CatalogPage() {
               },
               {
                 q: "Скільки коштує доставка?",
-                a: "Доставка безкоштовна при замовленні від 2000₴. В інших випадках - 50₴.",
+                a: "Доставка безкоштовна при замовленні від 2000₴. В інших випадках - 120₴.",
                 emoji: "🚚"
               },
               {
@@ -616,7 +598,7 @@ export default function CatalogPage() {
                 emoji: "↩️"
               },
             ].map((item, index) => (
-              <div key={index} className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl p-6 hover:shadow-lg hover:border-purple-400/50 transition-all duration-200 hover:-translate-y-1">
+              <div key={index} className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
                 <h3 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
                   <span className="text-2xl">{item.emoji}</span>
                   {item.q}

@@ -102,9 +102,9 @@ function PaymentPageContent() {
 
   if (!mounted || !paymentDetails) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-12">
+      <main className="min-h-screen bg-white py-12">
         <div className="container mx-auto px-4 max-w-2xl">
-          <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-8 text-center">
+          <div className="bg-white border border-gray-300 rounded-lg shadow-md p-8 text-center">
             <p className="text-gray-600">Завантаження даних оплати...</p>
           </div>
         </div>
@@ -127,46 +127,45 @@ function PaymentPageContent() {
   // Якщо оплата підтверджена - показуємо сторінку подяки
   if (paymentConfirmed) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-12">
+      <main className="min-h-screen bg-white py-12">
         <div className="container mx-auto px-4 max-w-3xl">
-          <div className="bg-white/80 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-2xl p-8 sm:p-12 text-center">
+          <div className="bg-white border border-gray-300 rounded-lg shadow-md p-8 sm:p-12 text-center">
             {/* Іконка успіху */}
             <div className="mb-6">
-              <div className="w-24 h-24 bg-gradient-to-r from-green-300 to-emerald-300 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce shadow-lg">
+              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                 <span className="text-5xl">✅</span>
               </div>
-              <div className="text-6xl mb-4 animate-bounce-slow">🎉</div>
             </div>
 
             {/* Заголовок */}
-            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Дякуємо за оплату!
             </h1>
             <p className="text-lg text-gray-600 mb-8">
-              Ваше замовлення <span className="font-semibold text-purple-600">№{paymentDetails.orderId}</span> успішно оплачено
+              Ваше замовлення <span className="font-semibold text-indigo-600">№{paymentDetails.orderId}</span> успішно оплачено
             </p>
 
             {/* Інформаційні блоки */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <div className="bg-gradient-to-br from-purple-100 to-purple-50 border-2 border-purple-200/50 rounded-2xl p-4 hover:shadow-lg transition-all">
+              <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 hover:shadow-md transition-all">
                 <div className="text-3xl mb-2">📦</div>
                 <p className="text-sm text-gray-600 mb-1">Статус</p>
-                <p className="font-bold text-purple-600">В обробці</p>
+                <p className="font-bold text-gray-900">В обробці</p>
               </div>
-              <div className="bg-gradient-to-br from-blue-100 to-blue-50 border-2 border-blue-200/50 rounded-2xl p-4 hover:shadow-lg transition-all">
+              <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 hover:shadow-md transition-all">
                 <div className="text-3xl mb-2">💰</div>
                 <p className="text-sm text-gray-600 mb-1">Сума</p>
-                <p className="font-bold text-blue-600">{paymentDetails.totalAmount}₴</p>
+                <p className="font-bold text-gray-900">{paymentDetails.totalAmount}₴</p>
               </div>
-              <div className="bg-gradient-to-br from-green-100 to-green-50 border-2 border-green-200/50 rounded-2xl p-4 hover:shadow-lg transition-all">
+              <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 hover:shadow-md transition-all">
                 <div className="text-3xl mb-2">✉️</div>
                 <p className="text-sm text-gray-600 mb-1">Email</p>
-                <p className="font-bold text-green-600">Надіслано</p>
+                <p className="font-bold text-gray-900">Надіслано</p>
               </div>
             </div>
 
             {/* Що далі */}
-            <div className="bg-gradient-to-r from-purple-100/80 via-pink-100/80 to-purple-100/80 backdrop-blur-sm border-2 border-purple-200/50 rounded-2xl p-6 mb-8 shadow-md">
+            <div className="bg-gray-50 border border-gray-300 rounded-lg p-6 mb-8 shadow-sm">
               <h2 className="text-xl font-bold text-gray-900 mb-4">📋 Що далі?</h2>
               <div className="text-left space-y-3 max-w-xl mx-auto">
                 <div className="flex items-start gap-3">
@@ -198,20 +197,20 @@ function PaymentPageContent() {
 
             {/* Бонуси за оплату */}
             {earnedPoints > 0 && (
-              <div className="bg-gradient-to-r from-yellow-100/80 to-amber-100/80 backdrop-blur-sm border-2 border-yellow-200/50 rounded-2xl p-4 mb-6 shadow-md">
-                <p className="text-yellow-800 text-base sm:text-lg font-semibold text-center">
-                  🎁 Ви отримали <span className="text-yellow-700 font-bold">+{earnedPoints}</span> балів {user ? 'у ваш акаунт' : ''} за це замовлення
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 shadow-sm">
+                <p className="text-amber-900 text-base sm:text-lg font-semibold text-center">
+                  🎁 Ви отримали <span className="text-amber-800 font-bold">+{earnedPoints}</span> балів {user ? 'у ваш акаунт' : ''} за це замовлення
                 </p>
                 {!user && (
-                  <p className="text-yellow-700 text-xs text-center mt-1">Увійдіть в акаунт, щоб зберігати та використовувати бали</p>
+                  <p className="text-amber-800 text-xs text-center mt-1">Увійдіть в акаунт, щоб зберігати та використовувати бали</p>
                 )}
               </div>
             )}
 
             {/* Відгук після оплати */}
             {user && !hasReview && (
-              <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/50 rounded-2xl p-6 mb-8 text-left shadow-md">
-                <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">📝 Залишити відгук</h2>
+              <div className="bg-white border border-gray-300 rounded-lg p-6 mb-8 text-left shadow-sm">
+                <h2 className="text-xl font-bold text-gray-900 mb-3">📝 Залишити відгук</h2>
                 <p className="text-sm text-gray-600 mb-4">Поділіться враженнями про покупку. Ваш рейтинг допоможе іншим користувачам.</p>
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Рейтинг:</label>
@@ -234,19 +233,19 @@ function PaymentPageContent() {
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
                     placeholder="Що вам сподобалось?"
-                    className="w-full px-4 py-3 rounded-xl border-2 border-purple-200/50 bg-white/50 focus:ring-2 focus:ring-purple-600 focus:border-purple-400 focus:bg-white transition-all text-sm text-gray-900 placeholder-gray-400"
+                    className="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 placeholder-gray-400"
                   />
                 </div>
                 <button
                   onClick={handleSubmitReview}
                   disabled={reviewSaved}
-                  className={`w-full py-3 rounded-xl font-bold transition-all ${reviewSaved ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg' : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-lg hover:shadow-purple-600/50 hover:-translate-y-1'}`}
+                  className={`w-full py-2 rounded-lg font-bold transition-all ${reviewSaved ? 'bg-green-600 text-white shadow-sm' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
                 >{reviewSaved ? '✅ Відгук збережено' : '💾 Надіслати відгук'}</button>
               </div>
             )}
             {user && hasReview && (
-              <div className="bg-gradient-to-r from-green-100/80 to-emerald-100/80 backdrop-blur-sm border-2 border-green-200/50 rounded-2xl p-4 mb-8 text-left shadow-md">
-                <p className="text-green-700 text-sm font-semibold">✅ Ви вже залишили відгук для цього замовлення. Дякуємо!</p>
+              <div className="bg-green-50 border border-green-300 rounded-lg p-4 mb-8 text-left shadow-sm">
+                <p className="text-green-900 text-sm font-semibold">✅ Ви вже залишили відгук для цього замовлення. Дякуємо!</p>
               </div>
             )}
 
@@ -254,31 +253,31 @@ function PaymentPageContent() {
             <div className="space-y-3">
               <Link
                 href="/catalog"
-                className="block w-full bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white font-bold py-4 rounded-2xl hover:shadow-2xl hover:shadow-purple-600/50 hover:-translate-y-1 transition-all active:scale-95"
+                className="block w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition-all"
               >
                 🛍️ Продовжити покупки
               </Link>
               <Link
                 href="/account"
-                className="block w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold py-3 rounded-2xl hover:shadow-2xl hover:shadow-green-500/50 hover:-translate-y-1 transition-all active:scale-95"
+                className="block w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition-all"
               >
                 👤 Перейти в акаунт
               </Link>
               <Link
                 href="/"
-                className="block w-full bg-white/70 backdrop-blur-sm border-2 border-purple-200/50 text-gray-800 font-bold py-3 rounded-2xl hover:shadow-lg hover:bg-white/90 transition-all"
+                className="block w-full bg-gray-100 border border-gray-300 text-gray-900 font-bold py-3 rounded-lg hover:bg-gray-200 transition-all"
               >
                 🏠 На головну
               </Link>
             </div>
 
             {/* Контактна інформація */}
-            <div className="mt-8 pt-8 border-t-2 border-purple-200/30">
+            <div className="mt-8 pt-8 border-t border-gray-300">
               <p className="text-sm text-gray-600 mb-2">
                 <strong>Потрібна допомога?</strong>
               </p>
               <p className="text-sm text-gray-600">
-                Email: <a href="mailto:support@mlpshop.ua" className="text-purple-600 hover:text-pink-600 font-semibold hover:underline transition-colors">support@mlpshop.ua</a>
+                Email: <a href="mailto:support@mlpshop.ua" className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors">support@mlpshop.ua</a>
               </p>
             </div>
           </div>
@@ -296,14 +295,14 @@ function PaymentPageContent() {
 
   // Сторінка оплати (до підтвердження)
   return (
-    <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-12">
+    <main className="min-h-screen bg-white py-12">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Заголовок */}
         <div className="mb-8">
-          <Link href="/catalog" className="text-purple-600 hover:text-pink-600 mb-4 inline-block text-sm sm:text-base font-semibold transition-colors">
+          <Link href="/catalog" className="text-indigo-600 hover:text-indigo-700 mb-4 inline-block text-sm sm:text-base font-semibold transition-colors">
             ← Повернутися до каталогу
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">💳 Оплата замовлення</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">💳 Оплата замовлення</h1>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">Замовлення №{paymentDetails.orderId}</p>
         </div>
 
@@ -311,17 +310,17 @@ function PaymentPageContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Ліва колона - способи оплати */}
           <div className="lg:col-span-2">
-            <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-6 space-y-6">
+            <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 space-y-6">
               {/* QR код */}
               <section>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 pb-2 border-b-2 border-purple-200/30">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   📱 Оплата через QR-код
                 </h2>
-                <div className="flex flex-col items-center p-8 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border border-purple-200/30">
+                <div className="flex flex-col items-center p-8 bg-gray-50 rounded-lg border border-gray-300">
                   <img
                     src={paymentConfig.qrCode}
                     alt="QR код для оплати"
-                    className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg shadow-lg"
+                    className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg shadow-sm"
                   />
                   <p className="text-center text-gray-600 mt-4 text-sm sm:text-base">
                     Відскануйте QR-код камерою вашого смартфона
@@ -329,13 +328,13 @@ function PaymentPageContent() {
                 </div>
               </section>
 
-              {/* Номер карти */}
+              {/* Номер картки */}
               <section>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 pb-2 border-b-2 border-purple-200/30">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   💳 Оплата карткою
                 </h2>
                 <div className="space-y-4">
-                  <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl hover:shadow-purple-600/50 transition-all">
+                  <div className="bg-indigo-600 rounded-lg p-6 text-white shadow-md hover:shadow-lg transition-all">
                     <p className="text-sm opacity-90 mb-2">Номер картки</p>
                     <p className="text-2xl font-bold tracking-wider mb-4">{paymentConfig.cardNumber}</p>
                     <p className="text-sm">Видавець: {paymentConfig.cardName}</p>
@@ -343,16 +342,16 @@ function PaymentPageContent() {
 
                   <button
                     onClick={handleCopyCardNumber}
-                    className={`w-full py-3 rounded-xl font-bold transition-all text-sm sm:text-base ${
+                    className={`w-full py-2 rounded-lg font-bold transition-all text-sm sm:text-base ${
                       copied
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg shadow-green-500/50'
-                        : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:shadow-2xl hover:shadow-purple-600/50 hover:-translate-y-1'
+                        ? 'bg-green-600 text-white shadow-sm'
+                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
                     }`}
                   >
                     {copied ? '✅ Скопійовано!' : '📋 Скопіювати номер картки'}
                   </button>
 
-                  <div className="bg-gradient-to-br from-blue-100/80 to-cyan-100/80 backdrop-blur-sm border-2 border-blue-200/50 rounded-2xl p-4 text-sm text-blue-800 shadow-md">
+                  <div className="bg-blue-50 border border-blue-300 rounded-lg p-4 text-sm text-blue-900 shadow-sm">
                     <p className="font-semibold mb-2">ℹ️ Інструкція оплати:</p>
                     <ol className="list-decimal list-inside space-y-1">
                       <li>Скопіюйте номер картки або відскануйте QR-код</li>
@@ -364,16 +363,16 @@ function PaymentPageContent() {
                 </div>
               </section>
 
-              {/* Посилання на оплату */}
+              {/* Посилання для оплати */}
               <section>
-                <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 pb-2 border-b-2 border-purple-200/30">
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   🔗 Посилання для оплати
                 </h2>
                 <a
                   href={paymentConfig.paymentLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block w-full bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white font-bold py-4 rounded-2xl hover:shadow-2xl hover:shadow-purple-600/50 hover:-translate-y-1 transition-all text-center text-sm sm:text-base active:scale-95"
+                  className="block w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition-all text-center text-sm sm:text-base"
                 >
                   🌐 Перейти на сторінку оплати
                 </a>
@@ -386,8 +385,8 @@ function PaymentPageContent() {
 
           {/* Права колона - інформація про замовлення */}
           <div className="lg:col-span-1">
-            <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-6 sticky top-4 space-y-6">
-              <h2 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">📦 Деталі замовлення</h2>
+            <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 sticky top-4 space-y-6">
+              <h2 className="text-lg font-bold text-gray-900">📦 Деталі замовлення</h2>
 
               <div className="space-y-3">
                 <div>
@@ -401,29 +400,29 @@ function PaymentPageContent() {
               </div>
 
               {/* Сума */}
-              <div className="flex flex-col justify-center items-center bg-gradient-to-r from-purple-100/80 to-pink-100/80 backdrop-blur-sm p-4 rounded-2xl border-2 border-purple-200/50 shadow-md">
+              <div className="flex flex-col justify-center items-center bg-indigo-50 p-4 rounded-lg border border-indigo-300 shadow-sm">
                 <p className="text-sm text-gray-600 mb-1">Сума до оплати</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{paymentDetails.totalAmount}₴</p>
+                <p className="text-3xl font-bold text-indigo-600">{paymentDetails.totalAmount}₴</p>
               </div>
 
               {/* Статуси оплати */}
-              <div className="bg-gradient-to-r from-green-100/80 to-emerald-100/80 backdrop-blur-sm border-2 border-green-200/50 rounded-2xl p-4 shadow-md">
-                <p className="text-sm font-semibold text-green-800 mb-2">✅ Оплата безпечна</p>
-                <p className="text-xs text-green-700">
+              <div className="bg-green-50 border border-green-300 rounded-lg p-4 shadow-sm">
+                <p className="text-sm font-semibold text-green-900 mb-2">✅ Оплата безпечна</p>
+                <p className="text-xs text-green-800">
                   Всі ваші дані передаються через захищений протокол SSL
                 </p>
               </div>
 
               {/* Кнопки навігації */}
-              <div className="space-y-3 pt-4 border-t-2 border-purple-200/30">
+              <div className="space-y-3 pt-4 border-t border-gray-300">
                 {!paymentConfirmed ? (
                   <button
                     onClick={handleCheckPayment}
                     disabled={isChecking}
-                    className={`block w-full text-center font-bold py-3 rounded-2xl transition-all text-sm sm:text-base ${
+                    className={`block w-full text-center font-bold py-3 rounded-lg transition-all text-sm sm:text-base ${
                       isChecking
-                        ? 'bg-blue-400 text-white cursor-wait shadow-md'
-                        : 'bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 text-white hover:shadow-2xl hover:shadow-blue-600/50 hover:-translate-y-1 active:scale-95'
+                        ? 'bg-blue-400 text-white cursor-wait shadow-sm'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
                     {isChecking ? (
@@ -436,14 +435,14 @@ function PaymentPageContent() {
                     )}
                   </button>
                 ) : (
-                  <div className="bg-gradient-to-r from-green-100/80 to-emerald-100/80 backdrop-blur-sm border-2 border-green-200/50 rounded-2xl p-4 text-center shadow-md">
-                    <p className="text-green-800 font-bold text-lg">✅ Оплату підтверджено!</p>
-                    <p className="text-green-700 text-sm mt-1">Ваше замовлення в обробці</p>
+                  <div className="bg-green-50 border border-green-300 rounded-lg p-4 text-center shadow-sm">
+                    <p className="text-green-900 font-bold text-lg">✅ Оплату підтверджено!</p>
+                    <p className="text-green-800 text-sm mt-1">Ваше замовлення в обробці</p>
                   </div>
                 )}
                 <Link
                   href="/catalog"
-                  className="block text-center bg-white/70 backdrop-blur-sm border-2 border-purple-200/50 text-gray-800 font-bold py-2 rounded-2xl hover:shadow-lg hover:bg-white/90 transition-all text-sm sm:text-base"
+                  className="block text-center bg-gray-100 border border-gray-300 text-gray-900 font-bold py-2 rounded-lg hover:bg-gray-200 transition-all text-sm sm:text-base"
                 >
                   ← До каталогу
                 </Link>
@@ -459,7 +458,7 @@ function PaymentPageContent() {
         </div>
 
         {/* Нижня інформація */}
-        <div className="mt-8 bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-6 text-center">
+        <div className="mt-8 bg-white border border-gray-300 rounded-lg shadow-md p-6 text-center">
           <p className="text-gray-600 text-sm sm:text-base">
             Дякуємо за вашу покупку! 🦄 Після оплати ви отримаєте підтвердження на email
           </p>
@@ -472,9 +471,9 @@ function PaymentPageContent() {
 export default function PaymentPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen bg-gradient-to-b from-purple-50 via-pink-50 to-white py-12">
+      <main className="min-h-screen bg-white py-12">
         <div className="container mx-auto px-4 max-w-2xl">
-          <div className="bg-white/70 backdrop-blur-md border-2 border-purple-200/30 rounded-2xl shadow-xl p-8 text-center">
+          <div className="bg-white border border-gray-300 rounded-lg shadow-md p-8 text-center">
             <p className="text-gray-600">Завантаження...</p>
           </div>
         </div>

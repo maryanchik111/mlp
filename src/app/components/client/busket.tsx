@@ -148,36 +148,33 @@ export default function Basket() {
           />
 
           {/* Кошик */}
-          <div className="fixed right-0 top-0 h-screen w-full max-w-md bg-gradient-to-b from-white via-purple-50/30 to-pink-50/30 backdrop-blur-lg shadow-2xl z-[70] flex flex-col overflow-hidden border-l border-purple-200/30">
+          <div className="fixed right-0 top-0 h-screen w-full max-w-md bg-white shadow-2xl z-[70] flex flex-col overflow-hidden border-l border-gray-300">
             {/* Заголовок */}
-            <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white p-6 shadow-lg flex-shrink-0 relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full mix-blend-multiply filter blur-2xl"></div>
-              </div>
-              <div className="relative flex items-center justify-between">
-                <h2 className="text-3xl font-bold flex items-center gap-2">🛒 Кошик</h2>
+            <div className="bg-indigo-600 text-white p-4 shadow-md flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold flex items-center gap-2">🛒 Кошик</h2>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-3xl hover:scale-125 transition-transform duration-200 font-bold"
+                  className="text-2xl hover:text-red-200 transition-colors font-bold"
                   aria-label="Закрити кошик"
                 >
                   ✕
                 </button>
               </div>
               {totalItems > 0 && (
-                <p className="text-white/95 mt-3 font-semibold text-lg relative">
-                  ✨ {totalItems} {totalItems === 1 ? 'товар' : 'товарів'}
+                <p className="text-white/90 mt-2 font-semibold text-base">
+                  {totalItems} {totalItems === 1 ? 'товар' : 'товарів'}
                 </p>
               )}
             </div>
 
             {/* Вміст кошика - прокручуваний */}
-            <div className="flex-1 overflow-y-auto p-6 min-h-0">
+            <div className="flex-1 overflow-y-auto p-4 min-h-0">
               {cartItems.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-gray-500">
-                  <div className="text-7xl mb-6 animate-bounce-slow">🦄</div>
-                  <p className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-3">Кошик порожній</p>
-                  <p className="text-sm text-center mb-8 text-gray-600 max-w-xs">
+                  <div className="text-6xl mb-4">🦄</div>
+                  <p className="text-lg font-bold text-gray-900 mb-2">Кошик порожній</p>
+                  <p className="text-xs text-center mb-6 text-gray-600 max-w-xs">
                     Додайте товари з каталогу, щоб почати покупки!
                   </p>
                   <button
@@ -185,43 +182,43 @@ export default function Basket() {
                       setIsOpen(false);
                       router.push('/catalog');
                     }}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-xl hover:shadow-lg transition-all font-bold hover:scale-105 active:scale-95"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors font-semibold text-sm"
                   >
                     🛍️ Перейти до каталогу
                   </button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {cartItems.map(item => (
                     <div
                       key={item.id}
-                      className="bg-white/60 backdrop-blur-md border-2 border-purple-200/50 rounded-2xl p-4 hover:bg-white/80 hover:shadow-lg hover:border-purple-400/70 transition-all duration-200 hover:-translate-y-1 group"
+                      className="bg-white border border-gray-300 rounded-lg p-3 hover:shadow-md transition-shadow group"
                     >
                       {/* Заголовок товару */}
-                      <div className="flex gap-4 mb-4">
+                      <div className="flex gap-3 mb-3">
                         {(item as any).images && (item as any).images.length > 0 ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img 
                             src={(item as any).images[0]} 
                             alt={item.name}
-                            className="w-16 h-16 object-cover rounded-xl border-3 border-purple-300/50 flex-shrink-0 group-hover:scale-110 transition-transform duration-200"
+                            className="w-16 h-16 object-cover rounded-lg border border-gray-300 flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-16 h-16 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex-shrink-0 group-hover:scale-110 transition-transform duration-200">
+                          <div className="w-16 h-16 text-4xl flex items-center justify-center bg-gray-100 rounded-lg flex-shrink-0">
                             {item.image || '📦'}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-bold text-gray-900 line-clamp-2 text-base group-hover:text-purple-600 transition-colors">
+                          <h3 className="font-semibold text-gray-900 line-clamp-2 text-base">
                             {item.name}
                           </h3>
-                          <p className="text-xs text-purple-600 uppercase tracking-widest font-bold mt-2 opacity-80">
+                          <p className="text-sm text-gray-600 mt-1">
                             {item.category}
                           </p>
                         </div>
                         <button
                           onClick={() => removeFromCart(item.id)}
-                          className="text-red-500 hover:text-red-700 hover:scale-125 transition-all text-2xl flex-shrink-0 font-bold"
+                          className="text-red-600 hover:text-red-700 text-lg flex-shrink-0 font-bold"
                           aria-label="Видалити з кошика"
                         >
                           ✕
@@ -229,25 +226,25 @@ export default function Basket() {
                       </div>
 
                       {/* Ціна та кількість */}
-                      <div className="flex items-center justify-between gap-3 pt-4 border-t-2 border-purple-200/30">
+                      <div className="flex items-center justify-between gap-3 pt-3 border-t border-gray-200">
                         <div className="flex-1">
                           {item.discount && item.discount > 0 ? (
                             <div className="flex items-center gap-2">
                               <p className="text-sm text-gray-400 line-through font-semibold">
                                 {item.price}₴
                               </p>
-                              <p className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                              <p className="text-base font-bold text-indigo-600">
                                 {Math.round((typeof item.price === 'string' ? parseFloat(item.price) : item.price) * (1 - item.discount / 100))}₴
                               </p>
-                              <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full">−{item.discount}%</span>
+                              <span className="text-xs font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">−{item.discount}%</span>
                             </div>
                           ) : (
-                            <p className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            <p className="text-base font-bold text-gray-900">
                               {item.price}₴
                             </p>
                           )}
                           {item.quantity > 1 && (
-                            <p className="text-xs text-purple-600 font-bold mt-2">
+                            <p className="text-sm text-gray-600 font-semibold mt-1">
                               💵 {(() => {
                                 const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
                                 const discount = item.discount ? Number(item.discount) : 0;
@@ -259,17 +256,17 @@ export default function Basket() {
                         </div>
 
                         {/* Контрол кількості */}
-                        <div className="flex items-center gap-1 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-2 flex-shrink-0 border-2 border-purple-200/50">
+                        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1.5 flex-shrink-0 border border-gray-300">
                           <button
                             onClick={() =>
                               updateQuantity(item.id, item.quantity - 1)
                             }
-                            className="px-3 py-2 text-lg font-bold text-purple-700 hover:bg-white rounded-lg transition-all hover:scale-110 active:scale-95"
+                            className="px-2.5 py-1.5 text-base font-bold text-gray-700 hover:bg-white rounded transition-colors"
                             aria-label="Зменшити кількість"
                           >
                             −
                           </button>
-                          <span className="px-3 py-2 font-bold text-purple-700 text-center text-lg">
+                          <span className="px-2.5 py-1.5 font-bold text-gray-900 text-center text-base">
                             {item.quantity}
                           </span>
                           <button
@@ -277,10 +274,10 @@ export default function Basket() {
                               updateQuantity(item.id, item.quantity + 1)
                             }
                               disabled={item.maxQuantity !== undefined && item.quantity >= item.maxQuantity}
-                              className={`px-3 py-2 text-lg font-bold rounded-lg transition-all ${
+                              className={`px-2.5 py-1.5 text-base font-bold rounded transition-colors ${
                                 item.maxQuantity !== undefined && item.quantity >= item.maxQuantity
                                   ? 'text-gray-400 cursor-not-allowed opacity-50'
-                                  : 'text-purple-700 hover:bg-white hover:scale-110 active:scale-95'
+                                  : 'text-gray-700 hover:bg-white'
                               }`}
                             aria-label="Збільшити кількість"
                           >
@@ -291,8 +288,8 @@ export default function Basket() {
                       
                         {/* Повідомлення про максимальну кількість */}
                         {item.maxQuantity !== undefined && item.quantity >= item.maxQuantity && (
-                          <p className="text-xs font-bold text-orange-600 mt-3 bg-orange-50 px-3 py-2 rounded-lg border-2 border-orange-200/50">
-                            ⚠️ Максимум: {item.maxQuantity}
+                          <p className="text-xs font-bold text-orange-600 mt-2 bg-orange-50 px-2 py-1 rounded border border-orange-200">
+                            ⚠️ Макс: {item.maxQuantity}
                           </p>
                         )}
                     </div>
@@ -303,66 +300,64 @@ export default function Basket() {
 
             {/* Footer з розрахунками - липкий внизу */}
             {cartItems.length > 0 && (
-              <div className="bg-gradient-to-b from-white/80 to-purple-50/80 backdrop-blur-md border-t-2 border-purple-200/30 p-5 space-y-4 flex-shrink-0 shadow-2xl">
+              <div className="bg-white border-t border-gray-300 p-4 space-y-3 flex-shrink-0 shadow-lg">
                 {/* Деталі розрахунків */}
-                <div className="space-y-3 pb-4 border-b-2 border-purple-200/30 text-sm">
+                <div className="space-y-2 pb-3 border-b border-gray-300 text-base">
                   <div className="flex justify-between items-center text-gray-700 font-semibold">
-                    <span>💵 Сума товарів:</span>
+                    <span>Сума товарів:</span>
                     <span className="text-lg text-gray-900">{totalPrice}₴</span>
                   </div>
                   {deliveryPrice > 0 ? (
-                    <div className="flex justify-between items-center font-semibold text-orange-700">
-                      <span>🚚 Доставка:</span>
-                      <span className="text-lg">+{deliveryPrice}₴</span>
+                    <div className="flex justify-between items-center font-semibold text-gray-700">
+                      <span>Доставка:</span>
+                      <span className="text-lg text-orange-600">+{deliveryPrice}₴</span>
                     </div>
                   ) : (
-                    <div className="flex justify-between items-center font-semibold text-green-600 bg-green-50 px-3 py-2 rounded-lg">
-                      <span>🚚 Доставка:</span>
-                      <span className="text-lg">Безкоштовна! ✓</span>
+                    <div className="flex justify-between items-center font-semibold text-green-700 bg-green-50 px-2 py-1.5 rounded">
+                      <span>Доставка:</span>
+                      <span className="text-lg">Безкоштовна ✓</span>
                     </div>
                   )}
                 </div>
 
                 {/* Остаток */}
-                <div className="bg-gradient-to-r from-purple-100/50 to-pink-100/50 border-2 border-purple-300/50 rounded-xl p-4 flex justify-between items-center">
-                  <span className="font-bold text-gray-900 text-lg">Всього до оплати:</span>
-                  <span className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <div className="bg-gray-100 rounded-lg p-3 flex justify-between items-center">
+                  <span className="font-bold text-gray-900 text-base">До оплати:</span>
+                  <span className="text-3xl font-bold text-indigo-600">
                     {finalPrice}₴
                   </span>
                 </div>
 
                 {/* Інформація про доставку */}
-                <div className="bg-gradient-to-r from-blue-50/70 to-cyan-50/70 backdrop-blur-sm border-2 border-blue-200/50 rounded-xl p-3 text-sm text-blue-900 font-semibold">
-                  {deliveryPrice === 0 ? (
-                    <p>✅ <strong>Безкоштовна доставка активна!</strong></p>
-                  ) : (
-                    <p>🎁 Ще <strong>{2000 - totalPrice}₴</strong> для безкоштовної доставки</p>
-                  )}
-                </div>
+                {deliveryPrice > 0 && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-sm text-blue-900 font-semibold">
+                    🎁 Ще {2000 - totalPrice}₴ для безкоштовної доставки
+                  </div>
+                )}
 
                 {/* Інформація для авторизованих про бали */}
                 {user && estimatedPoints > 0 && (
-                  <div className="bg-gradient-to-r from-green-50/70 to-emerald-50/70 backdrop-blur-sm border-2 border-green-200/50 rounded-xl p-3 text-sm text-green-900 font-semibold">
-                    <p>⭐ За це замовлення буде нараховано <strong>+{estimatedPoints}</strong> балів!</p>
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-sm text-amber-900 font-semibold">
+                    ⭐ +{estimatedPoints} балів за замовлення
                   </div>
                 )}
 
                 {/* Кнопки дій */}
-                <div className="space-y-3 pt-2">
+                <div className="space-y-2 pt-1">
                     <button 
                       onClick={() => {
                         setIsOpen(false);
                         router.push('/checkout');
                       }}
-                      className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white font-bold py-3 rounded-xl hover:shadow-2xl transition-all hover:shadow-purple-600/50 hover:-translate-y-1 active:scale-95 text-lg hover:scale-105"
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors text-base"
                     >
-                      💳 Оформити замовлення
+                      💳 Оформити
                     </button>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="w-full bg-white/70 backdrop-blur-sm border-2 border-purple-300/50 text-purple-700 font-bold py-3 rounded-xl hover:bg-white/90 transition-all text-lg hover:scale-105 active:scale-95"
+                    className="w-full bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-bold py-3 rounded-lg transition-colors text-base"
                   >
-                    🛍️ Продовжити покупки
+                    🛍️ Покупки
                   </button>
                 </div>
               </div>

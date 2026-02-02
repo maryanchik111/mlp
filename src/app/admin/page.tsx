@@ -39,6 +39,9 @@ export default function AdminPage() {
     name: '',
     category: '',
     price: '',
+    costPrice: '',
+    deliveryPrice: '120',
+    deliveryDays: '1-2',
     image: '🎁',
     description: '',
     quantity: 0,
@@ -149,6 +152,9 @@ export default function AdminPage() {
     setEditForm({
       name: product.name,
       price: product.price,
+      costPrice: product.costPrice,
+      deliveryPrice: product.deliveryPrice || '120',
+      deliveryDays: product.deliveryDays || '1-2',
       description: product.description,
       quantity: product.quantity,
       category: product.category,
@@ -168,6 +174,23 @@ export default function AdminPage() {
       // Price має бути рядком
       if (typeof payload.price === 'number') {
         payload.price = String(payload.price);
+      }
+      
+      // CostPrice має бути рядком (якщо вказана)
+      if (payload.costPrice && typeof payload.costPrice === 'number') {
+        payload.costPrice = String(payload.costPrice);
+      }
+
+      // DeliveryPrice має бути рядком, fallback на '120' якщо пусто
+      if (!payload.deliveryPrice) {
+        payload.deliveryPrice = '120';
+      } else if (typeof payload.deliveryPrice === 'number') {
+        payload.deliveryPrice = String(payload.deliveryPrice);
+      }
+
+      // DeliveryDays має бути рядком, fallback на '1-2' якщо пусто
+      if (!payload.deliveryDays) {
+        payload.deliveryDays = '1-2';
       }
       
       // Якщо введено discount як рядок – парсимо
@@ -211,6 +234,9 @@ export default function AdminPage() {
       name: '',
       category: '',
       price: '',
+      costPrice: '',
+      deliveryPrice: '120',
+      deliveryDays: '1-2',
       image: '🎁',
       description: '',
       quantity: 0,
@@ -237,6 +263,23 @@ export default function AdminPage() {
         payload.price = String(payload.price);
       }
       
+      // CostPrice має бути рядком (якщо вказана)
+      if (payload.costPrice && typeof payload.costPrice === 'number') {
+        payload.costPrice = String(payload.costPrice);
+      }
+
+      // DeliveryPrice має бути рядком, fallback на '120' якщо пусто
+      if (!payload.deliveryPrice) {
+        payload.deliveryPrice = '120';
+      } else if (typeof payload.deliveryPrice === 'number') {
+        payload.deliveryPrice = String(payload.deliveryPrice);
+      }
+
+      // DeliveryDays має бути рядком, fallback на '1-2' якщо пусто
+      if (!payload.deliveryDays) {
+        payload.deliveryDays = '1-2';
+      }
+      
       // Парсимо discount
       if (typeof payload.discount === 'string') {
         payload.discount = parseInt(payload.discount) || 0;
@@ -257,6 +300,9 @@ export default function AdminPage() {
           name: '',
           category: '',
           price: '',
+          costPrice: '',
+          deliveryPrice: '120',
+          deliveryDays: '1-2',
           image: '🎁',
           description: '',
           quantity: 0,
@@ -1161,9 +1207,9 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-purple-600 mb-2">Ціна (₴)</label>
+                  <label className="block text-sm font-medium text-purple-600 mb-2">Ціна продажу (₴)</label>
                   <input
                     type="text"
                     value={editForm.price || ''}
@@ -1173,13 +1219,51 @@ export default function AdminPage() {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-orange-600 mb-2">Ціна закупки (₴)</label>
+                  <input
+                    type="text"
+                    value={editForm.costPrice || ''}
+                    onChange={(e) => setEditForm({ ...editForm, costPrice: e.target.value })}
+                    className="w-full px-4 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-400 bg-orange-50/30 text-gray-900"
+                  />
+                  <span className="text-xs text-gray-500">Для статистики</span>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-purple-600 mb-2">Кількість</label>
                   <input
                     type="number"
-                    value={editForm.quantity || 0}
-                    onChange={(e) => setEditForm({ ...editForm, quantity: parseInt(e.target.value) || 0 })}
+                    value={editForm.quantity || ''}
+                    onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value ? parseInt(e.target.value) : 0 })}
                     className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
+                    placeholder="Наприклад: 10"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-green-600 mb-2">Ціна доставки (₴)</label>
+                  <input
+                    type="text"
+                    value={editForm.deliveryPrice || ''}
+                    onChange={(e) => setEditForm({ ...editForm, deliveryPrice: e.target.value })}
+                    className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
+                    placeholder="120"
+                  />
+                  <span className="text-xs text-gray-500">УКР: 120₴, ЗЗ: 100-300₴</span>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-blue-600 mb-2">Термін доставки</label>
+                  <input
+                    type="text"
+                    value={editForm.deliveryDays || ''}
+                    onChange={(e) => setEditForm({ ...editForm, deliveryDays: e.target.value })}
+                    className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 bg-blue-50/30 text-gray-900"
+                    placeholder="1-2"
+                  />
+                  <span className="text-xs text-gray-500">УКР: 1-2 дні, ЗЗ: 7-14 днів</span>
                 </div>
               </div>
 
@@ -1342,9 +1426,9 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-purple-600 mb-2">Ціна (₴) *</label>
+                  <label className="block text-sm font-medium text-purple-600 mb-2">Ціна продажу (₴) *</label>
                   <input
                     type="text"
                     value={newProductForm.price}
@@ -1355,14 +1439,52 @@ export default function AdminPage() {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-orange-600 mb-2">Ціна закупки (₴)</label>
+                  <input
+                    type="text"
+                    value={newProductForm.costPrice || ''}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, costPrice: e.target.value })}
+                    className="w-full px-4 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-400 bg-orange-50/30 text-gray-900"
+                    placeholder="150"
+                  />
+                  <span className="text-xs text-gray-500">Для статистики</span>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-purple-600 mb-2">Кількість</label>
                   <input
                     type="number"
-                    value={newProductForm.quantity}
-                    onChange={(e) => setNewProductForm({ ...newProductForm, quantity: parseInt(e.target.value) || 0 })}
+                    value={newProductForm.quantity || ''}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, quantity: e.target.value ? parseInt(e.target.value) : 0 })}
                     className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                    placeholder="0"
+                    placeholder="Наприклад: 10"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-green-600 mb-2">Ціна доставки (₴)</label>
+                  <input
+                    type="text"
+                    value={newProductForm.deliveryPrice || ''}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, deliveryPrice: e.target.value })}
+                    className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
+                    placeholder="120"
+                  />
+                  <span className="text-xs text-gray-500">УКР: 120₴, ЗЗ: 100-300₴</span>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-blue-600 mb-2">Термін доставки</label>
+                  <input
+                    type="text"
+                    value={newProductForm.deliveryDays || ''}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, deliveryDays: e.target.value })}
+                    className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 bg-blue-50/30 text-gray-900"
+                    placeholder="1-2"
+                  />
+                  <span className="text-xs text-gray-500">УКР: 1-2 дні, ЗЗ: 7-14 днів</span>
                 </div>
               </div>
 
