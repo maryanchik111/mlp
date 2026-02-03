@@ -1736,6 +1736,17 @@ export default function AdminPage() {
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm" title="Замовлень">📦 Замовлень: {userProfiles[selectedOrder.userId].totalOrders}</span>
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs sm:text-sm" title="Знижка">💳 Знижка: {userProfiles[selectedOrder.userId].discountPercent}%</span>
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs sm:text-sm" title="Бали">🎁 Бали: {userProfiles[selectedOrder.userId].points}</span>
+                            {userProfiles[selectedOrder.userId].telegramUsername && (
+                              <a 
+                                href={`https://t.me/${userProfiles[selectedOrder.userId].telegramUsername}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-sky-100 text-sky-700 text-xs sm:text-sm hover:bg-sky-200 transition-colors"
+                                title="Перейти до Telegram профілю"
+                              >
+                                💬 @{userProfiles[selectedOrder.userId].telegramUsername}
+                              </a>
+                            )}
                           </div>
                         )}
                       </div>
