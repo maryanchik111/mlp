@@ -8,6 +8,7 @@ const TELEGRAM_BOT_USERNAME = 'mlp_cutie_family_bot';
 interface TelegramBinderProps {
   uid: string;
   telegramId?: string;
+  telegramUsername?: string;
   onBoundSuccess?: (code: string) => void;
   onUnboundSuccess?: () => void;
 }
@@ -15,6 +16,7 @@ interface TelegramBinderProps {
 export default function TelegramBinder({
   uid,
   telegramId,
+  telegramUsername,
   onBoundSuccess,
   onUnboundSuccess,
 }: TelegramBinderProps) {
@@ -97,6 +99,9 @@ export default function TelegramBinder({
             <p className="text-sm text-gray-600 mb-1">Статус</p>
             <p className="text-lg font-bold text-green-600">✅ Прив'язано</p>
             <p className="text-xs text-gray-600 mt-2">ID: {telegramId}</p>
+            {telegramUsername && (
+              <p className="text-xs text-gray-600 mt-1">Нік: @{telegramUsername}</p>
+            )}
           </div>
 
           <button

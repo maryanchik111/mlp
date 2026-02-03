@@ -100,6 +100,7 @@ export interface UserProfile {
   rating: number;          // рівень (1..5)
   discountPercent: number; // розмір знижки, що застосовується при оформленні
   telegramId?: string;     // Telegram ID користувача (якщо прив'язано)
+  telegramUsername?: string; // Telegram username користувача (якщо прив'язано)
   createdAt: number;
   updatedAt: number;
 }
@@ -811,22 +812,35 @@ export const addAdminReply = async (orderId: string, replyText: string): Promise
 /**
  * Зв'язати Telegram ID з обліком користувача
  */
-export async function bindTelegramToUser(uid: string, telegramId: string): Promise<boolean> {
+export async function bindTelegramToUser(uid: string, telegramId: string, telegramUsername?: string): Promise<boolean> {
   try {
+    console.log('bindTelegramToUser called with:', { uid, telegramId, telegramUsername });
+    
     const userRef = ref(database, `users/${uid}`);
     
-    // Оновлюємо поле telegramId у профілі користувача
-    await update(userRef, {
+    // Оновлюємо поля у профілі користувача
+    const updateData: any = {
       telegramId: telegramId.trim(),
       updatedAt: Date.now(),
-    });
+    };
+    
+    // Додаємо username якщо він передано
+    if (telegramUsername) {
+      updateData.telegramUsername = telegramUsername.trim();
+      console.log('Adding username to user profile:', telegramUsername);
+    }
+    
+    await update(userRef, updateData);
+    console.log('User profile updated successfully');
     
     // Також створюємо індекс для швидкого пошуку за telegramId
     const telegramIndexRef = ref(database, `telegram_users/${telegramId}`);
     await set(telegramIndexRef, {
       uid: uid,
+      username: telegramUsername || null,
       bindedAt: Date.now(),
     });
+    console.log('Telegram index created');
     
     return true;
   } catch (error) {

@@ -150,6 +150,7 @@ export default function AccountPage() {
           <TelegramBinder
             uid={user.uid}
             telegramId={profile?.telegramId}
+            telegramUsername={profile?.telegramUsername}
             onBoundSuccess={() => refreshProfile()}
             onUnboundSuccess={() => refreshProfile()}
           />

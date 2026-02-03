@@ -30,8 +30,9 @@ export async function POST(request: NextRequest) {
     const chatId = message.chat.id;
     const telegramId = message.from.id.toString();
     const text = message.text || '';
+    const username = message.from.username || null; // може бути undefined
 
-    console.log('Telegram message received:', { text, chatId, telegramId });
+    console.log('Telegram message received:', { text, chatId, telegramId, username });
 
     // Handle /start command with deep link parameter
     // When user opens: https://t.me/mlp_cutie_family_bot?start=bind_ABC123
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
       if (param.startsWith('bind_') || param.startsWith('BIND_')) {
         const code = param.replace(/^[Bb][Ii][Nn][Dd]_/, '').toUpperCase();
         console.log('Found binding code in /start:', code);
-        await processBindingCode(chatId, telegramId, code);
+        await processBindingCode(chatId, telegramId, username, code);
         return NextResponse.json({ ok: true });
       }
     }
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
     if (text.startsWith('/bind ')) {
       const code = text.substring(6).trim().toUpperCase();
       console.log('Found /bind command:', code);
-      await processBindingCode(chatId, telegramId, code);
+      await processBindingCode(chatId, telegramId, username, code);
       return NextResponse.json({ ok: true });
     }
 
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
 /**
  * Process binding code (shared logic for /start and /bind commands)
  */
-async function processBindingCode(chatId: number | string, telegramId: string, code: string): Promise<void> {
+async function processBindingCode(chatId: number | string, telegramId: string, username: string | undefined, code: string): Promise<void> {
   if (!code || code.length < 6) {
     await sendTelegramMessage(
       chatId,
@@ -148,8 +149,10 @@ async function processBindingCode(chatId: number | string, telegramId: string, c
     return;
   }
 
-  // Bind Telegram ID to user account
-  const success = await bindTelegramToUser(uid, telegramId);
+  console.log('Processing binding:', { uid, telegramId, username, code });
+
+  // Bind Telegram ID to user account (with username if available)
+  const success = await bindTelegramToUser(uid, telegramId, username);
 
   if (success) {
     // Delete code after successful use
