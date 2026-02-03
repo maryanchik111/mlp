@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 import { fetchUserOrders, type Order } from '@/lib/firebase';
+import TelegramBinder from '@/app/components/client/telegram-binder';
 
 export default function AccountPage() {
   const { user, profile, loading, signIn, signOut, refreshProfile } = useAuth();
@@ -143,6 +144,16 @@ export default function AccountPage() {
             <p className="text-xs text-gray-500 mt-2">{(profile?.totalSpent ?? 0)}₴</p>
           </div>
         </div>
+
+        {/* Telegram Binder */}
+        <section className="mb-12">
+          <TelegramBinder
+            uid={user.uid}
+            telegramId={profile?.telegramId}
+            onBoundSuccess={() => refreshProfile()}
+            onUnboundSuccess={() => refreshProfile()}
+          />
+        </section>
 
         {/* Історія замовлень */}
         <section className="mb-12">

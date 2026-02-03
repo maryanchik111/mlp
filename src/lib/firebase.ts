@@ -98,6 +98,7 @@ export interface UserProfile {
   totalOrders: number;     // кількість замовлень
   rating: number;          // рівень (1..5)
   discountPercent: number; // розмір знижки, що застосовується при оформленні
+  telegramId?: string;     // Telegram ID користувача (якщо прив'язано)
   createdAt: number;
   updatedAt: number;
 }
@@ -759,4 +760,163 @@ export const addAdminReply = async (orderId: string, replyText: string): Promise
     console.error('Помилка додавання відповіді адміна:', error);
     return false;
   }
-};;
+}
+
+// =====================
+// TELEGRAM BINDING
+// =====================
+
+/**
+ * Зв'язати Telegram ID з обліком користувача
+ */
+export async function bindTelegramToUser(uid: string, telegramId: string): Promise<boolean> {
+  try {
+    const userRef = ref(database, `users/${uid}`);
+    
+    // Оновлюємо поле telegramId у профілі користувача
+    await update(userRef, {
+      telegramId: telegramId.trim(),
+      updatedAt: Date.now(),
+    });
+    
+    // Також створюємо індекс для швидкого пошуку за telegramId
+    const telegramIndexRef = ref(database, `telegram_users/${telegramId}`);
+    await set(telegramIndexRef, {
+      uid: uid,
+      bindedAt: Date.now(),
+    });
+    
+    return true;
+  } catch (error) {
+    console.error('Помилка прив\'язки Telegram:', error);
+    return false;
+  }
+}
+
+/**
+ * Отримати користувача за Telegram ID
+ */
+export async function getUserByTelegramId(telegramId: string): Promise<{ uid: string; profile: UserProfile } | null> {
+  try {
+    const telegramIndexRef = ref(database, `telegram_users/${telegramId}`);
+    const snapshot = await get(telegramIndexRef);
+    
+    if (!snapshot.exists()) {
+      return null;
+    }
+    
+    const { uid } = snapshot.val();
+    
+    // Отримуємо профіль користувача
+    const userRef = ref(database, `users/${uid}`);
+    const userSnapshot = await get(userRef);
+    
+    if (!userSnapshot.exists()) {
+      return null;
+    }
+    
+    return {
+      uid,
+      profile: userSnapshot.val() as UserProfile,
+    };
+  } catch (error) {
+    console.error('Помилка пошуку користувача за Telegram ID:', error);
+    return null;
+  }
+}
+
+/**
+ * Розв'язати Telegram від акаунту
+ */
+export async function unbindTelegramFromUser(uid: string): Promise<boolean> {
+  try {
+    // Отримуємо telegramId перед видаленням
+    const userRef = ref(database, `users/${uid}`);
+    const snapshot = await get(userRef);
+    
+    if (!snapshot.exists()) {
+      return false;
+    }
+    
+    const profile = snapshot.val() as UserProfile;
+    const telegramId = profile.telegramId;
+    
+    // Видаляємо telegramId з профілю
+    await update(userRef, {
+      telegramId: null,
+      updatedAt: Date.now(),
+    });
+    
+    // Видаляємо індекс
+    if (telegramId) {
+      const telegramIndexRef = ref(database, `telegram_users/${telegramId}`);
+      await set(telegramIndexRef, null);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Помилка розв\'язання Telegram:', error);
+    return false;
+  }
+}
+
+/**
+ * Отримати код для прив'язки Telegram (одноразовий код)
+ */
+export async function generateTelegramBindingCode(uid: string): Promise<string> {
+  try {
+    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const bindingCodeRef = ref(database, `telegram_binding_codes/${code}`);
+    
+    await set(bindingCodeRef, {
+      uid: uid,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + 15 * 60 * 1000, // 15 хвилин
+    });
+    
+    return code;
+  } catch (error) {
+    console.error('Помилка генерування коду для прив\'язки:', error);
+    throw error;
+  }
+}
+
+/**
+ * Перевірити код для прив'язки та отримати uid
+ */
+export async function verifyTelegramBindingCode(code: string): Promise<string | null> {
+  try {
+    const bindingCodeRef = ref(database, `telegram_binding_codes/${code}`);
+    const snapshot = await get(bindingCodeRef);
+    
+    if (!snapshot.exists()) {
+      return null;
+    }
+    
+    const data = snapshot.val();
+    
+    // Перевірити, чи код не закінчився
+    if (data.expiresAt < Date.now()) {
+      await set(bindingCodeRef, null); // Видалити протермінований код
+      return null;
+    }
+    
+    return data.uid;
+  } catch (error) {
+    console.error('Помилка перевірки коду для прив\'язки:', error);
+    return null;
+  }
+}
+
+/**
+ * Видалити код для прив'язки після використання
+ */
+export async function deleteTelegramBindingCode(code: string): Promise<void> {
+  try {
+    const bindingCodeRef = ref(database, `telegram_binding_codes/${code}`);
+    await set(bindingCodeRef, null);
+  } catch (error) {
+    console.error('Помилка видалення коду:', error);
+  }
+}
+;
