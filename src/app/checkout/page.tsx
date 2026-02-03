@@ -182,7 +182,9 @@ export default function CheckoutPage() {
         await updateUserStatsAfterOrder(user.uid, finalPrice, appliedRedeemedPoints);
         
         // Відправляємо сповіщення в Telegram якщо користувач прив'язав бота
-        await sendOrderNotificationToTelegram(user.uid, newOrder, 'created');
+        console.log(`[Order] Намагаємось відправити Telegram сповіщення для користувача ${user.uid}`);
+        const telegramSent = await sendOrderNotificationToTelegram(user.uid, newOrder, 'created');
+        console.log(`[Order] Telegram сповіщення ${telegramSent ? 'відправлено' : 'не відправлено'}`);
       }
 
       // Очищаємо кошик

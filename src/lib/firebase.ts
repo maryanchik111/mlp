@@ -933,18 +933,23 @@ export async function sendOrderNotificationToTelegram(
   status: 'created' | 'processing' | 'completed' | 'cancelled'
 ): Promise<boolean> {
   try {
+    console.log(`[Telegram] Відправка сповіщення для замовлення ${order.id}, статус: ${status}`);
+    
     // Отримуємо профіль користувача для Telegram ID
     const userRef = ref(database, `users/${uid}`);
     const userSnapshot = await get(userRef);
     
     if (!userSnapshot.exists()) {
+      console.log(`[Telegram] Користувач ${uid} не знайдено`);
       return false;
     }
     
     const user = userSnapshot.val() as UserProfile;
+    console.log(`[Telegram] Користувач знайдено:`, { displayName: user.displayName, telegramId: user.telegramId });
     
     // Якщо користувач не прив'язав Telegram, нічого не робимо
     if (!user.telegramId) {
+      console.log(`[Telegram] Користувач ${uid} не має прив'язаного Telegram ID`);
       return false;
     }
 
@@ -983,11 +988,12 @@ export async function sendOrderNotificationToTelegram(
     // Відправляємо сповіщення
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     if (!botToken) {
-      console.error('TELEGRAM_BOT_TOKEN is not set');
+      console.error('[Telegram] TELEGRAM_BOT_TOKEN не встановлено');
       return false;
     }
 
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    console.log(`[Telegram] Відправляємо повідомлення на Telegram ID: ${user.telegramId}`);
     
     const response = await fetch(url, {
       method: 'POST',
@@ -1001,12 +1007,15 @@ export async function sendOrderNotificationToTelegram(
       }),
     });
 
+    const responseData = await response.json();
+    console.log(`[Telegram] Відповідь від API:`, { ok: response.ok, data: responseData });
+
     if (!response.ok) {
-      const error = await response.json();
-      console.error('Error sending Telegram notification:', error);
+      console.error('[Telegram] Помилка від Telegram API:', responseData);
       return false;
     }
 
+    console.log(`[Telegram] Сповіщення успішно відправлено`);
     return true;
   } catch (error) {
     console.error('Помилка відправки Telegram сповіщення:', error);
