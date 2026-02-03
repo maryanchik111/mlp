@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { database, generateOrderNumber, decreaseProductQuantity, updateUserStatsAfterOrder, sendOrderNotificationToTelegram } from '@/lib/firebase';
+import { database, generateOrderNumber, decreaseProductQuantity, updateUserStatsAfterOrder } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { ref, set } from 'firebase/database';
 
@@ -181,10 +181,23 @@ export default function CheckoutPage() {
       if (user) {
         await updateUserStatsAfterOrder(user.uid, finalPrice, appliedRedeemedPoints);
         
-        // Відправляємо сповіщення в Telegram якщо користувач прив'язав бота
-        console.log(`[Order] Намагаємось відправити Telegram сповіщення для користувача ${user.uid}`);
-        const telegramSent = await sendOrderNotificationToTelegram(user.uid, newOrder, 'created');
-        console.log(`[Order] Telegram сповіщення ${telegramSent ? 'відправлено' : 'не відправлено'}`);
+        // Відправляємо сповіщення в Telegram на сервері
+        console.log(`[Order] Відправляємо запит на сповіщення в Telegram для користувача ${user.uid}`);
+        try {
+          const response = await fetch('/api/orders/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.uid,
+              order: newOrder,
+              status: 'created',
+            }),
+          });
+          const data = await response.json();
+          console.log(`[Order] Відповідь від сервера:`, data);
+        } catch (error) {
+          console.error(`[Order] Помилка при відправці Telegram сповіщення:`, error);
+        }
       }
 
       // Очищаємо кошик
