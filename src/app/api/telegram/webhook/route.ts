@@ -31,39 +31,39 @@ export async function POST(request: NextRequest) {
     const telegramId = message.from.id.toString();
     const text = message.text || '';
 
-    // Handle /start command with code parameter from deep link
-    // Deep link format: https://t.me/mlp_cutie_family_bot?start=bind_ABC123
-    // This sends a message like "/start bind_ABC123" to the bot
-    if (text.startsWith('/start bind_')) {
-      const code = text.substring(12).trim().toUpperCase();
-      await processBindingCode(chatId, telegramId, code);
+    console.log('Telegram message received:', { text, chatId, telegramId });
+
+    // Handle /start command with deep link parameter
+    // When user opens: https://t.me/mlp_cutie_family_bot?start=bind_ABC123
+    // Telegram sends: { text: "/start", entities: [...], ... }
+    // BUT the parameter is available in message.text as "/start bind_ABC123"
+    if (text === '/start') {
+      // Check if there's a code in the deep link parameter
+      // The parameter comes concatenated with /start in some cases
+      await sendTelegramMessage(
+        chatId,
+        '👋 Hello! I am MLP Store bot.\n\nTo link your store account to this chat:\n1. Go to your personal account on the site\n2. Click "Link Telegram"\n3. Copy the binding code\n4. Write to me: /bind YOUR_CODE\n\nExample: /bind ABC123'
+      );
       return NextResponse.json({ ok: true });
     }
 
-    // Handle /start command with code parameter (alternative format)
+    // Handle /start with parameter (format: /start bind_ABC123)
     if (text.startsWith('/start ')) {
-      const param = text.substring(7).trim().toUpperCase();
-      // Check if it looks like a binding code
-      if (param.includes('BIND_')) {
-        const code = param.replace('BIND_', '');
+      const param = text.substring(7).trim();
+      // Extract code from bind_ prefix
+      if (param.startsWith('bind_') || param.startsWith('BIND_')) {
+        const code = param.replace(/^[Bb][Ii][Nn][Dd]_/, '').toUpperCase();
+        console.log('Found binding code in /start:', code);
         await processBindingCode(chatId, telegramId, code);
         return NextResponse.json({ ok: true });
       }
     }
 
-    // Handle /bind [CODE] command
+    // Handle /bind [CODE] command (user manually types)
     if (text.startsWith('/bind ')) {
       const code = text.substring(6).trim().toUpperCase();
+      console.log('Found /bind command:', code);
       await processBindingCode(chatId, telegramId, code);
-      return NextResponse.json({ ok: true });
-    }
-
-    // /start command without code
-    if (text === '/start') {
-      await sendTelegramMessage(
-        chatId,
-        '👋 Hello! I am MLP Store bot.\n\nTo link your store account to this chat:\n1. Go to your personal account on the site\n2. Click "Link Telegram"\n3. The bot will open automatically and your code will be sent\n4. Confirm the binding in this chat 🎉'
-      );
       return NextResponse.json({ ok: true });
     }
 
@@ -91,7 +91,6 @@ export async function POST(request: NextRequest) {
       const user = await getUserByTelegramId(telegramId);
 
       if (user) {
-        // TODO: Implement unbinding
         await sendTelegramMessage(
           chatId,
           '⚠️ Unbinding function will be available from your account on the website.'

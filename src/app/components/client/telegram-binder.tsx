@@ -156,11 +156,11 @@ export default function TelegramBinder({
 
               <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 text-sm text-gray-700">
                 <p className="font-semibold mb-2">ℹ️ Як це працює:</p>
-                <ol className="list-decimal list-inside space-y-1 text-xs">
-                  <li>Натисніть "Відкрити бота"</li>
-                  <li>Відкриється чат з ботом @{TELEGRAM_BOT_USERNAME}</li>
-                  <li>Бот автоматично отримає ваш код прив'язки</li>
-                  <li>Потвердіть прив'язку в боті 🎉</li>
+                <ol className="list-decimal list-inside space-y-2 text-xs">
+                  <li>Натисніть "Відкрити бота" або перейдіть на @{TELEGRAM_BOT_USERNAME}</li>
+                  <li>Напишіть команду: <code className="bg-white px-1 rounded">/bind {bindingCode}</code></li>
+                  <li>Або скопіюйте код (кнопка 📋) і вставте після /bind</li>
+                  <li>Бот відправить підтвердження 🎉</li>
                 </ol>
               </div>
 
