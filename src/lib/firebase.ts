@@ -82,7 +82,8 @@ export interface Order {
   redeemedPoints?: number;
   redeemedAmount?: number;
   finalPrice: number;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled';
+  status: 'pending' | 'processing' | 'shipped' | 'ready_for_pickup' | 'completed' | 'cancelled';
+  trackingNumber?: string; // ТТН для відправлених замовлень
   createdAt: number;
   updatedAt: number;
   userId?: string | null; // якщо замовлення створено авторизованим користувачем
@@ -311,56 +312,57 @@ export const fetchOrdersByStatus = (status: string, callback: (orders: Order[]) 
 };
 
 // Функція для оновлення статусу замовлення
-export const updateOrderStatus = async (orderId: string, newStatus: 'pending' | 'processing' | 'completed' | 'cancelled') => {
+export const updateOrderStatus = async (
+  orderId: string, 
+  newStatus: 'pending' | 'processing' | 'shipped' | 'ready_for_pickup' | 'completed' | 'cancelled',
+  trackingNumber?: string
+) => {
   try {
-    console.log(`[updateOrderStatus] Оновлення статусу замовлення ${orderId} на "${newStatus}"`);
-    
-    // Спочатку отримаємо замовлення, щоб дізнатися userId для Telegram сповіщення
+    // Отримуємо замовлення
     const orderRef = ref(database, `orders/${orderId}`);
     const orderSnapshot = await get(orderRef);
     
     if (!orderSnapshot.exists()) {
-      console.error(`[updateOrderStatus] Замовлення ${orderId} не знайдено`);
       return false;
     }
     
     const order = orderSnapshot.val();
     
-    // Оновлюємо в базі даних
-    await update(orderRef, {
+    // Підготовлюємо оновлення
+    const updateData: any = {
       status: newStatus,
       updatedAt: Date.now(),
-    });
+    };
     
-    console.log(`[updateOrderStatus] Статус оновлено в БД. Надсилаємо Telegram сповіщення...`);
+    // Додаємо ТТН якщо він передано
+    if (trackingNumber) {
+      updateData.trackingNumber = trackingNumber;
+    }
+    
+    // Оновлюємо в базі даних
+    await update(orderRef, updateData);
     
     // Відправляємо Telegram сповіщення через API endpoint
     if (order.userId && newStatus !== 'pending') {
       try {
-        const response = await fetch('/api/orders/notify', {
+        await fetch('/api/orders/notify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: order.userId,
-            order: { ...order, id: orderId },
+            order: { ...order, id: orderId, trackingNumber },
             status: newStatus,
           }),
         });
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`[updateOrderStatus] Telegram сповіщення відправлено:`, data);
-        } else {
-          console.error(`[updateOrderStatus] Помилка при відправці Telegram сповіщення:`, await response.text());
-        }
       } catch (error) {
-        console.error(`[updateOrderStatus] Помилка при виклику API для Telegram:`, error);
+        // Помилка при відправці, але статус вже оновлено в БД
+        console.error('Telegram notification error:', error);
       }
     }
     
     return true;
   } catch (error) {
-    console.error('[updateOrderStatus] Помилка при оновленні статусу замовлення:', error);
+    console.error('Error updating order status:', error);
     return false;
   }
 };
@@ -970,31 +972,26 @@ export async function deleteTelegramBindingCode(code: string): Promise<void> {
 export async function sendOrderNotificationToTelegram(
   uid: string,
   order: Order | any,
-  status: 'created' | 'processing' | 'completed' | 'cancelled'
+  status: 'created' | 'processing' | 'shipped' | 'ready_for_pickup' | 'completed' | 'cancelled'
 ): Promise<boolean> {
   try {
-    console.log(`[Telegram] Відправка сповіщення для замовлення ${order.id}, статус: ${status}`);
-    
     // Отримуємо профіль користувача для Telegram ID
     const userRef = ref(database, `users/${uid}`);
     const userSnapshot = await get(userRef);
     
     if (!userSnapshot.exists()) {
-      console.log(`[Telegram] Користувач ${uid} не знайдено`);
       return false;
     }
     
     const user = userSnapshot.val() as UserProfile;
-    console.log(`[Telegram] Користувач знайдено:`, { displayName: user.displayName, telegramId: user.telegramId });
     
     // Якщо користувач не прив'язав Telegram, нічого не робимо
     if (!user.telegramId) {
-      console.log(`[Telegram] Користувач ${uid} не має прив'язаного Telegram ID`);
       return false;
     }
 
     // Створюємо повідомлення залежно від статусу
-    const messages = {
+    const messages: { [key: string]: string } = {
       created: `🎉 <b>Нове замовлення!</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
         `💰 Сума: <b>${order.finalPrice}₴</b>\n` +
@@ -1009,12 +1006,27 @@ export async function sendOrderNotificationToTelegram(
         `✅ Платіж підтверджено\n` +
         `🚚 Замовлення готується до відправлення`,
       
-      completed: `✅ <b>Замовлення готове!</b>\n\n` +
+      shipped: `📮 <b>Замовлення відправлено!</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
         `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
-        `🎁 Ваше замовлення завершене!\n` +
-        `🚚 Заберіть його на відділенні Нової Пошти\n` +
-        `🙏 Дякуємо за покупку! До нових зустрічей у нашому магазині!`,
+        `🚚 Ваше замовлення у дорозі!\n` +
+        `📍 Трек-номер: <code>${order.trackingNumber || 'N/A'}</code>\n` +
+        `🔗 Стежте за доставкою на сайті Нової Пошти`,
+      
+      ready_for_pickup: `✅ <b>Замовлення готове до забору!</b>\n\n` +
+        `📦 Замовлення №<code>${order.id}</code>\n` +
+        `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
+        `🎁 Ваше замовлення прибуло на відділення Нової Пошти!\n` +
+        `📮 Адреса отримання вказана при оформленні замовлення\n` +
+        `⏰ Зберігається 5 днів\n` +
+        `🏃 Спішіть забрати! 💨`,
+      
+      completed: `✅ <b>Замовлення завершене!</b>\n\n` +
+        `📦 Замовлення №<code>${order.id}</code>\n` +
+        `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
+        `🎁 Дякуємо за покупку!\n` +
+        `🦄 До нових зустрічей у нашому магазині!\n` +
+        `💜 Залишайтеся чарівними!`,
       
       cancelled: `❌ <b>Замовлення скасоване</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
@@ -1028,12 +1040,10 @@ export async function sendOrderNotificationToTelegram(
     // Відправляємо сповіщення
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
     if (!botToken) {
-      console.error('[Telegram] TELEGRAM_BOT_TOKEN не встановлено');
       return false;
     }
 
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    console.log(`[Telegram] Відправляємо повідомлення на Telegram ID: ${user.telegramId}`);
     
     const response = await fetch(url, {
       method: 'POST',
@@ -1047,18 +1057,13 @@ export async function sendOrderNotificationToTelegram(
       }),
     });
 
-    const responseData = await response.json();
-    console.log(`[Telegram] Відповідь від API:`, { ok: response.ok, data: responseData });
-
     if (!response.ok) {
-      console.error('[Telegram] Помилка від Telegram API:', responseData);
       return false;
     }
 
-    console.log(`[Telegram] Сповіщення успішно відправлено`);
     return true;
   } catch (error) {
-    console.error('Помилка відправки Telegram сповіщення:', error);
+    console.error('Error sending Telegram notification:', error);
     return false;
   }
 }

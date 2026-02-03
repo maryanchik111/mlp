@@ -182,9 +182,8 @@ export default function CheckoutPage() {
         await updateUserStatsAfterOrder(user.uid, finalPrice, appliedRedeemedPoints);
         
         // Відправляємо сповіщення в Telegram на сервері
-        console.log(`[Order] Відправляємо запит на сповіщення в Telegram для користувача ${user.uid}`);
         try {
-          const response = await fetch('/api/orders/notify', {
+          await fetch('/api/orders/notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -193,10 +192,9 @@ export default function CheckoutPage() {
               status: 'created',
             }),
           });
-          const data = await response.json();
-          console.log(`[Order] Відповідь від сервера:`, data);
         } catch (error) {
-          console.error(`[Order] Помилка при відправці Telegram сповіщення:`, error);
+          // Помилка при відправці, але замовлення вже створено
+          console.error('Telegram notification error:', error);
         }
       }
 

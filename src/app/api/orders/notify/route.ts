@@ -23,12 +23,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`[API] Отримано запит на відправку сповіщення:`, {
-      userId,
-      orderId: order.id,
-      status,
-    });
-
     const sent = await sendOrderNotificationToTelegram(userId, order, status);
 
     return NextResponse.json({
@@ -37,9 +31,9 @@ export async function POST(request: NextRequest) {
       message: sent ? 'Notification sent' : 'User has no Telegram binding',
     });
   } catch (error) {
-    console.error('[API] Error sending notification:', error);
+    console.error('Error sending notification:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

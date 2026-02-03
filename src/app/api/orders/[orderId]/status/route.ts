@@ -8,7 +8,8 @@ import { ref, get, update } from 'firebase/database';
  * Оновити статус замовлення і відправити сповіщення в Telegram
  * 
  * Body: {
- *   status: "processing" | "completed" | "cancelled"
+ *   status: "processing" | "shipped" | "ready_for_pickup" | "completed" | "cancelled",
+ *   trackingNumber?: "ТТН" (для статусу "shipped")
  * }
  */
 export async function PATCH(
@@ -17,12 +18,10 @@ export async function PATCH(
 ) {
   try {
     const { orderId } = await params;
-    const { status } = await request.json();
-
-    console.log(`[Status API] Оновлення статусу замовлення ${orderId} на "${status}"`);
+    const { status, trackingNumber } = await request.json();
 
     // Перевіряємо статус
-    if (!['processing', 'completed', 'cancelled'].includes(status)) {
+    if (!['processing', 'shipped', 'ready_for_pickup', 'completed', 'cancelled'].includes(status)) {
       return NextResponse.json(
         { error: 'Invalid status' },
         { status: 400 }
@@ -34,7 +33,6 @@ export async function PATCH(
     const orderSnapshot = await get(orderRef);
 
     if (!orderSnapshot.exists()) {
-      console.log(`[Status API] Замовлення ${orderId} не знайдено`);
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
@@ -42,55 +40,53 @@ export async function PATCH(
     }
 
     const order = orderSnapshot.val();
-    console.log(`[Status API] Замовлення знайдено:`, {
-      orderId,
-      userId: order.userId,
-      currentStatus: order.status,
-      newStatus: status,
-    });
 
-    // Оновлюємо статус
-    await update(orderRef, {
+    // Підготовлюємо оновлення
+    const updateData: any = {
       status: status,
       updatedAt: Date.now(),
-    });
+    };
 
-    console.log(`[Status API] Статус оновлено в базі даних`);
+    // Додаємо ТТН якщо він передано
+    if (trackingNumber) {
+      updateData.trackingNumber = trackingNumber;
+    }
+
+    // Оновлюємо статус
+    await update(orderRef, updateData);
 
     // Відправляємо сповіщення в Telegram якщо користувач авторизований
     if (order.userId) {
-      console.log(`[Status API] Намагаємось відправити Telegram сповіщення для ${order.userId}`);
       const notificationSent = await sendOrderNotificationToTelegram(
         order.userId,
         {
           ...order,
           id: orderId,
+          trackingNumber: trackingNumber || order.trackingNumber,
         },
-        status as 'processing' | 'completed' | 'cancelled'
+        status as 'processing' | 'shipped' | 'ready_for_pickup' | 'completed' | 'cancelled'
       );
-
-      console.log(`[Status API] Результат Telegram сповіщення:`, { sent: notificationSent });
 
       return NextResponse.json({
         ok: true,
         orderId,
         status,
+        trackingNumber: trackingNumber || null,
         telegramNotificationSent: notificationSent,
       });
     }
-
-    console.log(`[Status API] У замовленні немає userId, сповіщення не відправляється`);
 
     return NextResponse.json({
       ok: true,
       orderId,
       status,
+      trackingNumber: trackingNumber || null,
       telegramNotificationSent: false,
     });
   } catch (error) {
-    console.error('[Status API] Помилка при оновленні статусу:', error);
+    console.error('Error updating order status:', error);
     return NextResponse.json(
-      { error: 'Internal server error', details: String(error) },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

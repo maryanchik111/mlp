@@ -25,7 +25,7 @@ export default function AdminPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [usersCount, setUsersCount] = useState(0);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'processing' | 'completed' | 'cancelled'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'processing' | 'shipped' | 'ready_for_pickup' | 'completed' | 'cancelled'>('all');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [mounted, setMounted] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
@@ -488,6 +488,66 @@ export default function AdminPage() {
     }
   };
 
+  // Функція для позначення як відправлено
+  const handleMarkShipped = async () => {
+    if (!selectedOrder) return;
+    
+    const trackingNumber = prompt('Введіть трек-номер ТТН (12 цифр):', '');
+    if (trackingNumber === null) return; // Користувач скасував
+    
+    if (!trackingNumber.trim()) {
+      alert('❌ ТТН не можна пропустити');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      const success = await updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber);
+      if (success) {
+        alert('✅ Замовлення позначено як відправлене!\n📦 ТТН відправлено користувачу');
+        setSelectedOrder({ 
+          ...selectedOrder, 
+          status: 'shipped', 
+          trackingNumber: trackingNumber,
+          updatedAt: Date.now() 
+        });
+      } else {
+        alert('❌ Помилка при оновленні статусу');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при оновленні замовлення');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Функція для позначення як готово до забору
+  const handleMarkReadyForPickup = async () => {
+    if (!selectedOrder) return;
+    if (!confirm('Позначити замовлення як готове до забору з пошти?')) return;
+
+    setActionLoading(true);
+    try {
+      const success = await updateOrderStatus(selectedOrder.id, 'ready_for_pickup');
+      if (success) {
+        alert('✅ Замовлення позначено як готове до забору!\n📮 Сповіщення відправлено користувачу');
+        setSelectedOrder({ 
+          ...selectedOrder, 
+          status: 'ready_for_pickup', 
+          updatedAt: Date.now() 
+        });
+      } else {
+        alert('❌ Помилка при оновленні статусу');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при оновленні замовлення');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Завантажити замовлення при завантаженні або зміні фільтра
   useEffect(() => {
     if (!mounted) return;
@@ -577,6 +637,10 @@ export default function AdminPage() {
         return 'Очікує обробки';
       case 'processing':
         return 'В процесі';
+      case 'shipped':
+        return 'Відправлено';
+      case 'ready_for_pickup':
+        return 'Готове до забору';
       case 'completed':
         return 'Завершено';
       case 'cancelled':
@@ -664,7 +728,7 @@ export default function AdminPage() {
             <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Фільтр по статусу</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:flex-wrap gap-3">
-                {(['all', 'pending', 'processing', 'completed', 'cancelled'] as const).map((status) => (
+                {(['all', 'pending', 'processing', 'shipped', 'ready_for_pickup', 'completed', 'cancelled'] as const).map((status) => (
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
@@ -1867,11 +1931,22 @@ export default function AdminPage() {
                   </div>
                 )}
 
-                {/* Дії для оброблюваних замовлень: позначити як виконане + скасувати */}
+                {/* Дії для оброблюваних замовлень: відправити / готове до забору / скасувати */}
                 {selectedOrder.status === 'processing' && (
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
-                      onClick={handleMarkCompleted}
+                      onClick={handleMarkShipped}
+                      disabled={actionLoading}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
+                        actionLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-purple-600 text-white hover:bg-purple-700'
+                      }`}
+                    >
+                      {actionLoading ? '⏳ Обробка...' : '📮 Відправлено (ТТН)'}
+                    </button>
+                    <button
+                      onClick={handleMarkReadyForPickup}
                       disabled={actionLoading}
                       className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
                         actionLoading
@@ -1879,7 +1954,7 @@ export default function AdminPage() {
                           : 'bg-blue-600 text-white hover:bg-blue-700'
                       }`}
                     >
-                      {actionLoading ? '⏳ Обробка...' : '🏁 Позначити як виконане'}
+                      {actionLoading ? '⏳ Обробка...' : '✅ Готове до забору'}
                     </button>
                     <button
                       onClick={handleCancelOrder}
@@ -1891,6 +1966,44 @@ export default function AdminPage() {
                       }`}
                     >
                       {actionLoading ? '⏳ Обробка...' : '❌ Скасувати'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Дії для відправлених замовлень: позначити готове до забору */}
+                {selectedOrder.status === 'shipped' && (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex-1 bg-purple-50 border border-purple-200 rounded-lg p-2 sm:p-3">
+                      <p className="text-xs sm:text-sm text-gray-600">📦 ТТН:</p>
+                      <p className="text-sm sm:text-base font-bold text-purple-700">{selectedOrder.trackingNumber || 'N/A'}</p>
+                    </div>
+                    <button
+                      onClick={handleMarkReadyForPickup}
+                      disabled={actionLoading}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
+                        actionLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
+                    >
+                      {actionLoading ? '⏳ Обробка...' : '✅ Готове до забору'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Дії для замовлень готових до забору: позначити виконане */}
+                {selectedOrder.status === 'ready_for_pickup' && (
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      onClick={handleMarkCompleted}
+                      disabled={actionLoading}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
+                        actionLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
+                    >
+                      {actionLoading ? '⏳ Обробка...' : '🏁 Позначити як завершене'}
                     </button>
                   </div>
                 )}

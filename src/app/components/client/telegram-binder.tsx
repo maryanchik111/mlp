@@ -22,7 +22,6 @@ export default function TelegramBinder({
   const [bindingCode, setBindingCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [isOpeningBot, setIsOpeningBot] = useState(false);
 
   const handleGenerateCode = async () => {
     setLoading(true);
@@ -35,30 +34,16 @@ export default function TelegramBinder({
       if (onBoundSuccess) {
         onBoundSuccess(code);
       }
-      
-      // Automatically open Telegram bot chat after code is generated
-      setTimeout(() => {
-        openTelegramBot(code);
-      }, 300);
     } catch (err) {
       setError('Не вдалося згенерувати код. Спробуйте ще раз.');
-      console.error('Error generating binding code:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const openTelegramBot = (code: string) => {
-    setIsOpeningBot(true);
-    
-    // Create deep link that opens bot and sends the /bind command
-    // Format: https://t.me/mlp_cutie_family_bot?start=bind_ABC123
     const deepLink = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=bind_${code}`;
-    
-    // Open in new tab/window
     window.open(deepLink, '_blank');
-    
-    setTimeout(() => setIsOpeningBot(false), 1000);
   };
 
   const handleCopyCode = () => {
@@ -89,7 +74,6 @@ export default function TelegramBinder({
       }
     } catch (err) {
       setError('Помилка при розв\'язуванні.');
-      console.error('Error unbinding telegram:', err);
     } finally {
       setLoading(false);
     }
@@ -148,10 +132,9 @@ export default function TelegramBinder({
 
               <button
                 onClick={() => openTelegramBot(bindingCode)}
-                disabled={isOpeningBot}
                 className="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               >
-                {isOpeningBot ? '⏳ Відкриття...' : '🚀 Відкрити бота'}
+                🚀 Відкрити бота
               </button>
 
               <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 text-sm text-gray-700">
