@@ -129,7 +129,6 @@ interface ModalProps {
 }
 
 export function Modal({ modal, closeModal, setModal }: ModalProps) {
-  const colors = getColors(modal.type);
   const icon = getIcon(modal.type);
 
   const handleConfirm = () => {
