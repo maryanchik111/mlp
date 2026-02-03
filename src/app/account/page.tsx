@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 import { fetchUserOrders, type Order } from '@/lib/firebase';
 import TelegramBinder from '@/app/components/client/telegram-binder';
+import SupportButton from '@/app/components/client/support-button';
 
 export default function AccountPage() {
   const { user, profile, loading, signIn, signOut, refreshProfile } = useAuth();
@@ -117,7 +118,10 @@ export default function AccountPage() {
                 <p className="text-xs text-gray-500 truncate">{user.email}</p>
               </div>
             </div>
-            <button onClick={() => signOut()} className="w-full sm:w-auto px-4 py-2 rounded-xl bg-purple-600 text-white font-medium text-sm sm:text-base hover:bg-purple-700 transition-colors">Вийти</button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <button onClick={() => signOut()} className="px-4 py-2 rounded-xl bg-purple-600 text-white font-medium text-sm sm:text-base hover:bg-purple-700 transition-colors">Вийти</button>
+              <SupportButton />
+            </div>
           </div>
         </div>
 
