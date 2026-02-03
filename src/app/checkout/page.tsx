@@ -15,6 +15,8 @@ interface CartItem {
   category: string;
   maxQuantity?: number;
   discount?: number; // Знижка на товар у %
+  deliveryPrice?: string | number; // Ціна доставки для цього товару
+  deliveryDays?: string; // Термін доставки для цього товару
   images?: string[];
   customBox?: {
     type: string;
