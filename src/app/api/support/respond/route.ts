@@ -9,24 +9,33 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
  * Відправити відповідь на тікет підтримки користувачу
  * 
  * Body: {
- *   ticketId: "ticket_...",
+ *   telegramId: "123456789",
  *   adminReply: "Відповідь адміна",
+ *   adminName: "Марія", // Ім'я адміністратора
  *   status: "responded" | "closed"
  * }
  */
 export async function POST(request: NextRequest) {
   try {
-    const { ticketId, adminReply, status = 'responded' } = await request.json();
+    const { telegramId, adminReply = '', adminName = 'Адміністратор', status = 'responded' } = await request.json();
 
-    if (!ticketId || !adminReply) {
+    if (!telegramId) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing telegramId' },
+        { status: 400 }
+      );
+    }
+
+    // Дозволяємо пусту відповідь при закритті тікета
+    if (status === 'responded' && !adminReply.trim()) {
+      return NextResponse.json(
+        { error: 'adminReply required for responded status' },
         { status: 400 }
       );
     }
 
     // Оновлюємо тікет
-    const updated = await respondToTicket(ticketId, adminReply, status);
+    const updated = await respondToTicket(telegramId, adminReply, status);
 
     if (!updated) {
       return NextResponse.json(
@@ -36,18 +45,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Отримуємо оновлений тікет
-    const ticket = await getSupportTicket(ticketId);
+    const ticket = await getSupportTicket(telegramId);
 
-    if (ticket && ticket.telegramId) {
+    if (ticket) {
       // Відправляємо відповідь користувачу в Telegram
       try {
-        const message = `📬 <b>Відповідь на ваше повідомлення:</b>\n\n${adminReply}\n\n<i>Статус: ${status === 'closed' ? '✅ Закрито' : '⏳ Розглядається'}</i>`;
+        let message: string;
+
+        if (status === 'closed') {
+          message = `🔔 Ваш тікет був закритий\n\nДякую за звернення до нас! Якщо у вас ще є питання, ми завжди тут для вас 💜`;
+        } else {
+          message = `- ${adminReply}\n\nАдміністратор ${adminName}`;
+        }
 
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            chat_id: ticket.telegramId,
+            chat_id: telegramId,
             text: message,
             parse_mode: 'HTML',
           }),
@@ -59,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      ticketId,
+      telegramId,
       status,
     });
   } catch (error) {

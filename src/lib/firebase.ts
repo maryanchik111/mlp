@@ -1119,21 +1119,25 @@ export async function updateOrderStatusWithNotification(
 // SUPPORT TICKETS
 // =====================
 
+export interface SupportMessage {
+  text: string;
+  timestamp: number;
+  isAdmin: boolean;
+}
+
 export interface SupportTicket {
-  id: string;
+  id: string; // На основі telegramId
   telegramId: string;
   telegramUsername?: string;
   userId?: string; // якщо користувач авторизований
-  message: string;
+  messages: SupportMessage[]; // Всі повідомлення в одному тікеті
   status: 'open' | 'responded' | 'closed';
   createdAt: number;
   updatedAt: number;
-  adminReply?: string;
-  adminReplyAt?: number;
 }
 
 /**
- * Створити новий тікет підтримки
+ * Створити або оновити тікет підтримки (всі повідомлення від користувача в одному тікеті)
  */
 export async function createSupportTicket(
   telegramId: string,
@@ -1142,20 +1146,41 @@ export async function createSupportTicket(
   userId?: string
 ): Promise<string | null> {
   try {
-    const ticketId = `ticket_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const ticketRef = ref(database, `support_tickets/${ticketId}`);
+    const ticketRef = ref(database, `support_tickets/${telegramId}`);
+    const snapshot = await get(ticketRef);
 
-    await set(ticketRef, {
-      telegramId,
-      telegramUsername: telegramUsername || null,
-      userId: userId || null,
-      message,
-      status: 'open',
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
+    const now = Date.now();
+    const newMessage: SupportMessage = {
+      text: message,
+      timestamp: now,
+      isAdmin: false,
+    };
 
-    return ticketId;
+    if (snapshot.exists()) {
+      // Тікет вже існує - додаємо нове повідомлення
+      const existingTicket = snapshot.val() as SupportTicket;
+      const messages = existingTicket.messages || [];
+      messages.push(newMessage);
+
+      await update(ticketRef, {
+        messages,
+        status: 'open', // Скидаємо статус на "відкритий" при новому повідомленні
+        updatedAt: now,
+      });
+    } else {
+      // Новий тікет
+      await set(ticketRef, {
+        telegramId,
+        telegramUsername: telegramUsername || null,
+        userId: userId || null,
+        messages: [newMessage],
+        status: 'open',
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+
+    return telegramId;
   } catch (error) {
     console.error('Error creating support ticket:', error);
     return null;
@@ -1193,9 +1218,9 @@ export async function getAllSupportTickets(): Promise<SupportTicket[]> {
 /**
  * Отримати конкретний тікет
  */
-export async function getSupportTicket(ticketId: string): Promise<SupportTicket | null> {
+export async function getSupportTicket(telegramId: string): Promise<SupportTicket | null> {
   try {
-    const ticketRef = ref(database, `support_tickets/${ticketId}`);
+    const ticketRef = ref(database, `support_tickets/${telegramId}`);
     const snapshot = await get(ticketRef);
 
     if (!snapshot.exists()) {
@@ -1203,7 +1228,7 @@ export async function getSupportTicket(ticketId: string): Promise<SupportTicket 
     }
 
     return {
-      id: ticketId,
+      id: telegramId,
       ...snapshot.val(),
     };
   } catch (error) {
@@ -1213,20 +1238,37 @@ export async function getSupportTicket(ticketId: string): Promise<SupportTicket 
 }
 
 /**
- * Оновити статус і додати відповідь адміна
+ * Додати відповідь адміна в тікет
  */
 export async function respondToTicket(
-  ticketId: string,
+  telegramId: string,
   adminReply: string,
   status: 'responded' | 'closed' = 'responded'
 ): Promise<boolean> {
   try {
-    const ticketRef = ref(database, `support_tickets/${ticketId}`);
+    const ticketRef = ref(database, `support_tickets/${telegramId}`);
+    const snapshot = await get(ticketRef);
+
+    if (!snapshot.exists()) {
+      return false;
+    }
+
+    const ticket = snapshot.val() as SupportTicket;
+    const messages = ticket.messages || [];
+    
+    // Додаємо сообщение тільки якщо є текст
+    if (adminReply.trim()) {
+      const adminMessage: SupportMessage = {
+        text: adminReply,
+        timestamp: Date.now(),
+        isAdmin: true,
+      };
+      messages.push(adminMessage);
+    }
 
     await update(ticketRef, {
-      adminReply,
+      messages,
       status,
-      adminReplyAt: Date.now(),
       updatedAt: Date.now(),
     });
 
@@ -1240,9 +1282,9 @@ export async function respondToTicket(
 /**
  * Закрити тікет
  */
-export async function closeTicket(ticketId: string): Promise<boolean> {
+export async function closeTicket(telegramId: string): Promise<boolean> {
   try {
-    const ticketRef = ref(database, `support_tickets/${ticketId}`);
+    const ticketRef = ref(database, `support_tickets/${telegramId}`);
 
     await update(ticketRef, {
       status: 'closed',
@@ -1254,4 +1296,34 @@ export async function closeTicket(ticketId: string): Promise<boolean> {
     console.error('Error closing ticket:', error);
     return false;
   }
+}
+
+/**
+ * Слухати змін в реальному часі для всіх тікетів
+ */
+export function listenToSupportTickets(
+  callback: (tickets: SupportTicket[]) => void
+): () => void {
+  const ticketsRef = ref(database, 'support_tickets');
+  
+  const unsubscribe = onValue(ticketsRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      callback([]);
+      return;
+    }
+
+    const tickets: SupportTicket[] = [];
+    snapshot.forEach((childSnapshot) => {
+      tickets.push({
+        id: childSnapshot.key!,
+        ...childSnapshot.val(),
+      });
+    });
+
+    // Сортуємо за часом оновлення (новіші першими)
+    tickets.sort((a, b) => b.updatedAt - a.updatedAt);
+    callback(tickets);
+  });
+
+  return unsubscribe;
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review, type SupportTicket, getAllSupportTickets } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, listenToSupportTickets } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
@@ -94,15 +94,27 @@ export default function AdminPage() {
     loadReviews();
   }, [mounted]);
 
-  // Функція для завантаження тікетів підтримки
+  // Слухати зміни тікетів підтримки в реальному часі
   useEffect(() => {
     if (!mounted) return;
-    const loadTickets = async () => {
-      const tickets = await getAllSupportTickets();
+
+    const unsubscribe = listenToSupportTickets((tickets) => {
       setSupportTickets(tickets);
-    };
-    loadTickets();
-  }, [mounted]);
+      
+      // Якщо вибраний тікет був видалений, очищуємо
+      if (selectedTicket && !tickets.find(t => t.id === selectedTicket.id)) {
+        setSelectedTicket(null);
+      } else if (selectedTicket) {
+        // Оновлюємо вибраний тікет якщо він змінився
+        const updated = tickets.find(t => t.id === selectedTicket.id);
+        if (updated && JSON.stringify(updated) !== JSON.stringify(selectedTicket)) {
+          setSelectedTicket(updated);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [mounted, selectedTicket]);
 
   // Кількість зареєстрованих акаунтів
   useEffect(() => {
@@ -573,12 +585,16 @@ export default function AdminPage() {
 
     setTicketReplyLoading(true);
     try {
+      // Отримуємо ім'я адміна з email або displayName
+      const adminName = user?.displayName || user?.email?.split('@')[0] || 'MLP Cutie Family';
+
       const response = await fetch('/api/support/respond', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ticketId: selectedTicket.id,
+          telegramId: selectedTicket.telegramId,
           adminReply: ticketReply,
+          adminName: adminName,
           status: 'responded',
         }),
       });
@@ -586,16 +602,7 @@ export default function AdminPage() {
       if (response.ok) {
         alert('✅ Відповідь відправлена користувачу');
         setTicketReply('');
-        
-        // Перезавантажуємо тікети
-        const tickets = await getAllSupportTickets();
-        setSupportTickets(tickets);
-        
-        // Оновлюємо вибраний тікет
-        const updatedTicket = tickets.find(t => t.id === selectedTicket.id);
-        if (updatedTicket) {
-          setSelectedTicket(updatedTicket);
-        }
+        // Real-time listener автоматично оновить дані
       } else {
         alert('❌ Помилка при відправці відповіді');
       }
@@ -618,19 +625,16 @@ export default function AdminPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ticketId: selectedTicket.id,
-          adminReply: selectedTicket.adminReply || 'Тікет закрито адміністратором',
+          telegramId: selectedTicket.telegramId,
+          adminReply: '', // Не обов'язково для закриття
           status: 'closed',
         }),
       });
 
       if (response.ok) {
         alert('✅ Тікет закрито');
-        
-        // Перезавантажуємо тікети
-        const tickets = await getAllSupportTickets();
-        setSupportTickets(tickets);
         setSelectedTicket(null);
+        // Real-time listener автоматично оновить дані
       } else {
         alert('❌ Помилка при закриванні тікета');
       }
@@ -1180,8 +1184,12 @@ export default function AdminPage() {
                           {ticket.status === 'open' ? '🔴 Нове' : ticket.status === 'responded' ? '🟡 Відповідь' : '✅ Закрито'}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 truncate">{ticket.message.substring(0, 40)}...</p>
-                      <p className="text-xs text-gray-500 mt-1">{new Date(ticket.createdAt).toLocaleString('uk-UA').split(',')[0]}</p>
+                      <p className="text-xs text-gray-600 truncate">
+                        {ticket.messages && ticket.messages.length > 0
+                          ? ticket.messages[ticket.messages.length - 1].text.substring(0, 40) + '...'
+                          : 'Немає повідомлень'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">{new Date(ticket.updatedAt).toLocaleString('uk-UA').split(',')[0]}</p>
                     </button>
                   ))}
                 </div>
@@ -1213,22 +1221,32 @@ export default function AdminPage() {
                   </button>
                 </div>
 
-                {/* Повідомлення користувача */}
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mb-6">
-                  <p className="text-sm font-semibold text-yellow-900 mb-2">💬 Повідомлення від користувача:</p>
-                  <p className="text-gray-800 whitespace-pre-wrap">{selectedTicket.message}</p>
+                {/* Діалог всіх повідомлень */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-6 max-h-96 overflow-y-auto space-y-4">
+                  <p className="text-sm font-semibold text-gray-700 sticky top-0 bg-gray-50 pb-2">💬 Історія діалогу:</p>
+                  {selectedTicket.messages && selectedTicket.messages.length > 0 ? (
+                    selectedTicket.messages.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-3 rounded-lg ${
+                          msg.isAdmin
+                            ? 'bg-purple-100 border-l-4 border-purple-600 ml-8'
+                            : 'bg-yellow-100 border-l-4 border-yellow-500 mr-8'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <p className={`text-xs font-semibold ${msg.isAdmin ? 'text-purple-700' : 'text-yellow-700'}`}>
+                            {msg.isAdmin ? '🔧 Адміністратор' : '👤 Користувач'}
+                          </p>
+                          <p className="text-xs text-gray-600">{new Date(msg.timestamp).toLocaleString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
+                        </div>
+                        <p className="text-gray-800 whitespace-pre-wrap text-sm">{msg.text}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-sm">Немає повідомлень</p>
+                  )}
                 </div>
-
-                {/* Відповідь адміна якщо є */}
-                {selectedTicket.adminReply && (
-                  <div className="bg-purple-50 border-l-4 border-purple-600 p-4 rounded mb-6">
-                    <p className="text-sm font-semibold text-purple-900 mb-2">📤 Ваша відповідь:</p>
-                    <p className="text-gray-800 whitespace-pre-wrap mb-2">{selectedTicket.adminReply}</p>
-                    {selectedTicket.adminReplyAt && (
-                      <p className="text-xs text-gray-600 mt-2">Відправлено: {new Date(selectedTicket.adminReplyAt).toLocaleString('uk-UA')}</p>
-                    )}
-                  </div>
-                )}
 
                 {/* Форма для відповіді */}
                 {selectedTicket.status !== 'closed' && (
