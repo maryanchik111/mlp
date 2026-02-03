@@ -330,7 +330,7 @@ export default function ProductPage() {
     <Basket />
     <AccountButton />
     {isFullscreen && images.length > 0 && (
-      <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
+      <div className="fixed inset-0 bg-black/90 z-[9999] flex flex-col">
         <div className="flex items-center justify-between p-4 text-white text-sm">
           <div className="flex items-center gap-3">
             <button

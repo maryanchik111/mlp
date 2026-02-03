@@ -69,6 +69,10 @@ export default function AccountPage() {
         return 'bg-yellow-100 text-yellow-800';
       case 'processing':
         return 'bg-blue-100 text-blue-800';
+      case 'shipped':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'ready_for_pickup':
+        return 'bg-purple-100 text-purple-800';
       case 'completed':
         return 'bg-green-100 text-green-800';
       case 'cancelled':
@@ -84,6 +88,10 @@ export default function AccountPage() {
         return 'Очікує обробки';
       case 'processing':
         return 'В процесі';
+      case 'shipped':
+        return 'Відправлено';
+      case 'ready_for_pickup':
+        return 'Готово до забору';
       case 'completed':
         return 'Завершено';
       case 'cancelled':
@@ -224,7 +232,7 @@ export default function AccountPage() {
 
       {/* Модальне вікно з деталями замовлення */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-[9999]">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200">
             {/* Заголовок модалю */}
             <div className="bg-purple-600 text-white p-4 sm:p-6 sticky top-0 z-10 rounded-t-2xl">
