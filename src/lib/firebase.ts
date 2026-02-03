@@ -1114,3 +1114,144 @@ export async function updateOrderStatusWithNotification(
     return false;
   }
 }
+
+// =====================
+// SUPPORT TICKETS
+// =====================
+
+export interface SupportTicket {
+  id: string;
+  telegramId: string;
+  telegramUsername?: string;
+  userId?: string; // якщо користувач авторизований
+  message: string;
+  status: 'open' | 'responded' | 'closed';
+  createdAt: number;
+  updatedAt: number;
+  adminReply?: string;
+  adminReplyAt?: number;
+}
+
+/**
+ * Створити новий тікет підтримки
+ */
+export async function createSupportTicket(
+  telegramId: string,
+  message: string,
+  telegramUsername?: string,
+  userId?: string
+): Promise<string | null> {
+  try {
+    const ticketId = `ticket_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const ticketRef = ref(database, `support_tickets/${ticketId}`);
+
+    await set(ticketRef, {
+      telegramId,
+      telegramUsername: telegramUsername || null,
+      userId: userId || null,
+      message,
+      status: 'open',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    return ticketId;
+  } catch (error) {
+    console.error('Error creating support ticket:', error);
+    return null;
+  }
+}
+
+/**
+ * Отримати всі тікети (для адмін панелі)
+ */
+export async function getAllSupportTickets(): Promise<SupportTicket[]> {
+  try {
+    const ticketsRef = ref(database, 'support_tickets');
+    const snapshot = await get(ticketsRef);
+
+    if (!snapshot.exists()) {
+      return [];
+    }
+
+    const tickets: SupportTicket[] = [];
+    snapshot.forEach((childSnapshot) => {
+      tickets.push({
+        id: childSnapshot.key!,
+        ...childSnapshot.val(),
+      });
+    });
+
+    // Сортуємо за часом створення (новіші першими)
+    return tickets.sort((a, b) => b.createdAt - a.createdAt);
+  } catch (error) {
+    console.error('Error fetching support tickets:', error);
+    return [];
+  }
+}
+
+/**
+ * Отримати конкретний тікет
+ */
+export async function getSupportTicket(ticketId: string): Promise<SupportTicket | null> {
+  try {
+    const ticketRef = ref(database, `support_tickets/${ticketId}`);
+    const snapshot = await get(ticketRef);
+
+    if (!snapshot.exists()) {
+      return null;
+    }
+
+    return {
+      id: ticketId,
+      ...snapshot.val(),
+    };
+  } catch (error) {
+    console.error('Error fetching support ticket:', error);
+    return null;
+  }
+}
+
+/**
+ * Оновити статус і додати відповідь адміна
+ */
+export async function respondToTicket(
+  ticketId: string,
+  adminReply: string,
+  status: 'responded' | 'closed' = 'responded'
+): Promise<boolean> {
+  try {
+    const ticketRef = ref(database, `support_tickets/${ticketId}`);
+
+    await update(ticketRef, {
+      adminReply,
+      status,
+      adminReplyAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error responding to ticket:', error);
+    return false;
+  }
+}
+
+/**
+ * Закрити тікет
+ */
+export async function closeTicket(ticketId: string): Promise<boolean> {
+  try {
+    const ticketRef = ref(database, `support_tickets/${ticketId}`);
+
+    await update(ticketRef, {
+      status: 'closed',
+      updatedAt: Date.now(),
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error closing ticket:', error);
+    return false;
+  }
+}

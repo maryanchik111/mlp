@@ -4,6 +4,7 @@ import {
   verifyTelegramBindingCode,
   deleteTelegramBindingCode,
   getUserByTelegramId,
+  createSupportTicket,
 } from '@/lib/firebase';
 
 // Token of your Telegram bot (from BotFather)
@@ -113,10 +114,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
+    // Якщо це звичайне повідомлення (не команда) - створюємо тікет підтримки
+    if (text && !text.startsWith('/')) {
+      const user = await getUserByTelegramId(telegramId);
+      const ticketId = await createSupportTicket(
+        telegramId,
+        text,
+        username,
+        user?.uid
+      );
+
+      if (ticketId) {
+        await sendTelegramMessage(
+          chatId,
+          `✅ <b>Ваше повідомлення отримано!</b>\n\n` +
+          `🎫 Номер тікета: <code>${ticketId}</code>\n` +
+          `⏳ Наша команда відповість найближчим часом\n\n` +
+          `🦄 Дякуємо за звернення! 💜`
+        );
+      } else {
+        await sendTelegramMessage(
+          chatId,
+          '❌ Помилка при створенні тікета. Спробуйте ще раз.'
+        );
+      }
+
+      return NextResponse.json({ ok: true });
+    }
+
     // Default
     await sendTelegramMessage(
       chatId,
-      '🦄 Я розумію тільки команди. Напишіть /start для інструкцій.'
+      '🦄 Я розумію тільки команди. Напишіть /start для інструкцій.\n\n' +
+      'Або просто напишіть своє питання, і я створю тікет підтримки!'
     );
 
     return NextResponse.json({ ok: true });

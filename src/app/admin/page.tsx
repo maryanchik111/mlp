@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review, type SupportTicket, getAllSupportTickets } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
-type TabType = 'orders' | 'products' | 'reviews' | 'stats';
+type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support';
 
 // Список доступних категорій товарів
 const PRODUCT_CATEGORIES = [
@@ -55,6 +55,12 @@ export default function AdminPage() {
   const [replyingToReview, setReplyingToReview] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   
+  // Support tickets state
+  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
+  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [ticketReply, setTicketReply] = useState('');
+  const [ticketReplyLoading, setTicketReplyLoading] = useState(false);
+  
   // User profiles cache for authorized orders
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
 
@@ -86,6 +92,16 @@ export default function AdminPage() {
       setReviews(allReviews);
     };
     loadReviews();
+  }, [mounted]);
+
+  // Функція для завантаження тікетів підтримки
+  useEffect(() => {
+    if (!mounted) return;
+    const loadTickets = async () => {
+      const tickets = await getAllSupportTickets();
+      setSupportTickets(tickets);
+    };
+    loadTickets();
   }, [mounted]);
 
   // Кількість зареєстрованих акаунтів
@@ -548,6 +564,84 @@ export default function AdminPage() {
     }
   };
 
+  // Функція для відправки відповіді на тікет підтримки
+  const handleRespondToTicket = async () => {
+    if (!selectedTicket || !ticketReply.trim()) {
+      alert('❌ Напишіть відповідь');
+      return;
+    }
+
+    setTicketReplyLoading(true);
+    try {
+      const response = await fetch('/api/support/respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId: selectedTicket.id,
+          adminReply: ticketReply,
+          status: 'responded',
+        }),
+      });
+
+      if (response.ok) {
+        alert('✅ Відповідь відправлена користувачу');
+        setTicketReply('');
+        
+        // Перезавантажуємо тікети
+        const tickets = await getAllSupportTickets();
+        setSupportTickets(tickets);
+        
+        // Оновлюємо вибраний тікет
+        const updatedTicket = tickets.find(t => t.id === selectedTicket.id);
+        if (updatedTicket) {
+          setSelectedTicket(updatedTicket);
+        }
+      } else {
+        alert('❌ Помилка при відправці відповіді');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при відправці');
+    } finally {
+      setTicketReplyLoading(false);
+    }
+  };
+
+  // Функція для закриття тікета
+  const handleCloseTicket = async () => {
+    if (!selectedTicket) return;
+    if (!confirm('Закрити цей тікет?')) return;
+
+    setTicketReplyLoading(true);
+    try {
+      const response = await fetch('/api/support/respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId: selectedTicket.id,
+          adminReply: selectedTicket.adminReply || 'Тікет закрито адміністратором',
+          status: 'closed',
+        }),
+      });
+
+      if (response.ok) {
+        alert('✅ Тікет закрито');
+        
+        // Перезавантажуємо тікети
+        const tickets = await getAllSupportTickets();
+        setSupportTickets(tickets);
+        setSelectedTicket(null);
+      } else {
+        alert('❌ Помилка при закриванні тікета');
+      }
+    } catch (error) {
+      console.error('Помилка:', error);
+      alert('❌ Помилка при закриванні');
+    } finally {
+      setTicketReplyLoading(false);
+    }
+  };
+
   // Завантажити замовлення при завантаженні або зміні фільтра
   useEffect(() => {
     if (!mounted) return;
@@ -714,6 +808,16 @@ export default function AdminPage() {
               }`}
             >
               💬 Відгуки
+            </button>
+            <button
+              onClick={() => setActiveTab('support')}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
+                activeTab === 'support'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🆘 Підтримка
             </button>
           </div>
         </div>
@@ -1032,6 +1136,154 @@ export default function AdminPage() {
                   )}
                 </div>
               ))
+            )}
+          </div>
+        )}
+
+        {/* Support Tab Content */}
+        {activeTab === 'support' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Список тікетів */}
+            <div className="lg:col-span-1 bg-white rounded-lg shadow-sm p-6 max-h-[80vh] overflow-y-auto">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">🆘 Тікети підтримки</h2>
+              <p className="text-sm text-gray-600 mb-4">
+                Всього: <span className="font-bold text-purple-600">{supportTickets.length}</span>
+              </p>
+              
+              {supportTickets.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">Немає тікетів підтримки</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {supportTickets.map((ticket) => (
+                    <button
+                      key={ticket.id}
+                      onClick={() => setSelectedTicket(ticket)}
+                      className={`w-full text-left p-3 rounded-lg transition-all border-l-4 ${
+                        selectedTicket?.id === ticket.id
+                          ? 'bg-purple-100 border-l-purple-600 shadow-md'
+                          : ticket.status === 'closed'
+                          ? 'bg-gray-50 border-l-gray-400 hover:bg-gray-100'
+                          : ticket.status === 'responded'
+                          ? 'bg-blue-50 border-l-blue-500 hover:bg-blue-100'
+                          : 'bg-yellow-50 border-l-yellow-500 hover:bg-yellow-100'
+                      }`}
+                    >
+                      <div className="flex justify-between items-start gap-2 mb-1">
+                        <p className="font-semibold text-gray-900 truncate flex-1">{ticket.telegramUsername || `ID: ${ticket.telegramId}`}</p>
+                        <span className={`text-xs font-bold px-2 py-1 rounded whitespace-nowrap ${
+                          ticket.status === 'open' ? 'bg-yellow-200 text-yellow-800' :
+                          ticket.status === 'responded' ? 'bg-blue-200 text-blue-800' :
+                          'bg-green-200 text-green-800'
+                        }`}>
+                          {ticket.status === 'open' ? '🔴 Нове' : ticket.status === 'responded' ? '🟡 Відповідь' : '✅ Закрито'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 truncate">{ticket.message.substring(0, 40)}...</p>
+                      <p className="text-xs text-gray-500 mt-1">{new Date(ticket.createdAt).toLocaleString('uk-UA').split(',')[0]}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Деталі тікета та форма відповіді */}
+            {selectedTicket ? (
+              <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
+                <div className="flex justify-between items-start mb-6 pb-6 border-b border-gray-200">
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-gray-900 mb-2">#{selectedTicket.id}</h2>
+                    <div className="space-y-1 text-sm text-gray-600">
+                      <p><span className="font-semibold">Користувач:</span> {selectedTicket.telegramUsername ? `@${selectedTicket.telegramUsername}` : selectedTicket.telegramId}</p>
+                      <p><span className="font-semibold">Статус:</span> 
+                        {selectedTicket.status === 'open' ? ' 🔴 Нове' : selectedTicket.status === 'responded' ? ' 🟡 Відповідь отримана' : ' ✅ Закрито'}
+                      </p>
+                      <p><span className="font-semibold">Дата:</span> {new Date(selectedTicket.createdAt).toLocaleString('uk-UA')}</p>
+                      {selectedTicket.updatedAt && (
+                        <p><span className="font-semibold">Оновлено:</span> {new Date(selectedTicket.updatedAt).toLocaleString('uk-UA')}</p>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedTicket(null)}
+                    className="text-gray-500 hover:text-gray-700 text-2xl"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                {/* Повідомлення користувача */}
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mb-6">
+                  <p className="text-sm font-semibold text-yellow-900 mb-2">💬 Повідомлення від користувача:</p>
+                  <p className="text-gray-800 whitespace-pre-wrap">{selectedTicket.message}</p>
+                </div>
+
+                {/* Відповідь адміна якщо є */}
+                {selectedTicket.adminReply && (
+                  <div className="bg-purple-50 border-l-4 border-purple-600 p-4 rounded mb-6">
+                    <p className="text-sm font-semibold text-purple-900 mb-2">📤 Ваша відповідь:</p>
+                    <p className="text-gray-800 whitespace-pre-wrap mb-2">{selectedTicket.adminReply}</p>
+                    {selectedTicket.adminReplyAt && (
+                      <p className="text-xs text-gray-600 mt-2">Відправлено: {new Date(selectedTicket.adminReplyAt).toLocaleString('uk-UA')}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Форма для відповіді */}
+                {selectedTicket.status !== 'closed' && (
+                  <div className="space-y-4 pt-6 border-t border-gray-200">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Ваша відповідь:</label>
+                      <textarea
+                        value={ticketReply}
+                        onChange={(e) => setTicketReply(e.target.value)}
+                        placeholder="Напишіть відповідь для користувача..."
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                        rows={4}
+                        disabled={ticketReplyLoading}
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        onClick={handleRespondToTicket}
+                        disabled={ticketReplyLoading || !ticketReply.trim()}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                          ticketReplyLoading || !ticketReply.trim()
+                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            : 'bg-purple-600 text-white hover:bg-purple-700'
+                        }`}
+                      >
+                        📤 Відправити відповідь
+                      </button>
+                      <button
+                        onClick={handleCloseTicket}
+                        disabled={ticketReplyLoading}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                          ticketReplyLoading
+                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            : 'bg-red-600 text-white hover:bg-red-700'
+                        }`}
+                      >
+                        ✅ Закрити тікет
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {selectedTicket.status === 'closed' && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                    <p className="text-green-700 font-semibold">✅ Цей тікет закрито</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-12 flex items-center justify-center">
+                <p className="text-gray-500 text-center">
+                  {supportTickets.length === 0 ? '🎉 Немає тікетів для підтримки' : '👈 Виберіть тікет для перегляду деталей'}
+                </p>
+              </div>
             )}
           </div>
         )}
