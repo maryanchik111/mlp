@@ -19,6 +19,8 @@ export async function PATCH(
     const { orderId } = await params;
     const { status } = await request.json();
 
+    console.log(`[Status API] Оновлення статусу замовлення ${orderId} на "${status}"`);
+
     // Перевіряємо статус
     if (!['processing', 'completed', 'cancelled'].includes(status)) {
       return NextResponse.json(
@@ -32,6 +34,7 @@ export async function PATCH(
     const orderSnapshot = await get(orderRef);
 
     if (!orderSnapshot.exists()) {
+      console.log(`[Status API] Замовлення ${orderId} не знайдено`);
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
@@ -39,6 +42,12 @@ export async function PATCH(
     }
 
     const order = orderSnapshot.val();
+    console.log(`[Status API] Замовлення знайдено:`, {
+      orderId,
+      userId: order.userId,
+      currentStatus: order.status,
+      newStatus: status,
+    });
 
     // Оновлюємо статус
     await update(orderRef, {
@@ -46,8 +55,11 @@ export async function PATCH(
       updatedAt: Date.now(),
     });
 
+    console.log(`[Status API] Статус оновлено в базі даних`);
+
     // Відправляємо сповіщення в Telegram якщо користувач авторизований
     if (order.userId) {
+      console.log(`[Status API] Намагаємось відправити Telegram сповіщення для ${order.userId}`);
       const notificationSent = await sendOrderNotificationToTelegram(
         order.userId,
         {
@@ -57,6 +69,8 @@ export async function PATCH(
         status as 'processing' | 'completed' | 'cancelled'
       );
 
+      console.log(`[Status API] Результат Telegram сповіщення:`, { sent: notificationSent });
+
       return NextResponse.json({
         ok: true,
         orderId,
@@ -65,6 +79,8 @@ export async function PATCH(
       });
     }
 
+    console.log(`[Status API] У замовленні немає userId, сповіщення не відправляється`);
+
     return NextResponse.json({
       ok: true,
       orderId,
@@ -72,9 +88,9 @@ export async function PATCH(
       telegramNotificationSent: false,
     });
   } catch (error) {
-    console.error('Error updating order status:', error);
+    console.error('[Status API] Помилка при оновленні статусу:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: String(error) },
       { status: 500 }
     );
   }

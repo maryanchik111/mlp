@@ -313,14 +313,54 @@ export const fetchOrdersByStatus = (status: string, callback: (orders: Order[]) 
 // Функція для оновлення статусу замовлення
 export const updateOrderStatus = async (orderId: string, newStatus: 'pending' | 'processing' | 'completed' | 'cancelled') => {
   try {
+    console.log(`[updateOrderStatus] Оновлення статусу замовлення ${orderId} на "${newStatus}"`);
+    
+    // Спочатку отримаємо замовлення, щоб дізнатися userId для Telegram сповіщення
     const orderRef = ref(database, `orders/${orderId}`);
+    const orderSnapshot = await get(orderRef);
+    
+    if (!orderSnapshot.exists()) {
+      console.error(`[updateOrderStatus] Замовлення ${orderId} не знайдено`);
+      return false;
+    }
+    
+    const order = orderSnapshot.val();
+    
+    // Оновлюємо в базі даних
     await update(orderRef, {
       status: newStatus,
       updatedAt: Date.now(),
     });
+    
+    console.log(`[updateOrderStatus] Статус оновлено в БД. Надсилаємо Telegram сповіщення...`);
+    
+    // Відправляємо Telegram сповіщення через API endpoint
+    if (order.userId && newStatus !== 'pending') {
+      try {
+        const response = await fetch('/api/orders/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: order.userId,
+            order: { ...order, id: orderId },
+            status: newStatus,
+          }),
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log(`[updateOrderStatus] Telegram сповіщення відправлено:`, data);
+        } else {
+          console.error(`[updateOrderStatus] Помилка при відправці Telegram сповіщення:`, await response.text());
+        }
+      } catch (error) {
+        console.error(`[updateOrderStatus] Помилка при виклику API для Telegram:`, error);
+      }
+    }
+    
     return true;
   } catch (error) {
-    console.error('Помилка при оновленні статусу замовлення:', error);
+    console.error('[updateOrderStatus] Помилка при оновленні статусу замовлення:', error);
     return false;
   }
 };
