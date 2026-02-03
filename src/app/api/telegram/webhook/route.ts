@@ -42,7 +42,14 @@ export async function POST(request: NextRequest) {
       // The parameter comes concatenated with /start in some cases
       await sendTelegramMessage(
         chatId,
-        '👋 Hello! I am MLP Store bot.\n\nTo link your store account to this chat:\n1. Go to your personal account on the site\n2. Click "Link Telegram"\n3. Copy the binding code\n4. Write to me: /bind YOUR_CODE\n\nExample: /bind ABC123'
+        '👋 <b>Привіт! Я бот MLP Store 🦄</b>\n\n' +
+        'Щоб прив\'язати свій акаунт в магазині до цього чату:\n\n' +
+        '1️⃣ Перейдіть на <b>mlp-gray.vercel.app</b>\n' +
+        '2️⃣ Увійдіть в свій кабінет\n' +
+        '3️⃣ Натисніть "📱 Генерувати код"\n' +
+        '4️⃣ Скопіюйте код і напишіть мені:\n' +
+        '<code>/bind ABC123</code>\n\n' +
+        '✨ Після прив\'язки ви матимете сповіщення про замовлення, спеціальні пропозиції та новини сезону!'
       );
       return NextResponse.json({ ok: true });
     }
@@ -74,12 +81,12 @@ export async function POST(request: NextRequest) {
       if (user) {
         await sendTelegramMessage(
           chatId,
-          `✅ Your account is linked!\n\nName: ${user.profile.displayName || 'User'}\nEmail: ${user.profile.email}\nPoints: ${user.profile.points}`
+          `✅ <b>Ваш акаунт прив'язаний!</b>\n\n👤 Ім'я: <b>${user.profile.displayName || 'Користувач'}</b>\n📧 Email: <code>${user.profile.email}</code>\n⭐ Бали: <b>${user.profile.points}</b>`
         );
       } else {
         await sendTelegramMessage(
           chatId,
-          '❌ Your account is not linked. Write /start for instructions.'
+          '❌ Ваш акаунт не прив\'язаний. Напишіть /start для інструкцій.'
         );
       }
 
@@ -93,12 +100,12 @@ export async function POST(request: NextRequest) {
       if (user) {
         await sendTelegramMessage(
           chatId,
-          '⚠️ Unbinding function will be available from your account on the website.'
+          '⚠️ Функція розв\'язування буде доступна в особистому кабінеті на сайті.'
         );
       } else {
         await sendTelegramMessage(
           chatId,
-          '❌ Your account is not linked.'
+          '❌ Ваш акаунт не прив\'язаний.'
         );
       }
 
@@ -108,7 +115,7 @@ export async function POST(request: NextRequest) {
     // Default
     await sendTelegramMessage(
       chatId,
-      'I understand only commands. Write /start for instructions.'
+      '🦄 Я розумію тільки команди. Напишіть /start для інструкцій.'
     );
 
     return NextResponse.json({ ok: true });
@@ -125,7 +132,7 @@ async function processBindingCode(chatId: number | string, telegramId: string, c
   if (!code || code.length < 6) {
     await sendTelegramMessage(
       chatId,
-      '❌ Invalid format. Use: /bind ABCDEF'
+      '❌ Невірний формат. Використовуйте: <code>/bind ABCDEF</code>'
     );
     return;
   }
@@ -136,7 +143,7 @@ async function processBindingCode(chatId: number | string, telegramId: string, c
   if (!uid) {
     await sendTelegramMessage(
       chatId,
-      '❌ Binding code is invalid or expired. Try again.'
+      '❌ Код прив\'язки невірний або закінчився. Спробуйте ще раз.'
     );
     return;
   }
@@ -150,12 +157,17 @@ async function processBindingCode(chatId: number | string, telegramId: string, c
 
     await sendTelegramMessage(
       chatId,
-      '✅ Hooray! Your account has been successfully linked! 🎉\n\nYou will now receive notifications about orders and special offers.'
+      '✨ <b>Ура! Ваш акаунт успішно прив\'язаний!</b> 🎉\n\n' +
+      '🦄 Тепер ви матимете:\n' +
+      '📦 Сповіщення про нові замовлення\n' +
+      '🎁 Спеціальні пропозиції та знижки\n' +
+      '⭐ Новини з MLP світу\n\n' +
+      'Дякуємо, що ви з нами! 💜'
     );
   } else {
     await sendTelegramMessage(
       chatId,
-      '❌ Error during linking. Try again.'
+      '❌ Помилка при прив\'язці. Спробуйте ще раз.'
     );
   }
 }

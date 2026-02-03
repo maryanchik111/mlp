@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { database, generateOrderNumber, decreaseProductQuantity, updateUserStatsAfterOrder } from '@/lib/firebase';
+import { database, generateOrderNumber, decreaseProductQuantity, updateUserStatsAfterOrder, sendOrderNotificationToTelegram } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { ref, set } from 'firebase/database';
 
@@ -180,6 +180,9 @@ export default function CheckoutPage() {
       // Оновлюємо статистику користувача (бали, рейтинг) якщо авторизований
       if (user) {
         await updateUserStatsAfterOrder(user.uid, finalPrice, appliedRedeemedPoints);
+        
+        // Відправляємо сповіщення в Telegram якщо користувач прив'язав бота
+        await sendOrderNotificationToTelegram(user.uid, newOrder, 'created');
       }
 
       // Очищаємо кошик

@@ -919,4 +919,130 @@ export async function deleteTelegramBindingCode(code: string): Promise<void> {
     console.error('Помилка видалення коду:', error);
   }
 }
-;
+
+// =====================
+// TELEGRAM NOTIFICATIONS
+// =====================
+
+/**
+ * Відправити сповіщення про замовлення в Telegram
+ */
+export async function sendOrderNotificationToTelegram(
+  uid: string,
+  order: Order | any,
+  status: 'created' | 'processing' | 'completed' | 'cancelled'
+): Promise<boolean> {
+  try {
+    // Отримуємо профіль користувача для Telegram ID
+    const userRef = ref(database, `users/${uid}`);
+    const userSnapshot = await get(userRef);
+    
+    if (!userSnapshot.exists()) {
+      return false;
+    }
+    
+    const user = userSnapshot.val() as UserProfile;
+    
+    // Якщо користувач не прив'язав Telegram, нічого не робимо
+    if (!user.telegramId) {
+      return false;
+    }
+
+    // Створюємо повідомлення залежно від статусу
+    const messages = {
+      created: `🎉 <b>Нове замовлення!</b>\n\n` +
+        `📦 Замовлення №<code>${order.id}</code>\n` +
+        `💰 Сума: <b>${order.finalPrice}₴</b>\n` +
+        `🏪 Товарів: <b>${order.items.length}</b>\n` +
+        `📍 Місто: <b>${order.city}</b>\n\n` +
+        `⏳ Статус: <i>Очікує обробки</i>\n` +
+        `ℹ️ Ми обробимо ваше замовлення найближчим часом!`,
+      
+      processing: `⚙️ <b>Замовлення в обробці!</b>\n\n` +
+        `📦 Замовлення №<code>${order.id}</code>\n` +
+        `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
+        `✅ Платіж підтверджено\n` +
+        `🚚 Замовлення готується до відправлення`,
+      
+      completed: `✅ <b>Замовлення готове!</b>\n\n` +
+        `📦 Замовлення №<code>${order.id}</code>\n` +
+        `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
+        `🎁 Ваше замовлення завершене!\n` +
+        `🚚 Заберіть його на відділенні Нової Пошти\n` +
+        `🙏 Дякуємо за покупку! До нових зустрічей у нашому магазині!`,
+      
+      cancelled: `❌ <b>Замовлення скасоване</b>\n\n` +
+        `📦 Замовлення №<code>${order.id}</code>\n` +
+        `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
+        `😞 На жаль, замовлення було скасоване\n` +
+        `💬 Зв'яжіться з нами якщо є питання`
+    };
+
+    const message = messages[status];
+
+    // Відправляємо сповіщення
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    if (!botToken) {
+      console.error('TELEGRAM_BOT_TOKEN is not set');
+      return false;
+    }
+
+    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        chat_id: user.telegramId,
+        text: message,
+        parse_mode: 'HTML',
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('Error sending Telegram notification:', error);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Помилка відправки Telegram сповіщення:', error);
+    return false;
+  }
+}
+
+/**
+ * Оновити статус замовлення і відправити сповіщення
+ */
+export async function updateOrderStatusWithNotification(
+  orderId: string,
+  newStatus: 'processing' | 'completed' | 'cancelled',
+  userId?: string | null
+): Promise<boolean> {
+  try {
+    const orderRef = ref(database, `orders/${orderId}`);
+    
+    // Оновлюємо статус
+    await update(orderRef, {
+      status: newStatus,
+      updatedAt: Date.now(),
+    });
+
+    // Якщо є userId, отримуємо замовлення і відправляємо сповіщення
+    if (userId) {
+      const orderSnapshot = await get(orderRef);
+      if (orderSnapshot.exists()) {
+        const order = orderSnapshot.val() as Order;
+        await sendOrderNotificationToTelegram(userId, order, newStatus);
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Помилка оновлення статусу замовлення:', error);
+    return false;
+  }
+}
