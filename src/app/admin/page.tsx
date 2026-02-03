@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, listenToSupportTickets } from '@/lib/firebase';
-import { useAuth } from '@/app/providers';
+import { useAuth, useModal } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
 type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support';
@@ -21,6 +21,7 @@ const PRODUCT_CATEGORIES = [
 export default function AdminPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { showSuccess, showError, showWarning, showInfo, showConfirm } = useModal();
   const [activeTab, setActiveTab] = useState<TabType>('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -133,15 +134,15 @@ export default function AdminPage() {
     try {
       const success = await deleteReview(orderId);
       if (success) {
-        alert('✅ Відгук видалено');
+        showSuccess('Успіх', 'Відгук видалено');
         const allReviews = await fetchAllReviews();
         setReviews(allReviews);
       } else {
-        alert('❌ Помилка видалення');
+        showError('Помилка', 'Не вдалося видалити відгук');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка видалення відгуку');
+      showError('Помилка', 'Помилка видалення відгуку');
     } finally {
       setActionLoading(false);
     }
@@ -150,7 +151,7 @@ export default function AdminPage() {
   // Функція для відправки відповіді адміна
   const handleSendReply = async (orderId: string) => {
     if (!replyText.trim()) {
-      alert('❌ Введіть текст відповіді');
+      showWarning('Пусте поле', 'Введіть текст відповіді');
       return;
     }
     
@@ -158,17 +159,17 @@ export default function AdminPage() {
     try {
       const success = await addAdminReply(orderId, replyText);
       if (success) {
-        alert('✅ Відповідь додано');
+        showSuccess('Успіх', 'Відповідь додано');
         setReplyText('');
         setReplyingToReview(null);
         const allReviews = await fetchAllReviews();
         setReviews(allReviews);
       } else {
-        alert('❌ Помилка додавання відповіді');
+        showError('Помилка', 'Помилка додавання відповіді');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка додавання відповіді');
+      showError('Помилка', 'Помилка додавання відповіді');
     } finally {
       setActionLoading(false);
     }
@@ -238,18 +239,18 @@ export default function AdminPage() {
       
       const success = await updateProduct(editingProduct.id, payload);
       if (success) {
-        alert('✅ Товар оновлено успішно!');
+        showSuccess('Успіх', 'Товар оновлено успішно!');
         setEditingProduct(null);
         setEditForm({});
         fetchAllProducts((loadedProducts) => {
           setProducts(loadedProducts);
         });
       } else {
-        alert('❌ Помилка при оновленні товару');
+        showError('Помилка', 'Помилка при оновленні товару');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при оновленні товару');
+      showError('Помилка', 'Помилка при оновленні товару');
     } finally {
       setActionLoading(false);
     }
@@ -281,7 +282,7 @@ export default function AdminPage() {
       
       // Валідація
       if (!payload.name || !payload.price || !payload.category) {
-        alert('❌ Заповніть обов\'язкові поля: назва, ціна, категорія');
+        showError('Недостатно даних', 'Заповніть обов\'язкові поля: назва, ціна, категорія');
         setActionLoading(false);
         return;
       }
@@ -322,7 +323,7 @@ export default function AdminPage() {
       
       const success = await addProduct(payload);
       if (success) {
-        alert('✅ Товар створено успішно!');
+        showSuccess('Успіх', 'Товар створено успішно!');
         setIsCreatingProduct(false);
         setNewProductForm({
           name: '',
@@ -341,11 +342,11 @@ export default function AdminPage() {
           setProducts(loadedProducts);
         });
       } else {
-        alert('❌ Помилка при створенні товару');
+        showError('Помилка', 'Помилка при створенні товару');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при створенні товару');
+      showError('Помилка', 'Помилка при створенні товару');
     } finally {
       setActionLoading(false);
     }
@@ -358,16 +359,16 @@ export default function AdminPage() {
     try {
       const success = await deleteProduct(productId);
       if (success) {
-        alert('✅ Товар видалено успішно!');
+        showSuccess('Успіх', 'Товар видалено успішно!');
         fetchAllProducts((loadedProducts) => {
           setProducts(loadedProducts);
         });
       } else {
-        alert('❌ Помилка при видаленні товару');
+        showError('Помилка', 'Помилка при видаленні товару');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при видаленні товару');
+      showError('Помилка', 'Помилка при видаленні товару');
     } finally {
       setActionLoading(false);
     }
@@ -386,13 +387,13 @@ export default function AdminPage() {
         
         // Перевіряємо тип файлу
         if (!file.type.startsWith('image/')) {
-          alert(`⚠️ Файл ${file.name} не є зображенням`);
+          showWarning('Невірний формат', `Файл ${file.name} не є зображенням`);
           continue;
         }
         
         // Перевіряємо розмір (макс 5MB)
         if (file.size > 5 * 1024 * 1024) {
-          alert(`⚠️ Файл ${file.name} завеликий (більше 5MB)`);
+          showWarning('Файл завеликий', `Файл ${file.name} завеликий (більше 5MB)`);
           continue;
         }
         
@@ -414,11 +415,11 @@ export default function AdminPage() {
             images: [...(editForm.images as string[] || []), ...uploadedUrls]
           });
         }
-        alert(`✅ Завантажено ${uploadedUrls.length} фото`);
+        showSuccess('Успіх', `Завантажено ${uploadedUrls.length} фото`);
       }
     } catch (error) {
       console.error('Помилка завантаження:', error);
-      alert('❌ Помилка завантаження фото');
+      showError('Помилка', 'Помилка завантаження фото');
     } finally {
       setUploadingImages(false);
     }
@@ -448,7 +449,7 @@ export default function AdminPage() {
       }
     } catch (error) {
       console.error('Помилка видалення фото:', error);
-      alert('❌ Помилка видалення фото');
+      showError('Помилка', 'Помилка видалення фото');
     }
   };
 
@@ -459,15 +460,15 @@ export default function AdminPage() {
     try {
       const success = await updateOrderStatus(selectedOrder.id, 'processing');
       if (success) {
-        alert('✅ Оплата підтверджена! Статус змінено на "В процесі"');
+        showSuccess('Успіх', 'Оплата підтверджена! Статус змінено на \"В процесі\"');
         // Оновлюємо локальний стан модалю, щоб відобразити новий статус без закриття
         setSelectedOrder({ ...selectedOrder, status: 'processing', updatedAt: Date.now() });
       } else {
-        alert('❌ Помилка при оновленні статусу');
+        showError('Помилка', 'Помилка при оновленні статусу');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при підтвердженні оплати');
+      showError('Помилка', 'Помилка при підтвердженні оплати');
     } finally {
       setActionLoading(false);
     }
@@ -481,15 +482,15 @@ export default function AdminPage() {
     try {
       const success = await updateOrderStatus(selectedOrder.id, 'cancelled');
       if (success) {
-        alert('✅ Замовлення скасовано');
+        showSuccess('Успіх', 'Замовлення скасовано');
         // Закриваємо модаль, бо замовлення скасоване
         setSelectedOrder(null);
       } else {
-        alert('❌ Помилка при скасуванні');
+        showError('Помилка', 'Помилка при скасуванні');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при скасуванні замовлення');
+      showError('Помилка', 'Помилка при скасуванні замовлення');
     } finally {
       setActionLoading(false);
     }
@@ -502,15 +503,15 @@ export default function AdminPage() {
     try {
       const success = await updateOrderStatus(selectedOrder.id, 'completed');
       if (success) {
-        alert('✅ Замовлення позначено як виконане');
+        showSuccess('Успіх', 'Замовлення позначено як виконане');
         // Оновлюємо локальний стан, щоб показати статус "completed"
         setSelectedOrder({ ...selectedOrder, status: 'completed', updatedAt: Date.now() });
       } else {
-        alert('❌ Помилка при оновленні статусу');
+        showError('Помилка', 'Помилка при оновленні статусу');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при оновленні замовлення');
+      showError('Помилка', 'Помилка при оновленні замовлення');
     } finally {
       setActionLoading(false);
     }
@@ -524,7 +525,7 @@ export default function AdminPage() {
     if (trackingNumber === null) return; // Користувач скасував
     
     if (!trackingNumber.trim()) {
-      alert('❌ ТТН не можна пропустити');
+      showError('Порожня ТТН', 'ТТН не можна пропустити');
       return;
     }
 
@@ -532,7 +533,7 @@ export default function AdminPage() {
     try {
       const success = await updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber);
       if (success) {
-        alert('✅ Замовлення позначено як відправлене!\n📦 ТТН відправлено користувачу');
+        showSuccess('Успіх', 'Замовлення позначено як відправлене!\\n📦 ТТН відправлено користувачу');
         setSelectedOrder({ 
           ...selectedOrder, 
           status: 'shipped', 
@@ -540,11 +541,11 @@ export default function AdminPage() {
           updatedAt: Date.now() 
         });
       } else {
-        alert('❌ Помилка при оновленні статусу');
+        showError('Помилка', 'Помилка при оновленні статусу');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при оновленні замовлення');
+      showError('Помилка', 'Помилка при оновленні замовлення');
     } finally {
       setActionLoading(false);
     }
@@ -559,18 +560,18 @@ export default function AdminPage() {
     try {
       const success = await updateOrderStatus(selectedOrder.id, 'ready_for_pickup');
       if (success) {
-        alert('✅ Замовлення позначено як готове до забору!\n📮 Сповіщення відправлено користувачу');
+        showSuccess('Успіх', 'Замовлення позначено як готове до забору!\\n📮 Сповіщення відправлено користувачу');
         setSelectedOrder({ 
           ...selectedOrder, 
           status: 'ready_for_pickup', 
           updatedAt: Date.now() 
         });
       } else {
-        alert('❌ Помилка при оновленні статусу');
+        showError('Помилка', 'Помилка при оновленні статусу');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при оновленні замовлення');
+      showError('Помилка', 'Помилка при оновленні замовлення');
     } finally {
       setActionLoading(false);
     }
@@ -579,7 +580,7 @@ export default function AdminPage() {
   // Функція для відправки відповіді на тікет підтримки
   const handleRespondToTicket = async () => {
     if (!selectedTicket || !ticketReply.trim()) {
-      alert('❌ Напишіть відповідь');
+      showWarning('Порожня відповідь', 'Напишіть відповідь');
       return;
     }
 
@@ -600,15 +601,15 @@ export default function AdminPage() {
       });
 
       if (response.ok) {
-        alert('✅ Відповідь відправлена користувачу');
+        showSuccess('Успіх', 'Відповідь відправлена користувачу');
         setTicketReply('');
         // Real-time listener автоматично оновить дані
       } else {
-        alert('❌ Помилка при відправці відповіді');
+        showError('Помилка', 'Помилка при відправці відповіді');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при відправці');
+      showError('Помилка', 'Помилка при відправці');
     } finally {
       setTicketReplyLoading(false);
     }
@@ -632,15 +633,15 @@ export default function AdminPage() {
       });
 
       if (response.ok) {
-        alert('✅ Тікет закрито');
+        showSuccess('Успіх', 'Тікет закрито');
         setSelectedTicket(null);
         // Real-time listener автоматично оновить дані
       } else {
-        alert('❌ Помилка при закриванні тікета');
+        showError('Помилка', 'Помилка при закриванні тікета');
       }
     } catch (error) {
       console.error('Помилка:', error);
-      alert('❌ Помилка при закриванні');
+      showError('Помилка', 'Помилка при закриванні');
     } finally {
       setTicketReplyLoading(false);
     }

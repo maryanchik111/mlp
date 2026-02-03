@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { getPaymentConfig, fetchOrderStatus, createReview, hasReviewForOrder } from '@/lib/firebase';
-import { useAuth } from '@/app/providers';
+import { useAuth, useModal } from '@/app/providers';
 import { Suspense } from 'react';
 
 interface PaymentDetails {
@@ -16,6 +16,7 @@ interface PaymentDetails {
 function PaymentPageContent() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const { showWarning } = useModal();
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(null);
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -95,7 +96,7 @@ function PaymentPageContent() {
       clearInterval(intervalId);
       if (isChecking) {
         setIsChecking(false);
-        alert('⏱️ Час очікування вичерпано. Спробуйте ще раз або зв\'яжіться з підтримкою.');
+        showWarning('Час очікування вичерпано', 'Спробуйте ще раз або зв\'яжіться з підтримкою.');
       }
     }, 300000); // 5 хвилин
   };
@@ -120,7 +121,7 @@ function PaymentPageContent() {
       setReviewSaved(true);
       setHasReview(true);
     } else {
-      alert('❌ Відгук вже існує або сталася помилка');
+      showWarning('Помилка', 'Відгук вже існує або сталася помилка');
     }
   };
 

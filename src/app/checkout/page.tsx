@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { database, generateOrderNumber, decreaseProductQuantity, updateUserStatsAfterOrder } from '@/lib/firebase';
-import { useAuth } from '@/app/providers';
+import { useAuth, useModal } from '@/app/providers';
 import { ref, set } from 'firebase/database';
 
 interface CartItem {
@@ -39,6 +39,7 @@ interface FormData {
 
 export default function CheckoutPage() {
   const { user, profile } = useAuth();
+  const { showError } = useModal();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -127,7 +128,7 @@ export default function CheckoutPage() {
       );
     
       if (invalidItems.length > 0) {
-        alert(`❌ Деякі товари перевищують доступну кількість на складі. Будь ласка, перевірте кошик.`);
+        showError('Неможливо продовжити', 'Деякі товари перевищують доступну кількість на складі. Будь ласка, перевірте кошик.');
         return;
       }
 
@@ -211,7 +212,7 @@ export default function CheckoutPage() {
       window.location.href = `/payment?${paymentParams.toString()}`;
     } catch (error) {
       console.error('Помилка при збереженні замовлення:', error);
-      alert('❌ Помилка при оформленні замовлення. Спробуйте ще раз.');
+      showError('Помилка', 'Помилка при оформленні замовлення. Спробуйте ще раз.');
     } finally {
       setIsLoading(false);
     }
