@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { database, generateOrderNumber, decreaseProductQuantity, updateUserStatsAfterOrder } from '@/lib/firebase';
 import { useAuth, useModal } from '@/app/providers';
 import { ref, set } from 'firebase/database';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 interface CartItem {
   id: number | string;
@@ -363,30 +364,45 @@ export default function CheckoutPage() {
                 </h2>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Адреса *</label>
-                  <input
-                    type="text"
-                    name="address"
+                  <AddressAutocomplete
                     value={formData.address}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
-                      errors.address ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                    }`}
-                    placeholder="Вулиця, будинок, квартира"
+                    onChange={(value) => setFormData(prev => ({ ...prev, address: value }))}
+                    onSelect={(suggestion) => {
+                      // Автоматично заповнюємо місто якщо воно є в адресі
+                      if (suggestion.address?.city && !formData.city) {
+                        setFormData(prev => ({
+                          ...prev,
+                          city: suggestion.address?.city || '',
+                          postalCode: suggestion.address?.postcode || prev.postalCode
+                        }));
+                      }
+                    }}
+                    placeholder="Введіть вулицю, будинок..."
+                    name="address"
+                    type="address"
+                    error={!!errors.address}
                   />
                   {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-3 mt-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Місто *</label>
-                    <input
-                      type="text"
-                      name="city"
+                    <AddressAutocomplete
                       value={formData.city}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
-                        errors.city ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                      }`}
-                      placeholder="Назва міста"
+                      onChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
+                      onSelect={(suggestion) => {
+                        // Автоматично заповнюємо поштовий індекс
+                        if (suggestion.address?.postcode) {
+                          setFormData(prev => ({
+                            ...prev,
+                            postalCode: suggestion.address?.postcode || prev.postalCode
+                          }));
+                        }
+                      }}
+                      placeholder="Введіть назву міста..."
+                      name="city"
+                      type="city"
+                      error={!!errors.city}
                     />
                     {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                   </div>
