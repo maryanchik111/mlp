@@ -72,17 +72,17 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-purple-100 to-white border-4 border-purple-300 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 transition-transform">
               <div className="text-5xl mb-4">📦</div>
-              <div className="text-4xl font-black text-purple-600 mb-2">1000+</div>
+              <div className="text-4xl font-black text-purple-600 mb-2">50+</div>
               <p className="text-gray-800 font-bold">Товарів у колекції</p>
             </div>
             <div className="bg-gradient-to-br from-pink-100 to-white border-4 border-pink-300 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 transition-transform">
               <div className="text-5xl mb-4">👥</div>
-              <div className="text-4xl font-black text-pink-600 mb-2">5000+</div>
+              <div className="text-4xl font-black text-pink-600 mb-2">500+</div>
               <p className="text-gray-800 font-bold">Щасливих клієнтів</p>
             </div>
             <div className="bg-gradient-to-br from-blue-100 to-white border-4 border-blue-300 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 transition-transform">
               <div className="text-5xl mb-4">⭐</div>
-              <div className="text-4xl font-black text-blue-600 mb-2">5.0</div>
+              <div className="text-4xl font-black text-blue-600 mb-2">Відмінний</div>
               <p className="text-gray-800 font-bold">Рейтинг магазину</p>
             </div>
           </div>
@@ -148,6 +148,72 @@ export default function Home() {
       <div className="fixed bottom-6 right-6 z-30">
         <Basket />
       </div>
+
+      {/* Футер */}
+      <footer className="bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 border-t-4 border-purple-300 py-8 md:py-12">
+        <div className="container mx-auto px-4 max-w-6xl">
+          {/* Основна інформація */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Про магазин */}
+            <div className="text-center md:text-left">
+              <div className="text-4xl mb-2">🦄</div>
+              <h3 className="text-lg font-bold text-purple-700 mb-2">MLP Cutie Family</h3>
+              <p className="text-sm text-gray-700">
+                Магічний світ іграшок<br />для справжніх поклонниць My Little Pony
+              </p>
+            </div>
+
+            {/* Посилання */}
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-purple-700 mb-3">Корисні посилання</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li><Link href="/catalog" className="hover:text-purple-600 transition-colors">🛍️ Каталог</Link></li>
+                <li><Link href="/box-builder" className="hover:text-purple-600 transition-colors">🎁 Конструктор боксів</Link></li>
+                <li><Link href="/forum" className="hover:text-purple-600 transition-colors">💬 Форум</Link></li>
+                <li><Link href="/account" className="hover:text-purple-600 transition-colors">👤 Особистий кабінет</Link></li>
+              </ul>
+            </div>
+
+            {/* Контакти */}
+            <div className="text-center md:text-right">
+              <h3 className="text-lg font-bold text-purple-700 mb-3">Підтримка</h3>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li>💬 Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors underline">@mlpcutiefamily</a></li>
+                <li>💬 Чат-бот: <a href="https://t.me/mlp_cutie_family_bot" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors underline">перейти</a></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Нижня частина */}
+          <div className="border-t-2 border-purple-300 pt-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
+              {/* Лівий блок */}
+              <div className="text-center md:text-left">
+                <p className="mb-1">© MLP Cutie Family. Всі права захищено.</p>
+                <p className="text-[10px] text-gray-500">⚡ Версія сайту: 0.4.1 (beta) | Оновлено: 07.02.2026</p>
+              </div>
+
+              {/* Правий блок */}
+              <div className="flex flex-wrap justify-center md:justify-end gap-3 text-center">
+                <Link href="/privacy" className="hover:text-purple-600 transition-colors">Політика конфіденційності</Link>
+                <span className="text-gray-400">•</span>
+                <Link href="/terms" className="hover:text-purple-600 transition-colors">Умови використання</Link>
+                <span className="text-gray-400">•</span>
+                <Link href="/refund" className="hover:text-purple-600 transition-colors">Повернення</Link>
+                <span className="text-gray-400">•</span>
+                <Link href="/delivery" className="hover:text-purple-600 transition-colors">Доставка</Link>
+              </div>
+            </div>
+
+            {/* Додаткова інформація */}
+            <div className="mt-4 text-center">
+              <p className="text-[10px] text-gray-500">
+                🔒 Безпечні платежі через WayForPay • 🚚 Доставка Новою Поштою по всій Україні • ⭐ Накопичувальна програма лояльності
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

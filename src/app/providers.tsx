@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import { subscribeAuth, fetchUserProfile, signInWithGoogle, logout, type UserProfile } from '@/lib/firebase';
 import type { User } from 'firebase/auth';
 import { Modal, type ModalState } from './components/client/modal';
+import { ToastContainer, type Toast } from './components/client/toast';
 
 interface AuthContextValue {
   user: User | null;
@@ -19,10 +20,10 @@ interface ModalContextValue {
   showModal: (type: any, title: string, message: string, options?: any) => void;
   closeModal: () => void;
   setModal: (modal: ModalState | ((prev: ModalState) => ModalState)) => void;
-  showSuccess: (title: string, message: string, onConfirm?: () => void) => void;
-  showError: (title: string, message: string, onConfirm?: () => void) => void;
-  showWarning: (title: string, message: string, onConfirm?: () => void) => void;
-  showInfo: (title: string, message: string, onConfirm?: () => void) => void;
+  showSuccess: (message: string) => void;
+  showError: (message: string) => void;
+  showWarning: (message: string) => void;
+  showInfo: (message: string) => void;
   showConfirm: (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => void;
   showPrompt: (title: string, message: string, onConfirm: (value: string) => void, onCancel?: () => void, placeholder?: string) => void;
 }
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     title: '',
     message: '',
   });
+  const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
     const unsub = subscribeAuth(async (u) => {
@@ -102,19 +104,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const showToast = (type: 'success' | 'error' | 'warning' | 'info', message: string, duration: number = 3000) => {
+    const id = Date.now();
+    const toast: Toast = { id, type, message, duration };
+    
+    setToasts((prev) => [...prev, toast]);
+
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, duration);
+  };
+
   const modalValue: ModalContextValue = useMemo(() => ({
     modal,
     showModal,
     closeModal,
     setModal,
-    showSuccess: (title: string, message: string, onConfirm?: () => void) =>
-      showModal('success', title, message, { onConfirm }),
-    showError: (title: string, message: string, onConfirm?: () => void) =>
-      showModal('error', title, message, { onConfirm }),
-    showWarning: (title: string, message: string, onConfirm?: () => void) =>
-      showModal('warning', title, message, { onConfirm }),
-    showInfo: (title: string, message: string, onConfirm?: () => void) =>
-      showModal('info', title, message, { onConfirm }),
+    showSuccess: (message: string) => showToast('success', message),
+    showError: (message: string) => showToast('error', message),
+    showWarning: (message: string) => showToast('warning', message),
+    showInfo: (message: string) => showToast('info', message),
     showConfirm: (
       title: string,
       message: string,
@@ -149,6 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider value={value}>
       <ModalContext.Provider value={modalValue}>
         {children}
+        <ToastContainer toasts={toasts} />
         <Modal modal={modal} closeModal={closeModal} setModal={setModal} />
       </ModalContext.Provider>
     </AuthContext.Provider>

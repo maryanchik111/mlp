@@ -129,7 +129,7 @@ export default function CheckoutPage() {
       );
     
       if (invalidItems.length > 0) {
-        showError('Неможливо продовжити', 'Деякі товари перевищують доступну кількість на складі. Будь ласка, перевірте кошик.');
+        showError('Деякі товари перевищують доступну кількість на складі. Будь ласка, перевірте кошик.');
         return;
       }
 
@@ -213,7 +213,7 @@ export default function CheckoutPage() {
       window.location.href = `/payment?${paymentParams.toString()}`;
     } catch (error) {
       console.error('Помилка при збереженні замовлення:', error);
-      showError('Помилка', 'Помилка при оформленні замовлення. Спробуйте ще раз.');
+      showError('Помилка при оформленні замовлення. Спробуйте ще раз.');
     } finally {
       setIsLoading(false);
     }

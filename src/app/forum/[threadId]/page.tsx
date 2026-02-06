@@ -70,7 +70,7 @@ export default function ThreadPage() {
     try {
       const threadData = await getForumThread(threadId);
       if (!threadData) {
-        showError('Помилка', 'Тему не знайдено');
+        showError('Тему не знайдено');
         router.push('/forum');
         return;
       }
@@ -82,7 +82,7 @@ export default function ThreadPage() {
       setComments(commentsData);
     } catch (error) {
       console.error('Error loading thread:', error);
-      showError('Помилка', 'Не вдалося завантажити тему');
+      showError('Не вдалося завантажити тему');
     } finally {
       setLoading(false);
     }
@@ -90,19 +90,19 @@ export default function ThreadPage() {
 
   const handleAddComment = async () => {
     if (!user) {
-      showWarning('Увійдіть в акаунт', 'Щоб коментувати, потрібно увійти в акаунт');
+      showWarning('Щоб коментувати, потрібно увійти в акаунт');
       return;
     }
 
     if (!thread) return;
 
     if (thread.isLocked && !isAdmin) {
-      showWarning('Тема заблокована', 'Адміністратор заблокував можливість коментування');
+      showWarning('Адміністратор заблокував можливість коментування');
       return;
     }
 
     if (!newComment.trim()) {
-      showWarning('Введіть коментар', 'Поле коментаря не може бути порожнім');
+      showWarning('Поле коментаря не може бути порожнім');
       return;
     }
 
@@ -117,10 +117,10 @@ export default function ThreadPage() {
       );
       setNewComment('');
       loadThread();
-      showSuccess('Готово', 'Коментар додано');
+      showSuccess('Коментар додано');
     } catch (error) {
       console.error('Error adding comment:', error);
-      showError('Помилка', 'Не вдалося додати коментар');
+      showError('Не вдалося додати коментар');
     } finally {
       setSubmitting(false);
     }
@@ -128,7 +128,7 @@ export default function ThreadPage() {
 
   const handleThreadReaction = async (reaction: string) => {
     if (!user) {
-      showWarning('Увійдіть в акаунт', 'Щоб ставити реакції, потрібно увійти в акаунт');
+      showWarning('Щоб ставити реакції, потрібно увійти в акаунт');
       return;
     }
 
@@ -146,13 +146,13 @@ export default function ThreadPage() {
       loadThread();
     } catch (error) {
       console.error('Error updating reaction:', error);
-      showError('Помилка', 'Не вдалося оновити реакцію');
+      showError('Не вдалося оновити реакцію');
     }
   };
 
   const handleCommentReaction = async (commentId: string, reaction: string) => {
     if (!user) {
-      showWarning('Увійдіть в акаунт', 'Щоб ставити реакції, потрібно увійти в акаунт');
+      showWarning('Щоб ставити реакції, потрібно увійти в акаунт');
       return;
     }
 
@@ -171,7 +171,7 @@ export default function ThreadPage() {
       loadThread();
     } catch (error) {
       console.error('Error updating reaction:', error);
-      showError('Помилка', 'Не вдалося оновити реакцію');
+      showError('Не вдалося оновити реакцію');
     }
   };
 
@@ -182,10 +182,10 @@ export default function ThreadPage() {
       await editForumThread(threadId, user.uid, editTitle, editContent);
       setEditingThreadId(null);
       loadThread();
-      showSuccess('Готово', 'Тему оновлено');
+      showSuccess('Тему оновлено');
     } catch (error: any) {
       console.error('Error editing thread:', error);
-      showError('Помилка', error.message || 'Не вдалося оновити тему');
+      showError(error.message || 'Не вдалося оновити тему');
     }
   };
 
@@ -196,10 +196,10 @@ export default function ThreadPage() {
       await editForumComment(threadId, commentId, user.uid, editContent);
       setEditingCommentId(null);
       loadThread();
-      showSuccess('Готово', 'Коментар оновлено');
+      showSuccess('Коментар оновлено');
     } catch (error: any) {
       console.error('Error editing comment:', error);
-      showError('Помилка', error.message || 'Не вдалося оновити коментар');
+      showError(error.message || 'Не вдалося оновити коментар');
     }
   };
 
@@ -212,11 +212,11 @@ export default function ThreadPage() {
       async () => {
         try {
           await deleteForumThread(threadId, user.uid);
-          showSuccess('Видалено', 'Тему видалено');
+          showSuccess('Тему видалено');
           router.push('/forum');
         } catch (error: any) {
           console.error('Error deleting thread:', error);
-          showError('Помилка', error.message || 'Не вдалося видалити тему');
+          showError(error.message || 'Не вдалося видалити тему');
         }
       }
     );
@@ -232,10 +232,10 @@ export default function ThreadPage() {
         try {
           await deleteForumComment(threadId, commentId, user.uid);
           loadThread();
-          showSuccess('Видалено', 'Коментар видалено');
+          showSuccess('Коментар видалено');
         } catch (error: any) {
           console.error('Error deleting comment:', error);
-          showError('Помилка', error.message || 'Не вдалося видалити коментар');
+          showError(error.message || 'Не вдалося видалити коментар');
         }
       }
     );
@@ -245,9 +245,9 @@ export default function ThreadPage() {
     try {
       await toggleThreadPin(threadId);
       loadThread();
-      showSuccess('Готово', thread?.isPinned ? 'Тему відкріплено' : 'Тему закріплено');
+      showSuccess(thread?.isPinned ? 'Тему відкріплено' : 'Тему закріплено');
     } catch (error: any) {
-      showError('Помилка', error.message);
+      showError(error.message);
     }
   };
 
@@ -255,9 +255,9 @@ export default function ThreadPage() {
     try {
       await toggleThreadLock(threadId);
       loadThread();
-      showSuccess('Готово', thread?.isLocked ? 'Тему розблоковано' : 'Тему заблоковано');
+      showSuccess(thread?.isLocked ? 'Тему розблоковано' : 'Тему заблоковано');
     } catch (error: any) {
-      showError('Помилка', error.message);
+      showError(error.message);
     }
   };
 

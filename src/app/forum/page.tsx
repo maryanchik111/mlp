@@ -52,7 +52,7 @@ export default function ForumPage() {
       setThreads(data);
     } catch (error) {
       console.error('Error loading threads:', error);
-      showError('Помилка', 'Не вдалося завантажити теми форуму');
+      showError('Не вдалося завантажити теми форуму');
     } finally {
       setLoading(false);
     }
@@ -81,12 +81,12 @@ export default function ForumPage() {
 
   const handleCreateThread = async () => {
     if (!user) {
-      showWarning('Увійдіть в акаунт', 'Щоб створювати теми, потрібно увійти в акаунт');
+      showWarning('Щоб створювати теми, потрібно увійти в акаунт');
       return;
     }
 
     if (!newThread.title.trim() || !newThread.content.trim()) {
-      showWarning('Заповніть поля', 'Введіть назву та опис теми');
+      showWarning('Введіть назву та опис теми');
       return;
     }
 
@@ -105,7 +105,7 @@ export default function ForumPage() {
       loadThreads();
     } catch (error) {
       console.error('Error creating thread:', error);
-      showError('Помилка', 'Не вдалося створити тему');
+      showError('Не вдалося створити тему');
     } finally {
       setCreating(false);
     }
@@ -153,7 +153,7 @@ export default function ForumPage() {
             <button
               onClick={() => {
                 if (!user) {
-                  showWarning('Увійдіть в акаунт', 'Щоб створювати теми, потрібно увійти в акаунт');
+                  showWarning('Щоб створювати теми, потрібно увійти в акаунт');
                   return;
                 }
                 setShowCreateModal(true);

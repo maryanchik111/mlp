@@ -96,7 +96,7 @@ function PaymentPageContent() {
       clearInterval(intervalId);
       if (isChecking) {
         setIsChecking(false);
-        showWarning('Час очікування вичерпано', 'Спробуйте ще раз або зв\'яжіться з підтримкою.');
+        showWarning('Спробуйте ще раз або зв\'яжіться з підтримкою.');
       }
     }, 300000); // 5 хвилин
   };
@@ -121,7 +121,7 @@ function PaymentPageContent() {
       setReviewSaved(true);
       setHasReview(true);
     } else {
-      showWarning('Помилка', 'Відгук вже існує або сталася помилка');
+      showWarning('Відгук вже існує або сталася помилка');
     }
   };
 
