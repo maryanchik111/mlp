@@ -102,7 +102,7 @@ export default function MobileNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white-80 backdrop-blur-md border-t border-gray-200/50 shadow-lg z-50">
-      <div className={`flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-6' : 'grid grid-cols-5'}`}>
+      <div className={`flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-7' : 'grid grid-cols-6'}`}>
         {/* Головна */}
         <Link href="/" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/' ? 'text-purple-600' : 'text-gray-600'}`}>
           <span className="text-2xl mb-1">🏠</span>
@@ -119,6 +119,12 @@ export default function MobileNav() {
         <Link href="/box-builder" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/box-builder' ? 'text-purple-600' : 'text-gray-600'}`}>
           <span className="text-2xl mb-1">🎁</span>
           <span className="text-xs font-medium">Бокси</span>
+        </Link>
+
+        {/* Форум */}
+        <Link href="/forum" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/forum' || pathname?.startsWith('/forum/') ? 'text-purple-600' : 'text-gray-600'}`}>
+          <span className="text-2xl mb-1">💬</span>
+          <span className="text-xs font-medium">Форум</span>
         </Link>
 
         {/* Кошик */}

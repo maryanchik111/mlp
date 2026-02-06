@@ -278,7 +278,7 @@ function PaymentPageContent() {
                 <strong>Потрібна допомога?</strong>
               </p>
               <p className="text-sm text-gray-600">
-                Email: <a href="mailto:support@mlpshop.ua" className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors">support@mlpshop.ua</a>
+                Перейти до: <a href="https://t.me/mlp_cutie_family_bot" className="text-indigo-600 hover:text-indigo-700 font-semibold hover:underline transition-colors underline">чат-боту</a>
               </p>
             </div>
           </div>
@@ -452,16 +452,16 @@ function PaymentPageContent() {
               {/* Інформація про контакти */}
               <div className="bg-gradient-to-br from-blue-100/80 to-cyan-100/80 backdrop-blur-sm border-2 border-blue-200/50 rounded-2xl p-4 text-xs text-blue-800 shadow-md">
                 <p className="font-semibold mb-1">❓ Потрібна допомога?</p>
-                <p>Напишіть нам на email: <a href="mailto:support@mlpshop.ua" className="font-semibold text-blue-700 hover:text-blue-900 transition-colors">support@mlpshop.ua</a></p>
+                <p>Зверніться до: <a href="https://t.me/mlp_cutie_family_bot" className="font-semibold text-blue-700 hover:text-blue-900 transition-colors underline">чат-боту</a></p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Нижня інформація */}
-        <div className="mt-8 bg-white border border-gray-300 rounded-lg shadow-md p-6 text-center">
+        <div className="mt-8 bg-white border border-gray-300 rounded-lg shadow-md p-6 text-center mb-8">
           <p className="text-gray-600 text-sm sm:text-base">
-            Дякуємо за вашу покупку! 🦄 Після оплати ви отримаєте підтвердження на email
+            Дякуємо за вашу покупку! 🦄 Після оплати ви отримаєте підтвердження на email або телеграм-бот (якщо у вас прив'язаний телеграм)
           </p>
         </div>
       </div>

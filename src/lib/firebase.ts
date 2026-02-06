@@ -1327,3 +1327,341 @@ export function listenToSupportTickets(
 
   return unsubscribe;
 }
+
+// =====================
+// ФОРУМ
+// =====================
+
+export interface ForumThread {
+  id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  authorPhoto: string | null;
+  category: string; // 'general' | 'help' | 'showcase' | 'news'
+  createdAt: number;
+  updatedAt: number;
+  isPinned: boolean;
+  isLocked: boolean;
+  commentsCount: number;
+  viewsCount: number;
+  reactions: { [userId: string]: string }; // 'like' | 'love' | 'laugh' | 'wow' | 'sad'
+}
+
+export interface ForumComment {
+  id: string;
+  threadId: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  authorPhoto: string | null;
+  createdAt: number;
+  updatedAt: number;
+  reactions: { [userId: string]: string };
+  isEdited: boolean;
+}
+
+// Створити нову тему
+export async function createForumThread(
+  userId: string,
+  userName: string,
+  userPhoto: string | null,
+  title: string,
+  content: string,
+  category: string
+): Promise<string> {
+  const threadId = Date.now().toString();
+  const threadRef = ref(database, `forum/threads/${threadId}`);
+  
+  const thread: ForumThread = {
+    id: threadId,
+    title,
+    content,
+    authorId: userId,
+    authorName: userName,
+    authorPhoto: userPhoto,
+    category,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    isPinned: false,
+    isLocked: false,
+    commentsCount: 0,
+    viewsCount: 0,
+    reactions: {},
+  };
+
+  await set(threadRef, thread);
+  return threadId;
+}
+
+// Отримати всі теми
+export async function getForumThreads(): Promise<ForumThread[]> {
+  const threadsRef = ref(database, 'forum/threads');
+  const snapshot = await get(threadsRef);
+  
+  if (!snapshot.exists()) return [];
+  
+  const threads: ForumThread[] = [];
+  snapshot.forEach((child) => {
+    threads.push(child.val() as ForumThread);
+  });
+  
+  // Сортуємо: закріплені зверху, потім за датою оновлення
+  threads.sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return b.updatedAt - a.updatedAt;
+  });
+  
+  return threads;
+}
+
+// Отримати тему за ID
+export async function getForumThread(threadId: string): Promise<ForumThread | null> {
+  const threadRef = ref(database, `forum/threads/${threadId}`);
+  const snapshot = await get(threadRef);
+  
+  if (!snapshot.exists()) return null;
+  return snapshot.val() as ForumThread;
+}
+
+// Збільшити лічильник переглядів
+export async function incrementThreadViews(threadId: string): Promise<void> {
+  const thread = await getForumThread(threadId);
+  if (!thread) return;
+  
+  const threadRef = ref(database, `forum/threads/${threadId}`);
+  await update(threadRef, {
+    viewsCount: (thread.viewsCount || 0) + 1,
+  });
+}
+
+// Додати коментар до теми
+export async function addForumComment(
+  threadId: string,
+  userId: string,
+  userName: string,
+  userPhoto: string | null,
+  content: string
+): Promise<string> {
+  const commentId = Date.now().toString();
+  const commentRef = ref(database, `forum/comments/${threadId}/${commentId}`);
+  
+  const comment: ForumComment = {
+    id: commentId,
+    threadId,
+    content,
+    authorId: userId,
+    authorName: userName,
+    authorPhoto: userPhoto,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    reactions: {},
+    isEdited: false,
+  };
+
+  await set(commentRef, comment);
+  
+  // Оновити лічильник коментарів та час оновлення теми
+  const thread = await getForumThread(threadId);
+  if (thread) {
+    const threadRef = ref(database, `forum/threads/${threadId}`);
+    await update(threadRef, {
+      commentsCount: (thread.commentsCount || 0) + 1,
+      updatedAt: Date.now(),
+    });
+  }
+  
+  return commentId;
+}
+
+// Отримати коментарі теми
+export async function getForumComments(threadId: string): Promise<ForumComment[]> {
+  const commentsRef = ref(database, `forum/comments/${threadId}`);
+  const snapshot = await get(commentsRef);
+  
+  if (!snapshot.exists()) return [];
+  
+  const comments: ForumComment[] = [];
+  snapshot.forEach((child) => {
+    comments.push(child.val() as ForumComment);
+  });
+  
+  // Сортуємо за часом створення (старіші першими)
+  comments.sort((a, b) => a.createdAt - b.createdAt);
+  
+  return comments;
+}
+
+// Додати реакцію до теми
+export async function addThreadReaction(
+  threadId: string,
+  userId: string,
+  reaction: string
+): Promise<void> {
+  const thread = await getForumThread(threadId);
+  if (!thread) return;
+  
+  const threadRef = ref(database, `forum/threads/${threadId}/reactions/${userId}`);
+  await set(threadRef, reaction);
+}
+
+// Видалити реакцію з теми
+export async function removeThreadReaction(
+  threadId: string,
+  userId: string
+): Promise<void> {
+  const threadRef = ref(database, `forum/threads/${threadId}/reactions/${userId}`);
+  await set(threadRef, null);
+}
+
+// Додати реакцію до коментаря
+export async function addCommentReaction(
+  threadId: string,
+  commentId: string,
+  userId: string,
+  reaction: string
+): Promise<void> {
+  const commentRef = ref(database, `forum/comments/${threadId}/${commentId}/reactions/${userId}`);
+  await set(commentRef, reaction);
+}
+
+// Видалити реакцію з коментаря
+export async function removeCommentReaction(
+  threadId: string,
+  commentId: string,
+  userId: string
+): Promise<void> {
+  const commentRef = ref(database, `forum/comments/${threadId}/${commentId}/reactions/${userId}`);
+  await set(commentRef, null);
+}
+
+// Редагувати тему (тільки автор або адмін)
+export async function editForumThread(
+  threadId: string,
+  userId: string,
+  title: string,
+  content: string
+): Promise<void> {
+  const thread = await getForumThread(threadId);
+  if (!thread) throw new Error('Thread not found');
+  
+  const user = auth.currentUser;
+  if (thread.authorId !== userId && !checkAdminAccess(user)) {
+    throw new Error('Access denied');
+  }
+  
+  const threadRef = ref(database, `forum/threads/${threadId}`);
+  await update(threadRef, {
+    title,
+    content,
+    updatedAt: Date.now(),
+  });
+}
+
+// Редагувати коментар (тільки автор або адмін)
+export async function editForumComment(
+  threadId: string,
+  commentId: string,
+  userId: string,
+  content: string
+): Promise<void> {
+  const commentsRef = ref(database, `forum/comments/${threadId}/${commentId}`);
+  const snapshot = await get(commentsRef);
+  
+  if (!snapshot.exists()) throw new Error('Comment not found');
+  
+  const comment = snapshot.val() as ForumComment;
+  const user = auth.currentUser;
+  
+  if (comment.authorId !== userId && !checkAdminAccess(user)) {
+    throw new Error('Access denied');
+  }
+  
+  await update(commentsRef, {
+    content,
+    updatedAt: Date.now(),
+    isEdited: true,
+  });
+}
+
+// Видалити тему (тільки автор або адмін)
+export async function deleteForumThread(threadId: string, userId: string): Promise<void> {
+  const thread = await getForumThread(threadId);
+  if (!thread) return;
+  
+  const user = auth.currentUser;
+  if (thread.authorId !== userId && !checkAdminAccess(user)) {
+    throw new Error('Access denied');
+  }
+  
+  // Видалити тему та всі її коментарі
+  const threadRef = ref(database, `forum/threads/${threadId}`);
+  const commentsRef = ref(database, `forum/comments/${threadId}`);
+  
+  await set(threadRef, null);
+  await set(commentsRef, null);
+}
+
+// Видалити коментар (тільки автор або адмін)
+export async function deleteForumComment(
+  threadId: string,
+  commentId: string,
+  userId: string
+): Promise<void> {
+  const commentRef = ref(database, `forum/comments/${threadId}/${commentId}`);
+  const snapshot = await get(commentRef);
+  
+  if (!snapshot.exists()) return;
+  
+  const comment = snapshot.val() as ForumComment;
+  const user = auth.currentUser;
+  
+  if (comment.authorId !== userId && !checkAdminAccess(user)) {
+    throw new Error('Access denied');
+  }
+  
+  await set(commentRef, null);
+  
+  // Оновити лічильник коментарів теми
+  const thread = await getForumThread(threadId);
+  if (thread) {
+    const threadRef = ref(database, `forum/threads/${threadId}`);
+    await update(threadRef, {
+      commentsCount: Math.max(0, (thread.commentsCount || 0) - 1),
+    });
+  }
+}
+
+// Закріпити/відкріпити тему (тільки адмін)
+export async function toggleThreadPin(threadId: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!checkAdminAccess(user)) {
+    throw new Error('Admin access required');
+  }
+  
+  const thread = await getForumThread(threadId);
+  if (!thread) return;
+  
+  const threadRef = ref(database, `forum/threads/${threadId}`);
+  await update(threadRef, {
+    isPinned: !thread.isPinned,
+  });
+}
+
+// Заблокувати/розблокувати тему (тільки адмін)
+export async function toggleThreadLock(threadId: string): Promise<void> {
+  const user = auth.currentUser;
+  if (!checkAdminAccess(user)) {
+    throw new Error('Admin access required');
+  }
+  
+  const thread = await getForumThread(threadId);
+  if (!thread) return;
+  
+  const threadRef = ref(database, `forum/threads/${threadId}`);
+  await update(threadRef, {
+    isLocked: !thread.isLocked,
+  });
+}

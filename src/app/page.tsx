@@ -97,6 +97,45 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Форум */}
+      <section className="py-16 bg-gradient-to-b from-white to-purple-50 border-b-4 border-purple-200">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-8">
+            <div className="text-6xl mb-4">💬</div>
+            <h2 className="text-3xl md:text-4xl font-black text-purple-700 mb-4">
+              Форум спільноти
+            </h2>
+            <p className="text-lg text-gray-700 mb-6 max-w-2xl mx-auto">
+              Обговорюйте улюблених поні, діліться своїми колекціями, <br/>ставте запитання і знаходьте друзів!
+            </p>
+            <Link 
+              href="/forum" 
+              className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-full hover:shadow-lg hover:shadow-purple-400 transition-all transform hover:scale-105"
+            >
+              🚀 Перейти до форуму
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+            <div className="bg-white border-4 border-purple-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
+              <div className="text-4xl mb-3">📋</div>
+              <p className="text-gray-900 font-bold">Загальні<br/>обговорення</p>
+            </div>
+            <div className="bg-white border-4 border-pink-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
+              <div className="text-4xl mb-3">❓</div>
+              <p className="text-gray-900 font-bold">Допомога<br/>новачкам</p>
+            </div>
+            <div className="bg-white border-4 border-blue-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
+              <div className="text-4xl mb-3">🎨</div>
+              <p className="text-gray-900 font-bold">Моя<br/>колекція</p>
+            </div>
+            <div className="bg-white border-4 border-green-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
+              <div className="text-4xl mb-3">📰</div>
+              <p className="text-gray-900 font-bold">Новини<br/>та анонси</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Відгуки */}
       <section className="bg-gradient-to-b from-pink-50 to-purple-50 border-t-4 border-pink-400 py-16">
         <div className="container mx-auto px-4 max-w-6xl">
