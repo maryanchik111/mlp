@@ -409,7 +409,7 @@ export default function CatalogPage() {
                   {/* Іконка продукту (галерея тільки на сторінці товару) */}
                   <Link href={`/catalog/product/${product.id}`} className="block">
                     <div className="w-full h-56 bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                      {product.images && product.images.length > 0 ? (
+                      {(product.images?.length || 0) > 0 ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
                           src={product.images[0]} 
@@ -419,16 +419,16 @@ export default function CatalogPage() {
                       ) : (
                         <div className="text-7xl group-hover:scale-125 transition-transform duration-300">{product.image || '📦'}</div>
                       )}
-                      {product.quantity === 0 && (
+                      {(product.quantity || 0) === 0 ? (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                           <p className="text-white font-bold text-lg text-center">❌ Немає в наявності</p>
                         </div>
-                      )}
-                      {product.discount && product.discount > 0 && (
+                      ) : null}
+                      {(Number(product.discount) || 0) > 0 ? (
                         <div className="absolute top-4 right-4 bg-red-500 text-white font-bold px-3 py-2 rounded-full shadow-md">
                           −{product.discount}%
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </Link>
 
@@ -449,13 +449,13 @@ export default function CatalogPage() {
                     {/* Ціна та доставка */}
                     <div className="flex flex-col gap-3 mb-4">
                       <div className="flex items-center gap-2">
-                        {product.discount && product.discount > 0 ? (
+                        {Number(product.discount) > 0 ? (
                           <>
                             <span className="text-xs text-gray-400 line-through font-semibold">
                               {product.price}₴
                             </span>
                             <span className="text-2xl font-bold text-indigo-600">
-                              {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
+                              {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - Number(product.discount) / 100))}₴
                             </span>
                           </>
                         ) : (

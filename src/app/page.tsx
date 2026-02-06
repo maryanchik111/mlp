@@ -8,138 +8,132 @@ import Basket from "./components/client/busket";
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
-      {/* Hero секція з дитячою атмосферою */}
-      <section className="bg-gradient-to-b from-pink-100 to-purple-50 border-b-4 border-purple-400 py-16 md:py-24 relative overflow-hidden">
-        {/* Декоративні емодзі у фоні */}
-        <div className="absolute top-4 left-4 text-5xl opacity-40">⭐</div>
-        <div className="absolute top-12 right-8 text-4xl opacity-40">🌈</div>
-        <div className="absolute bottom-8 right-16 text-6xl opacity-30">💫</div>
-        <div className="absolute bottom-4 left-12 text-5xl opacity-40">🎨</div>
-        
-        <div className="container mx-auto px-4 max-w-6xl relative z-10">
+      {/* Hero секція */}
+      <section className="bg-purple-50 py-16 md:py-24">
+        <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
-            <div className="text-7xl md:text-9xl mb-4">🦄</div>
-            <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 mb-4">
+            <div className="text-6xl md:text-8xl mb-4">🦄</div>
+            <h1 className="text-4xl md:text-5xl font-bold text-purple-600 mb-4">
               My Little Pony Store
             </h1>
-            <p className="text-lg md:text-xl text-purple-700 font-semibold mb-8 max-w-3xl mx-auto">
-              Магічний світ іграшок для справжніх поклонниці MLP! 🌟
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+              Магічний світ іграшок для справжніх поклонниць MLP! 🌟
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 href="/catalog" 
-                className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-full hover:shadow-lg hover:shadow-purple-400 transition-all transform hover:scale-105"
+                className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors"
               >
-                🛍️ Знайти скарб
+                🛍️ Каталог товарів
               </Link>
               <Link 
                 href="/box-builder" 
-                className="px-8 py-3 bg-white border-4 border-purple-400 text-purple-600 font-bold rounded-full hover:bg-purple-50 transition-all hover:shadow-lg"
+                className="px-8 py-3 bg-white border-2 border-purple-400 text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors"
               >
-                🎁 Конструктор боксів
+                🎁 Створити бокс
               </Link>
             </div>
           </div>
 
-          {/* Переваги з дитячим стилем */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-br from-purple-100 to-purple-50 border-4 border-purple-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
-              <div className="text-5xl mb-3">✨</div>
-              <p className="text-gray-900 font-bold text-base">Оригінальні<br />товари</p>
+          {/* Переваги */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white border border-purple-200 rounded-lg p-4 text-center">
+              <div className="text-4xl mb-2">✨</div>
+              <p className="text-sm font-medium text-gray-700">Оригінальні товари</p>
             </div>
-            <div className="bg-gradient-to-br from-blue-100 to-blue-50 border-4 border-blue-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
-              <div className="text-5xl mb-3">🚀</div>
-              <p className="text-gray-900 font-bold text-base">Швидка<br />доставка</p>
+            <div className="bg-white border border-purple-200 rounded-lg p-4 text-center">
+              <div className="text-4xl mb-2">🚀</div>
+              <p className="text-sm font-medium text-gray-700">Швидка доставка</p>
             </div>
-            <div className="bg-gradient-to-br from-green-100 to-green-50 border-4 border-green-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
-              <div className="text-5xl mb-3">💚</div>
-              <p className="text-gray-900 font-bold text-base">Безпечні<br />платежі</p>
+            <div className="bg-white border border-purple-200 rounded-lg p-4 text-center">
+              <div className="text-4xl mb-2">💚</div>
+              <p className="text-sm font-medium text-gray-700">Безпечні платежі</p>
             </div>
-            <div className="bg-gradient-to-br from-pink-100 to-pink-50 border-4 border-pink-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
-              <div className="text-5xl mb-3">🎉</div>
-              <p className="text-gray-900 font-bold text-base">Акції<br />щотижня</p>
+            <div className="bg-white border border-purple-200 rounded-lg p-4 text-center">
+              <div className="text-4xl mb-2">🎉</div>
+              <p className="text-sm font-medium text-gray-700">Акції щотижня</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Статистика */}
-      <section className="bg-gradient-to-b from-purple-50 to-pink-50 border-b-4 border-pink-400 py-16 md:py-20">
+      <section className="bg-white py-16">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-black text-center mb-12 text-purple-700">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600">
             🌟 Чому нас обирають
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-purple-100 to-white border-4 border-purple-300 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 transition-transform">
-              <div className="text-5xl mb-4">📦</div>
-              <div className="text-4xl font-black text-purple-600 mb-2">50+</div>
-              <p className="text-gray-800 font-bold">Товарів у колекції</p>
+            <div className="bg-purple-50 rounded-lg p-6 text-center">
+              <div className="text-4xl mb-3">📦</div>
+              <div className="text-3xl font-bold text-purple-600 mb-1">50+</div>
+              <p className="text-gray-600">Товарів у колекції</p>
             </div>
-            <div className="bg-gradient-to-br from-pink-100 to-white border-4 border-pink-300 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 transition-transform">
-              <div className="text-5xl mb-4">👥</div>
-              <div className="text-4xl font-black text-pink-600 mb-2">500+</div>
-              <p className="text-gray-800 font-bold">Щасливих клієнтів</p>
+            <div className="bg-pink-50 rounded-lg p-6 text-center">
+              <div className="text-4xl mb-3">👥</div>
+              <div className="text-3xl font-bold text-pink-600 mb-1">500+</div>
+              <p className="text-gray-600">Щасливих клієнтів</p>
             </div>
-            <div className="bg-gradient-to-br from-blue-100 to-white border-4 border-blue-300 rounded-2xl p-8 text-center shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 transition-transform">
-              <div className="text-5xl mb-4">⭐</div>
-              <div className="text-4xl font-black text-blue-600 mb-2">Відмінний</div>
-              <p className="text-gray-800 font-bold">Рейтинг магазину</p>
+            <div className="bg-blue-50 rounded-lg p-6 text-center">
+              <div className="text-4xl mb-3">⭐</div>
+              <div className="text-3xl font-bold text-blue-600 mb-1">Відмінний</div>
+              <p className="text-gray-600">Рейтинг магазину</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Топ покупці */}
-      <section className="py-16 bg-white border-b-4 border-purple-200">
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-black text-center mb-12 text-purple-700">🏆 Топ покупці місяця</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600">🏆 Топ покупці місяця</h2>
           <TopBuyers />
         </div>
       </section>
 
       {/* Форум */}
-      <section className="py-16 bg-gradient-to-b from-white to-purple-50 border-b-4 border-purple-200">
+      <section className="py-16 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">💬</div>
-            <h2 className="text-3xl md:text-4xl font-black text-purple-700 mb-4">
+            <div className="text-5xl mb-3">💬</div>
+            <h2 className="text-2xl md:text-3xl font-bold text-purple-600 mb-3">
               Форум спільноти
             </h2>
-            <p className="text-lg text-gray-700 mb-6 max-w-2xl mx-auto">
-              Обговорюйте улюблених поні, діліться своїми колекціями, <br/>ставте запитання і знаходьте друзів!
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Обговорюйте улюблених поні, діліться колекціями та знаходьте друзів!
             </p>
             <Link 
               href="/forum" 
-              className="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-full hover:shadow-lg hover:shadow-purple-400 transition-all transform hover:scale-105"
+              className="inline-block px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors"
             >
-              🚀 Перейти до форуму
+              Перейти до форуму →
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-            <div className="bg-white border-4 border-purple-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
-              <div className="text-4xl mb-3">📋</div>
-              <p className="text-gray-900 font-bold">Загальні<br/>обговорення</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+            <div className="bg-purple-50 rounded-lg p-4 text-center">
+              <div className="text-3xl mb-2">📋</div>
+              <p className="text-sm font-medium text-gray-700">Обговорення</p>
             </div>
-            <div className="bg-white border-4 border-pink-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
-              <div className="text-4xl mb-3">❓</div>
-              <p className="text-gray-900 font-bold">Допомога<br/>новачкам</p>
+            <div className="bg-pink-50 rounded-lg p-4 text-center">
+              <div className="text-3xl mb-2">❓</div>
+              <p className="text-sm font-medium text-gray-700">Допомога</p>
             </div>
-            <div className="bg-white border-4 border-blue-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
-              <div className="text-4xl mb-3">🎨</div>
-              <p className="text-gray-900 font-bold">Моя<br/>колекція</p>
+            <div className="bg-blue-50 rounded-lg p-4 text-center">
+              <div className="text-3xl mb-2">🎨</div>
+              <p className="text-sm font-medium text-gray-700">Колекції</p>
             </div>
-            <div className="bg-white border-4 border-green-300 rounded-2xl p-6 text-center transform hover:scale-105 transition-transform">
-              <div className="text-4xl mb-3">📰</div>
-              <p className="text-gray-900 font-bold">Новини<br/>та анонси</p>
+            <div className="bg-green-50 rounded-lg p-4 text-center">
+              <div className="text-3xl mb-2">📰</div>
+              <p className="text-sm font-medium text-gray-700">Новини</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Відгуки */}
-      <section className="bg-gradient-to-b from-pink-50 to-purple-50 border-t-4 border-pink-400 py-16">
+      <section className="bg-purple-50 py-16">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-3xl md:text-4xl font-black text-center mb-12 text-purple-700">💝 Що говорять наші клієнти</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600">💝 Відгуки клієнтів</h2>
           <RecentReviews />
         </div>
       </section>
@@ -150,66 +144,57 @@ export default function Home() {
       </div>
 
       {/* Футер */}
-      <footer className="bg-gradient-to-r from-purple-100 via-pink-100 to-purple-100 border-t-4 border-purple-300 py-8 md:py-12">
+      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Основна інформація */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
             {/* Про магазин */}
             <div className="text-center md:text-left">
-              <div className="text-4xl mb-2">🦄</div>
-              <h3 className="text-lg font-bold text-purple-700 mb-2">MLP Cutie Family</h3>
-              <p className="text-sm text-gray-700">
-                Магічний світ іграшок<br />для справжніх поклонниць My Little Pony
+              <div className="text-3xl mb-2">🦄</div>
+              <h3 className="text-base font-bold text-purple-600 mb-2">MLP Cutie Family</h3>
+              <p className="text-sm text-gray-600">
+                Магічний світ іграшок для справжніх поклонниць My Little Pony
               </p>
             </div>
 
             {/* Посилання */}
             <div className="text-center">
-              <h3 className="text-lg font-bold text-purple-700 mb-3">Корисні посилання</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li><Link href="/catalog" className="hover:text-purple-600 transition-colors">🛍️ Каталог</Link></li>
-                <li><Link href="/box-builder" className="hover:text-purple-600 transition-colors">🎁 Конструктор боксів</Link></li>
-                <li><Link href="/forum" className="hover:text-purple-600 transition-colors">💬 Форум</Link></li>
-                <li><Link href="/account" className="hover:text-purple-600 transition-colors">👤 Особистий кабінет</Link></li>
+              <h3 className="text-base font-bold text-purple-600 mb-3">Корисні посилання</h3>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li><Link href="/catalog" className="hover:text-purple-600 transition-colors">Каталог</Link></li>
+                <li><Link href="/box-builder" className="hover:text-purple-600 transition-colors">Конструктор боксів</Link></li>
+                <li><Link href="/forum" className="hover:text-purple-600 transition-colors">Форум</Link></li>
+                <li><Link href="/account" className="hover:text-purple-600 transition-colors">Особистий кабінет</Link></li>
               </ul>
             </div>
 
             {/* Контакти */}
             <div className="text-center md:text-right">
-              <h3 className="text-lg font-bold text-purple-700 mb-3">Підтримка</h3>
-              <ul className="space-y-2 text-sm text-gray-700">
-                <li>💬 Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors underline">@mlpcutiefamily</a></li>
-                <li>💬 Чат-бот: <a href="https://t.me/mlp_cutie_family_bot" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors underline">перейти</a></li>
+              <h3 className="text-base font-bold text-purple-600 mb-3">Підтримка</h3>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors">@mlpcutiefamily</a></li>
+                <li>Чат-бот: <a href="https://t.me/mlp_cutie_family_bot" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors">перейти</a></li>
               </ul>
             </div>
           </div>
 
           {/* Нижня частина */}
-          <div className="border-t-2 border-purple-300 pt-6">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-              {/* Лівий блок */}
+          <div className="border-t border-gray-200 pt-4">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
               <div className="text-center md:text-left">
-                <p className="mb-1">© MLP Cutie Family. Всі права захищено.</p>
-                <p className="text-[10px] text-gray-500">⚡ Версія сайту: 0.4.1 (beta) | Оновлено: 07.02.2026</p>
+                <p>© MLP Cutie Family</p>
+                <p className="text-[10px] mt-1">Версія 0.4.1 • 07.02.2026</p>
               </div>
 
-              {/* Правий блок */}
-              <div className="flex flex-wrap justify-center md:justify-end gap-3 text-center">
-                <Link href="/privacy" className="hover:text-purple-600 transition-colors">Політика конфіденційності</Link>
-                <span className="text-gray-400">•</span>
-                <Link href="/terms" className="hover:text-purple-600 transition-colors">Умови використання</Link>
-                <span className="text-gray-400">•</span>
-                <Link href="/refund" className="hover:text-purple-600 transition-colors">Повернення</Link>
-                <span className="text-gray-400">•</span>
-                <Link href="/delivery" className="hover:text-purple-600 transition-colors">Доставка</Link>
+              <div className="flex flex-wrap justify-center md:justify-end gap-3">
+                <Link href="/privacy" className="hover:text-purple-600">Конфіденційність</Link>
+                <span>•</span>
+                <Link href="/terms" className="hover:text-purple-600">Умови</Link>
+                <span>•</span>
+                <Link href="/refund" className="hover:text-purple-600">Повернення</Link>
+                <span>•</span>
+                <Link href="/delivery" className="hover:text-purple-600">Доставка</Link>
               </div>
-            </div>
-
-            {/* Додаткова інформація */}
-            <div className="mt-4 text-center">
-              <p className="text-[10px] text-gray-500">
-                🔒 Безпечні платежі через WayForPay • 🚚 Доставка Новою Поштою по всій Україні • ⭐ Накопичувальна програма лояльності
-              </p>
             </div>
           </div>
         </div>
