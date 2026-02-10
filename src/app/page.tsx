@@ -11,16 +11,7 @@ export default function Home() {
   // Список PNG-файлів у публічній папці
   const pngImages = useMemo(
     () => [
-      "/png/IMG_20260210_175049_573.PNG",
-      "/png/IMG_20260210_175055_529.PNG",
-      "/png/IMG_20260210_175055_606.PNG",
-      "/png/IMG_20260210_175055_645.PNG",
-      "/png/IMG_20260210_175055_758.PNG",
-      "/png/IMG_20260210_175055_783.PNG",
-      "/png/IMG_20260210_175055_847.PNG",
-      "/png/IMG_20260210_175055_859.PNG",
-      "/png/IMG_20260210_175056_103.PNG",
-      "/png/IMG_20260210_175056_354.PNG",
+      "/png/IMG_20260210_181913_338.PNG",
     ],
     []
   );
@@ -170,7 +161,7 @@ export default function Home() {
       </div>
 
       {/* Футер */}
-      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10">
+      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10 mb-12">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Основна інформація */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">

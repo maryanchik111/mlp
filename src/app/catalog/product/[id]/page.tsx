@@ -260,11 +260,13 @@ export default function ProductPage() {
                 </div>
                 <div className="bg-blue-50 rounded-lg p-3">
                   <p className="text-xs text-gray-600 mb-1">Термін</p>
-                  <p className="text-2xl font-bold text-blue-600">{product.deliveryDays || '1-2'} днів</p>
+                  <p className="text-2xl font-bold text-blue-600">{product.deliveryDays || '1-2'} *</p>
                 </div>
               </div>
               <p className="text-xs text-gray-600 mt-3 px-3 py-2 bg-gray-50 rounded">
-                ✓ Нова Пошта у відділення або на адресу
+                ✓ Нова Пошта у відділення або на адресу<br />
+                * УКР - доставка в межах України <br />
+                * ЗЗ - доставка з-за кордону <br />
               </p>
             </div>
 

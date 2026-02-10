@@ -221,22 +221,18 @@ export default function DeliveryPage() {
               <h2 className="text-2xl font-bold text-purple-700 mb-3">📞 Контакти служби доставки</h2>
               <div className="bg-white border-2 border-purple-300 rounded-lg p-6">
                 <ul className="space-y-3">
-                  <li className="flex items-center gap-3">
+                  <li className="flex items-start gap-3">
                     <span className="text-2xl">📧</span>
                     <div>
-                      <strong>Email:</strong> <a href="mailto:delivery@mlp.store" className="text-purple-600 hover:underline">delivery@mlp.store</a>
+                      <strong>Підтримка:</strong> <a href="https://t.me/mlp_cutie_family_bot" className="text-purple-600 hover:underline">чат-бот</a>
+                      <p className="text-sm text-gray-600">Відповідаємо протягом 24 годин</p>
                     </div>
                   </li>
-                  <li className="flex items-center gap-3">
+                  <li className="flex items-start gap-3">
                     <span className="text-2xl">💬</span>
                     <div>
                       <strong>Telegram:</strong> <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a>
-                    </div>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <span className="text-2xl">📱</span>
-                    <div>
-                      <strong>Пн-Нд:</strong> 9:00 - 21:00
+                      <p className="text-sm text-gray-600">Швидкий зв'язок у месенджері</p>
                     </div>
                   </li>
                 </ul>

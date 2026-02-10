@@ -43,7 +43,7 @@ export default function RefundPage() {
               <div className="space-y-4">
                 <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
                   <h3 className="font-bold text-purple-700 mb-2">Крок 1: Зв'язок з підтримкою</h3>
-                  <p>Напишіть нам на email <a href="mailto:support@mlp.store" className="text-purple-600 hover:underline">support@mlp.store</a> або в Telegram <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a></p>
+                  <p>Напишіть нам в <a href="https://t.me/mlp_cutie_family_bot" className="text-purple-600 hover:underline">телеграм-бот</a> або в Telegram <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a></p>
                   <p className="text-sm mt-2">Вкажіть номер замовлення та причину повернення</p>
                 </div>
 
@@ -135,7 +135,7 @@ export default function RefundPage() {
                   <li className="flex items-start gap-3">
                     <span className="text-2xl">📧</span>
                     <div>
-                      <strong>Email:</strong> <a href="mailto:support@mlp.store" className="text-purple-600 hover:underline">support@mlp.store</a>
+                      <strong>Підтримка:</strong> <a href="https://t.me/mlp_cutie_family_bot" className="text-purple-600 hover:underline">чат-бот</a>
                       <p className="text-sm text-gray-600">Відповідаємо протягом 24 годин</p>
                     </div>
                   </li>
@@ -144,13 +144,6 @@ export default function RefundPage() {
                     <div>
                       <strong>Telegram:</strong> <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a>
                       <p className="text-sm text-gray-600">Швидкий зв'язок у месенджері</p>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-2xl">📱</span>
-                    <div>
-                      <strong>Години роботи:</strong> Понеділок - Неділя, 9:00 - 21:00
-                      <p className="text-sm text-gray-600">Без вихідних</p>
                     </div>
                   </li>
                 </ul>

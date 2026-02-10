@@ -1,3 +1,6 @@
+// Telegram ID адміну для сповіщень
+const ADMIN_TELEGRAM_ID = "7365171162";
+
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, query, orderByChild, limitToLast, onValue, update, get, set } from 'firebase/database';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, User } from 'firebase/auth';
@@ -1004,7 +1007,7 @@ export async function sendOrderNotificationToTelegram(
       return false;
     }
 
-    // Створюємо повідомлення залежно від статусу
+    // Повідомлення для користувача
     const messages: { [key: string]: string } = {
       created: `🎉 <b>Нове замовлення!</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
@@ -1013,20 +1016,17 @@ export async function sendOrderNotificationToTelegram(
         `📍 Місто: <b>${order.city}</b>\n\n` +
         `⏳ Статус: <i>Очікує обробки</i>\n` +
         `ℹ️ Ми обробимо ваше замовлення найближчим часом!`,
-      
       processing: `⚙️ <b>Замовлення в обробці!</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
         `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
         `✅ Платіж підтверджено\n` +
         `🚚 Замовлення готується до відправлення`,
-      
       shipped: `📮 <b>Замовлення відправлено!</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
         `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
         `🚚 Ваше замовлення у дорозі!\n` +
         `📍 Трек-номер: <code>${order.trackingNumber || 'N/A'}</code>\n` +
         `🔗 Стежте за доставкою на сайті Нової Пошти`,
-      
       ready_for_pickup: `✅ <b>Замовлення готове до забору!</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
         `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
@@ -1034,14 +1034,12 @@ export async function sendOrderNotificationToTelegram(
         `📮 Адреса отримання вказана при оформленні замовлення\n` +
         `⏰ Зберігається 5 днів\n` +
         `🏃 Спішіть забрати! 💨`,
-      
       completed: `✅ <b>Замовлення завершене!</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
         `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
         `🎁 Дякуємо за покупку!\n` +
         `🦄 До нових зустрічей у нашому магазині!\n` +
         `💜 Залишайтеся чарівними!`,
-      
       cancelled: `❌ <b>Замовлення скасоване</b>\n\n` +
         `📦 Замовлення №<code>${order.id}</code>\n` +
         `💰 Сума: <b>${order.finalPrice}₴</b>\n\n` +
@@ -1050,6 +1048,30 @@ export async function sendOrderNotificationToTelegram(
     };
 
     const message = messages[status];
+
+    // Повідомлення для адміну
+    if (status === "created") {
+      const adminMsg = `🛎️ <b>Нове замовлення №${order.id}</b>\n` +
+        `Продукт: <b>${order.items.map((i:any) => i.name).join(", ")}</b>\n` +
+        `Кількість: <b>${order.items.reduce((sum:any, i:any) => sum + i.quantity, 0)}</b>\n` +
+        `Дата: <b>${order.createdAt ? new Date(order.createdAt).toLocaleString() : "-"}</b>\n` +
+        `Статус: <b>${status}</b>\n` +
+        `Сума: <b>${order.finalPrice}₴</b>\n` +
+        `Місто: <b>${order.city}</b>\n` +
+        `User: <code>${uid}</code>`;
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      if (botToken) {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: ADMIN_TELEGRAM_ID,
+            text: adminMsg,
+            parse_mode: 'HTML',
+          }),
+        });
+      }
+    }
 
     // Відправляємо сповіщення
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
