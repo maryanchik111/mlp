@@ -147,7 +147,7 @@ export default function ForumPage() {
             <div className="flex items-center gap-2 md:gap-4 min-w-0">
               <Link href="/" className="text-xl md:text-2xl flex-shrink-0">🏠</Link>
               <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
-                Форум MLP
+                Форум mlpcutiefamily
               </h1>
             </div>
             <button
