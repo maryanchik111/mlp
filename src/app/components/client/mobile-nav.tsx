@@ -106,7 +106,7 @@ export default function MobileNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-gray-200/50 shadow-lg z-50 rounded-full mx-2 mb-4">
-      <div className={`p-3 flex items-center justify-around h-20 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-7' : 'grid grid-cols-6'} w-full`}>
+      <div className={`p-3 flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-7' : 'grid grid-cols-6'} w-full`}>
         
         {/* Спільна логіка для кнопок */}
         {[
