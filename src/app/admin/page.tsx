@@ -857,7 +857,7 @@ export default function AdminPage() {
             </div>
 
             {/* Список замовлень */}
-            <div className="space-y-4">
+            <div className="space-y-4 mb-8">
               {filteredOrders.length === 0 ? (
                 <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                   <p className="text-gray-600 text-lg">Немає замовлень з вибраним статусом</p>
@@ -957,7 +957,7 @@ export default function AdminPage() {
                 onClick={handleCreateProduct}
                 className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
               >
-                ➕ Додати товар
+                Додати
               </button>
             </div>
             
@@ -981,13 +981,14 @@ export default function AdminPage() {
                       <div>
                         <p className="text-lg font-bold text-gray-900">{product.name}</p>
                         <p className="text-sm text-gray-600">{product.category}</p>
-                      </div>
-                    </div>
-                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      product.quantity > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        <div className={`text-sm font-medium ${
+                      product.quantity > 0 ? 'text-green-400' : 'text-red-800'
                     }`}>
                       {product.quantity > 0 ? 'В наявності' : 'Немає в наявності'}
                     </div>
+                      </div>
+                    </div>
+      
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -1005,17 +1006,17 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end gap-2">
+                  <div className="flex justify-between gap-2">
                     <button
                       onClick={() => handleDeleteProduct(product.id)}
                       disabled={actionLoading}
-                      className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50"
+                      className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 w-full"
                     >
                       🗑️ Видалити
                     </button>
                     <button
                       onClick={() => handleEditProduct(product)}
-                      className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                      className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium w-full"
                     >
                       ✏️ Редагувати
                     </button>
@@ -1182,7 +1183,7 @@ export default function AdminPage() {
                           ticket.status === 'responded' ? 'bg-blue-200 text-blue-800' :
                           'bg-green-200 text-green-800'
                         }`}>
-                          {ticket.status === 'open' ? '🔴 Нове' : ticket.status === 'responded' ? '🟡 Відповідь' : '✅ Закрито'}
+                          {ticket.status === 'open' ? '🔴 Нове' : ticket.status === 'responded' ? '🟡 Відповідь' : 'Завершено'}
                         </span>
                       </div>
                       <p className="text-xs text-gray-600 truncate">
@@ -1199,14 +1200,14 @@ export default function AdminPage() {
 
             {/* Деталі тікета та форма відповіді */}
             {selectedTicket ? (
-              <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
-                <div className="flex justify-between items-start mb-6 pb-6 border-b border-gray-200">
+              <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6 mb-8">
+                <div className="flex justify-between items-start mb-2 pb-2 border-b border-gray-200">
                   <div className="flex-1">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">#{selectedTicket.id}</h2>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p><span className="font-semibold">Користувач:</span> {selectedTicket.telegramUsername ? `@${selectedTicket.telegramUsername}` : selectedTicket.telegramId}</p>
                       <p><span className="font-semibold">Статус:</span> 
-                        {selectedTicket.status === 'open' ? ' 🔴 Нове' : selectedTicket.status === 'responded' ? ' 🟡 Відповідь отримана' : ' ✅ Закрито'}
+                        {selectedTicket.status === 'open' ? ' 🔴 Нове' : selectedTicket.status === 'responded' ? ' 🟡 Відповідь отримана' : ' Завершено'}
                       </p>
                       <p><span className="font-semibold">Дата:</span> {new Date(selectedTicket.createdAt).toLocaleString('uk-UA')}</p>
                       {selectedTicket.updatedAt && (
@@ -1223,8 +1224,8 @@ export default function AdminPage() {
                 </div>
 
                 {/* Діалог всіх повідомлень */}
+                <p className="text-sm font-semibold text-gray-700 mb-2">Історія діалогу:</p>
                 <div className="bg-gray-50 rounded-lg p-4 mb-6 max-h-96 overflow-y-auto space-y-4">
-                  <p className="text-sm font-semibold text-gray-700 sticky top-0 bg-gray-50 pb-2">💬 Історія діалогу:</p>
                   {selectedTicket.messages && selectedTicket.messages.length > 0 ? (
                     selectedTicket.messages.map((msg, idx) => (
                       <div
@@ -1480,7 +1481,7 @@ export default function AdminPage() {
                       : 'bg-green-600 text-white hover:bg-green-700'
                   }`}
                 >
-                  {actionLoading ? '⏳ Додавання...' : '➕ Додати товар'}
+                  {actionLoading ? '⏳ Додавання...' : 'Додати'}
                 </button>
                 <button
                   onClick={() => setIsCreatingProduct(false)}
@@ -1761,7 +1762,7 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-2">
                 <div>
                   <label className="block text-sm font-medium text-purple-600 mb-2">Ціна продажу (₴) *</label>
                   <input
@@ -1782,7 +1783,6 @@ export default function AdminPage() {
                     className="w-full px-4 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-400 bg-orange-50/30 text-gray-900"
                     placeholder="150"
                   />
-                  <span className="text-xs text-gray-500">Для статистики</span>
                 </div>
 
                 <div>
@@ -1797,7 +1797,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-green-600 mb-2">Ціна доставки (₴)</label>
                   <input
@@ -1807,7 +1807,7 @@ export default function AdminPage() {
                     className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
                     placeholder="120"
                   />
-                  <span className="text-xs text-gray-500">УКР: 120₴, ЗЗ: 100-300₴</span>
+                  <span className="text-xs text-gray-500">Введіть ціну доставки в гривнях</span>
                 </div>
 
                 <div>
@@ -1819,7 +1819,7 @@ export default function AdminPage() {
                     className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 bg-blue-50/30 text-gray-900"
                     placeholder="1-2"
                   />
-                  <span className="text-xs text-gray-500">УКР: 1-2 дні, ЗЗ: 7-14 днів</span>
+                  <span className="text-xs text-gray-500">Введіть термін доставки в днях</span>
                 </div>
               </div>
 
@@ -1843,6 +1843,7 @@ export default function AdminPage() {
                   className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
                   placeholder="🎁"
                 />
+                <span className="text-xs text-gray-500">Якщо немає фотографій</span>
               </div>
 
               <div>
@@ -1922,7 +1923,7 @@ export default function AdminPage() {
                       : 'bg-green-600 text-white hover:bg-green-700'
                   }`}
                 >
-                  {actionLoading ? '⏳ Створення...' : '✅ Створити товар'}
+                  {actionLoading ? '⏳ Створення...' : 'Створити товар'}
                 </button>
                 <button
                   onClick={() => setIsCreatingProduct(false)}
