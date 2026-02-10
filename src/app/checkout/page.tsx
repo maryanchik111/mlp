@@ -484,7 +484,7 @@ export default function CheckoutPage() {
 
           {/* Бічна панель - Замовлення */}
           <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 sticky top-4 space-y-4">
+            <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 sticky top-4 space-y-4 mb-12">
               <h2 className="text-lg font-bold text-gray-900">📦 Ваше замовлення</h2>
 
               {/* Список товарів */}

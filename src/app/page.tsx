@@ -46,7 +46,7 @@ export default function Home() {
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={randomImage} alt="MLP random" className="h-32 md:h-48 object-contain rounded-xl shadow-lg" />
+              <img src={randomImage} alt="MLP random" className="h-32 md:h-48 object-contain rounded-xl" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-purple-600 mb-4">
               mlpcutiefamily store
@@ -179,7 +179,7 @@ export default function Home() {
       </div>
 
       {/* Футер */}
-      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10 mb-12">
+      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10 mb-16">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Основна інформація */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
@@ -207,8 +207,8 @@ export default function Home() {
             <div className="text-center md:text-right">
               <h3 className="text-base font-bold text-purple-600 mb-3">Підтримка</h3>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li>Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors">@mlpcutiefamily</a></li>
-                <li>Чат-бот: <a href="https://t.me/mlp_cutie_family_bot" target="_blank" rel="noopener noreferrer" className="hover:text-purple-600 transition-colors">перейти</a></li>
+                <li>Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 transition-colors">@mlpcutiefamily</a></li>
+                <li>Чат-бот: <a href="https://t.me/mlp_cutie_family_bot" target="_blank" rel="noopener noreferrer" className="text-purple-600 transition-colors">перейти</a></li>
               </ul>
             </div>
           </div>
@@ -217,7 +217,7 @@ export default function Home() {
           <div className="border-t border-gray-200 pt-4">
             <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
               <div className="text-center md:text-left">
-                <p>© MLP Cutie Family</p>
+                <p>© mlpcutiefamily</p>
                 <p className="text-[10px] mt-1">Версія 0.4.1 • 07.02.2026</p>
               </div>
 
