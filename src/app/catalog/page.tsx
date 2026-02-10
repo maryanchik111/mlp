@@ -409,7 +409,7 @@ export default function CatalogPage() {
                   {/* Іконка продукту (галерея тільки на сторінці товару) */}
                   <Link href={`/catalog/product/${product.id}`} className="block">
                     <div className="w-full h-56 bg-gray-100 flex items-center justify-center relative overflow-hidden">
-                      {(product.images?.length || 0) > 0 ? (
+                      {(Array.isArray(product.images) && product.images.length > 0) ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
                           src={product.images[0]} 

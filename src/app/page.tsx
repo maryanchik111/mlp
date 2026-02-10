@@ -1,23 +1,49 @@
 
 
+
 import Link from "next/link";
 import TopBuyers from "./components/client/top-buyers";
 import RecentReviews from "@/app/components/client/recent-reviews";
 import Basket from "./components/client/busket";
+import { useMemo } from "react";
 
 export default function Home() {
+  // Список PNG-файлів у публічній папці
+  const pngImages = useMemo(
+    () => [
+      "/png/IMG_20260210_175049_573.PNG",
+      "/png/IMG_20260210_175055_529.PNG",
+      "/png/IMG_20260210_175055_606.PNG",
+      "/png/IMG_20260210_175055_645.PNG",
+      "/png/IMG_20260210_175055_758.PNG",
+      "/png/IMG_20260210_175055_783.PNG",
+      "/png/IMG_20260210_175055_847.PNG",
+      "/png/IMG_20260210_175055_859.PNG",
+      "/png/IMG_20260210_175056_103.PNG",
+      "/png/IMG_20260210_175056_354.PNG",
+    ],
+    []
+  );
+  // Вибір випадкового зображення при кожному рендері
+  const randomImage = useMemo(() => {
+    return pngImages[Math.floor(Math.random() * pngImages.length)];
+  }, [pngImages]);
+
   return (
     <main className="min-h-screen bg-white">
       {/* Hero секція */}
       <section className="bg-purple-50 py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
-            <div className="text-6xl md:text-8xl mb-4">🦄</div>
+            <div className="flex justify-center mb-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={randomImage} alt="MLP random" className="h-32 md:h-48 object-contain rounded-xl shadow-lg" />
+            </div>
             <h1 className="text-4xl md:text-5xl font-bold text-purple-600 mb-4">
-              My Little Pony Store
+              mlpcutiefamily store
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Магічний світ іграшок для справжніх поклонниць MLP! 🌟
+              <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду 🦄✨
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
@@ -66,12 +92,12 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="bg-purple-50 rounded-lg p-6 text-center">
               <div className="text-4xl mb-3">📦</div>
-              <div className="text-3xl font-bold text-purple-600 mb-1">50+</div>
+              <div className="text-3xl font-bold text-purple-600 mb-1">100+</div>
               <p className="text-gray-600">Товарів у колекції</p>
             </div>
             <div className="bg-pink-50 rounded-lg p-6 text-center">
               <div className="text-4xl mb-3">👥</div>
-              <div className="text-3xl font-bold text-pink-600 mb-1">500+</div>
+              <div className="text-3xl font-bold text-pink-600 mb-1">200+</div>
               <p className="text-gray-600">Щасливих клієнтів</p>
             </div>
             <div className="bg-blue-50 rounded-lg p-6 text-center">
@@ -151,9 +177,9 @@ export default function Home() {
             {/* Про магазин */}
             <div className="text-center md:text-left">
               <div className="text-3xl mb-2">🦄</div>
-              <h3 className="text-base font-bold text-purple-600 mb-2">MLP Cutie Family</h3>
+              <h3 className="text-base font-bold text-purple-600 mb-2">mlpcutiefamily store</h3>
               <p className="text-sm text-gray-600">
-                Магічний світ іграшок для справжніх поклонниць My Little Pony
+                <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду 🦄✨
               </p>
             </div>
 
