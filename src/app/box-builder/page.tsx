@@ -1,7 +1,19 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import Link from 'next/link';
+import {
+  FolderOpenIcon,
+  StarIcon,
+  UserGroupIcon,
+  PaintBrushIcon,
+  GiftIcon,
+  CubeIcon,
+  CheckCircleIcon,
+  TrophyIcon,
+  TagIcon,
+  CurrencyDollarIcon,
+  DocumentTextIcon
+} from '@heroicons/react/24/solid';
 import Basket from '../components/client/busket';
 import AccountButton from '../components/client/account-button';
 
@@ -261,6 +273,19 @@ export default function BoxBuilderPage() {
     setSelectedItems([]);
   };
 
+  const isActivePage = true;
+
+  if (!isActivePage) {
+    return (
+      <div className="min-h-screen bg-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Сторінка недоступна</h1>
+          <p className="text-gray-600">Зараз ми наповнюємо наші боксики товарами, тому зараз сторінка недоступна</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <main className="min-h-screen bg-purple-50">
@@ -292,25 +317,25 @@ export default function BoxBuilderPage() {
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-              🎁 Конструктор Magic Box
+              <GiftIcon className="inline w-8 h-8 text-pink-400 mb-1 align-middle" /> Конструктор Magic Box
             </h1>
             
             <p className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
               Створіть <span className="font-semibold text-purple-600">унікальний подарунок</span> для своїх улюблених! 
-              Оберіть розмір та наповніть бокс магічними речами My Little Pony ✨
+              Оберіть розмір та наповніть бокс магічними речами My Little Pony <StarIcon className="inline w-5 h-5 text-yellow-400 mb-1 align-middle" />
             </p>
             
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200">
-                <span>⚡</span>
+                <StarIcon className="w-4 h-4 text-yellow-400" />
                 <span>Швидка доставка</span>
               </div>
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200">
-                <span>🎨</span>
+                <PaintBrushIcon className="w-4 h-4 text-blue-400" />
                 <span>Персоналізація</span>
               </div>
               <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-gray-200">
-                <span>💝</span>
+                <GiftIcon className="w-4 h-4 text-pink-400" />
                 <span>Упаковка в подарунок</span>
               </div>
             </div>
@@ -323,7 +348,7 @@ export default function BoxBuilderPage() {
             <section className="mb-16">
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                  ✨ Як створити <span className="text-purple-600">Magic Box</span>?
+                  <StarIcon className="inline w-7 h-7 text-yellow-400 mb-1 align-middle" /> Як створити <span className="text-purple-600">Magic Box</span>?
                 </h2>
                 <p className="text-lg text-gray-600 max-w-2xl mx-auto">
                   Всього чотири простих кроки відділяють вас від ідеального подарунка
@@ -340,7 +365,7 @@ export default function BoxBuilderPage() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Обери розмір</h3>
                   <p className="text-gray-600 leading-relaxed">Вибери ідеальний розмір коробочки для твого подарунка - від компактного до великого</p>
-                  <div className="mt-4 text-3xl">📦</div>
+                  <div className="mt-4 flex justify-center"><CubeIcon className="w-8 h-8 text-purple-400" /></div>
                 </div>
 
                 {/* Крок 2 */}
@@ -352,7 +377,7 @@ export default function BoxBuilderPage() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Обирай товари</h3>
                   <p className="text-gray-600 leading-relaxed">Наповни бокс улюбленими предметами: фігурками, картками, аксесуарами та декором</p>
-                  <div className="mt-4 text-3xl">🛍️</div>
+                  <div className="mt-4 flex justify-center"><GiftIcon className="w-8 h-8 text-pink-400" /></div>
                 </div>
 
                 {/* Крок 3 */}
@@ -364,7 +389,7 @@ export default function BoxBuilderPage() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Перевір все</h3>
                   <p className="text-gray-600 leading-relaxed">Переглянь підсумок: обрані товари, загальну вартість та деталі замовлення</p>
-                  <div className="mt-4 text-3xl">✅</div>
+                  <div className="mt-4 flex justify-center"><CheckCircleIcon className="w-8 h-8 text-green-500" /></div>
                 </div>
 
                 {/* Крок 4 */}
@@ -376,7 +401,7 @@ export default function BoxBuilderPage() {
                   </div>
                   <h3 className="text-lg font-bold text-gray-900 mb-3">Оформи замовлення</h3>
                   <p className="text-gray-600 leading-relaxed">Додай Magic Box до кошика та оформи покупку для швидкої доставки</p>
-                  <div className="mt-4 text-3xl">🚀</div>
+                  <div className="mt-4 flex justify-center"><TrophyIcon className="w-8 h-8 text-yellow-400" /></div>
                 </div>
               </div>
 
@@ -508,7 +533,7 @@ export default function BoxBuilderPage() {
                 <div className="bg-white rounded-xl p-6 sticky top-4 border border-gray-200">
                   <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-3">
                     <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm">📁</span>
+                      <FolderOpenIcon className="w-5 h-5 text-white" />
                     </div>
                     <span>Категорії товарів</span>
                   </h3>
@@ -522,7 +547,7 @@ export default function BoxBuilderPage() {
                           : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                       }`}
                     >
-                      <span className="text-lg">✨</span>
+                      <StarIcon className="w-5 h-5 text-yellow-400" />
                       <span>Усі категорії</span>
                       <span className="ml-auto text-xs bg-white/20 px-2 py-1 rounded-full">
                         {CONSTRUCTOR_ITEMS.length}
@@ -531,10 +556,10 @@ export default function BoxBuilderPage() {
                     
                     {categories.map(cat => {
                       const itemCount = CONSTRUCTOR_ITEMS.filter(item => item.category === cat).length;
-                      const emoji = cat === 'Фігурки' ? '🦄' : 
-                                   cat === 'Картки' ? '🃏' : 
-                                   cat === 'Аксесуари' ? '👑' : 
-                                   cat === 'Декор' ? '🎨' : '🎁';
+                      const icon = cat === 'Фігурки' ? <UserGroupIcon className="w-5 h-5 text-purple-400" /> :
+                                   cat === 'Картки' ? <StarIcon className="w-5 h-5 text-yellow-400" /> :
+                                   cat === 'Аксесуари' ? <GiftIcon className="w-5 h-5 text-pink-400" /> :
+                                   cat === 'Декор' ? <PaintBrushIcon className="w-5 h-5 text-blue-400" /> : <GiftIcon className="w-5 h-5 text-pink-400" />;
                       
                       return (
                         <button
@@ -546,7 +571,7 @@ export default function BoxBuilderPage() {
                               : 'text-gray-700 hover:bg-purple-50 hover:text-purple-700'
                           }`}
                         >
-                          <span className="text-lg">{emoji}</span>
+                          <span className="text-lg">{icon}</span>
                           <span>{cat}</span>
                           <span className="ml-auto text-xs bg-white/20 px-2 py-1 rounded-full">
                             {itemCount}
@@ -559,7 +584,7 @@ export default function BoxBuilderPage() {
                   {/* Progress in sidebar */}
                   <div className="mt-8 p-4 bg-purple-50 rounded-xl border border-purple-200">
                     <p className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                      <span>📦</span>
+                      <CubeIcon className="w-5 h-5 text-purple-400" />
                       Ваш Magic Box
                     </p>
                     <div className="space-y-2">
@@ -577,7 +602,7 @@ export default function BoxBuilderPage() {
                       </div>
                       {selectedItems.length === selectedBoxType.capacity && (
                         <p className="text-xs text-green-700 font-semibold flex items-center gap-1">
-                          <span>✅</span>
+                          <CheckCircleIcon className="w-5 h-5 text-green-500" />
                           Бокс заповнено!
                         </p>
                       )}
@@ -1025,7 +1050,7 @@ export default function BoxBuilderPage() {
                     <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm">🏷️</span>
+                          <TagIcon className="w-5 h-5 text-white" />
                         </div>
                         <p className="font-bold text-gray-900 uppercase text-sm">Категорія</p>
                       </div>
@@ -1036,7 +1061,7 @@ export default function BoxBuilderPage() {
                     <div className="bg-green-50 p-6 rounded-xl border border-green-200">
                       <div className="flex items-center gap-3 mb-3">
                         <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm">💰</span>
+                          <CurrencyDollarIcon className="w-5 h-5 text-white" />
                         </div>
                         <p className="font-bold text-gray-900 uppercase text-sm">Ціна</p>
                       </div>
@@ -1052,7 +1077,7 @@ export default function BoxBuilderPage() {
                     <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
                       <div className="flex items-center gap-3 mb-4">
                         <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm">📝</span>
+                          <DocumentTextIcon className="w-5 h-5 text-white" />
                         </div>
                         <p className="font-bold text-gray-900 uppercase text-sm">Детальний опис</p>
                       </div>

@@ -169,7 +169,7 @@ export default function AccountPage() {
         </section>
 
         {/* Історія замовлень */}
-        <section className="mb-12">
+        <section className="mb-20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">📦 Замовлення</h2>
             <button

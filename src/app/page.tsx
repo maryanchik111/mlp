@@ -2,6 +2,24 @@
 
 
 import Link from "next/link";
+import {
+  SparklesIcon,
+  RocketLaunchIcon,
+  CreditCardIcon,
+  GiftIcon,
+  GiftTopIcon,
+  CubeIcon,
+  UsersIcon,
+  StarIcon,
+  TrophyIcon,
+  ChatBubbleLeftRightIcon,
+  ClipboardDocumentListIcon,
+  QuestionMarkCircleIcon,
+  PaintBrushIcon,
+  NewspaperIcon,
+  HeartIcon,
+  ShoppingBagIcon
+} from '@heroicons/react/24/solid';
 import TopBuyers from "./components/client/top-buyers";
 import RecentReviews from "@/app/components/client/recent-reviews";
 import Basket from "./components/client/busket";
@@ -34,20 +52,20 @@ export default function Home() {
               mlpcutiefamily store
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду 🦄✨
+              <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду <SparklesIcon className="inline w-6 h-6 text-purple-400 ml-1" />
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
                 href="/catalog" 
-                className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors"
+                className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
               >
-                🛍️ Каталог товарів
+                <ShoppingBagIcon className="w-6 h-6" /> Каталог товарів
               </Link>
               <Link 
                 href="/box-builder" 
-                className="px-8 py-3 bg-white border-2 border-purple-400 text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors"
+                className="px-8 py-3 bg-white border-2 border-purple-400 text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors flex items-center justify-center gap-2"
               >
-                🎁 Створити бокс
+                <GiftIcon className="w-6 h-6" /> Створити бокс
               </Link>
             </div>
           </div>
@@ -55,19 +73,19 @@ export default function Home() {
           {/* Переваги */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white/50 border border-purple-200 rounded-lg p-4 text-center">
-              <div className="text-4xl mb-2">✨</div>
+              <SparklesIcon className="w-10 h-10 mb-2 mx-auto text-purple-400" />
               <p className="text-sm font-medium text-gray-700">Оригінальні товари</p>
             </div>
             <div className="bg-white/50 border border-purple-200 rounded-lg p-4 text-center">
-              <div className="text-4xl mb-2">🚀</div>
+              <RocketLaunchIcon className="w-10 h-10 mb-2 mx-auto text-blue-400" />
               <p className="text-sm font-medium text-gray-700">Швидка доставка</p>
             </div>
             <div className="bg-white/50 border border-purple-200 rounded-lg p-4 text-center">
-              <div className="text-4xl mb-2">💚</div>
+              <CreditCardIcon className="w-10 h-10 mb-2 mx-auto text-green-500" />
               <p className="text-sm font-medium text-gray-700">Безпечні платежі</p>
             </div>
             <div className="bg-white/50 border border-purple-200 rounded-lg p-4 text-center">
-              <div className="text-4xl mb-2">🎉</div>
+              <GiftTopIcon className="w-10 h-10 mb-2 mx-auto text-pink-400" />
               <p className="text-sm font-medium text-gray-700">Акції щотижня</p>
             </div>
           </div>
@@ -82,17 +100,17 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="bg-purple-50 rounded-lg p-6 text-center">
-              <div className="text-4xl mb-3">📦</div>
+              <CubeIcon className="w-10 h-10 mb-3 mx-auto text-purple-400" />
               <div className="text-3xl font-bold text-purple-600 mb-1">100+</div>
               <p className="text-gray-600">Товарів у колекції</p>
             </div>
             <div className="bg-pink-50 rounded-lg p-6 text-center">
-              <div className="text-4xl mb-3">👥</div>
+              <UsersIcon className="w-10 h-10 mb-3 mx-auto text-pink-400" />
               <div className="text-3xl font-bold text-pink-600 mb-1">200+</div>
               <p className="text-gray-600">Щасливих клієнтів</p>
             </div>
             <div className="bg-blue-50 rounded-lg p-6 text-center">
-              <div className="text-4xl mb-3">⭐</div>
+              <StarIcon className="w-10 h-10 mb-3 mx-auto text-blue-400" />
               <div className="text-3xl font-bold text-blue-600 mb-1">Відмінний</div>
               <p className="text-gray-600">Рейтинг магазину</p>
             </div>
@@ -103,7 +121,7 @@ export default function Home() {
       {/* Топ покупці */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600">🏆 Топ покупці місяця</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600 flex items-center justify-center gap-2"><TrophyIcon className="w-7 h-7 text-yellow-400" /> Топ покупці місяця</h2>
           <TopBuyers />
         </div>
       </section>
@@ -112,7 +130,7 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-8">
-            <div className="text-5xl mb-3">💬</div>
+            <ChatBubbleLeftRightIcon className="w-12 h-12 mb-3 mx-auto text-purple-400" />
             <h2 className="text-2xl md:text-3xl font-bold text-purple-600 mb-3">
               Форум спільноти
             </h2>
@@ -128,19 +146,19 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
             <div className="bg-purple-50 rounded-lg p-4 text-center">
-              <div className="text-3xl mb-2">📋</div>
+              <ClipboardDocumentListIcon className="w-8 h-8 mb-2 mx-auto text-purple-400" />
               <p className="text-sm font-medium text-gray-700">Обговорення</p>
             </div>
             <div className="bg-pink-50 rounded-lg p-4 text-center">
-              <div className="text-3xl mb-2">❓</div>
+              <QuestionMarkCircleIcon className="w-8 h-8 mb-2 mx-auto text-pink-400" />
               <p className="text-sm font-medium text-gray-700">Допомога</p>
             </div>
             <div className="bg-blue-50 rounded-lg p-4 text-center">
-              <div className="text-3xl mb-2">🎨</div>
+              <PaintBrushIcon className="w-8 h-8 mb-2 mx-auto text-blue-400" />
               <p className="text-sm font-medium text-gray-700">Колекції</p>
             </div>
             <div className="bg-green-50 rounded-lg p-4 text-center">
-              <div className="text-3xl mb-2">📰</div>
+              <NewspaperIcon className="w-8 h-8 mb-2 mx-auto text-green-400" />
               <p className="text-sm font-medium text-gray-700">Новини</p>
             </div>
           </div>
@@ -150,7 +168,7 @@ export default function Home() {
       {/* Відгуки */}
       <section className="bg-purple-50 py-16">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600">💝 Відгуки клієнтів</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600 flex items-center justify-center gap-2"><HeartIcon className="w-7 h-7 text-pink-400" /> Відгуки клієнтів</h2>
           <RecentReviews />
         </div>
       </section>
@@ -167,7 +185,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
             {/* Про магазин */}
             <div className="text-center md:text-left">
-              <div className="text-3xl mb-2">🦄</div>
+              <SparklesIcon className="w-8 h-8 mb-2 text-purple-400 mx-auto" />
               <h3 className="text-base font-bold text-purple-600 mb-2">mlpcutiefamily store</h3>
               <p className="text-sm text-gray-600">
                 <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду 🦄✨

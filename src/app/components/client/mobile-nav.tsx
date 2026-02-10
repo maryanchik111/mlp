@@ -3,6 +3,15 @@
 import { useAuth } from '@/app/providers';
 import { checkAdminAccess, fetchOrdersByStatus, type Order } from '@/lib/firebase';
 import Link from 'next/link';
+import {
+  HomeIcon,
+  ShoppingBagIcon,
+  GiftIcon,
+  ChatBubbleLeftRightIcon,
+  ShoppingCartIcon,
+  WrenchScrewdriverIcon,
+  UserCircleIcon
+} from '@heroicons/react/24/solid';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -105,25 +114,25 @@ export default function MobileNav() {
       <div className={`p-2 flex items-center justify-around h-20 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-7' : 'grid grid-cols-6'}`}>
         {/* Головна */}
         <Link href="/" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/' ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
-          <span className="text-2xl mb-1">🏠</span>
+          <HomeIcon className="w-7 h-7 mb-1" />
           <span className="text-xs font-medium">Головна</span>
         </Link>
 
         {/* Каталог */}
         <Link href="/catalog" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/catalog' || pathname?.startsWith('/catalog/') ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
-          <span className="text-2xl mb-1">🛍️</span>
+          <ShoppingBagIcon className="w-7 h-7 mb-1" />
           <span className="text-xs font-medium">Каталог</span>
         </Link>
 
         {/* Конструктор боксів */}
         <Link href="/box-builder" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/box-builder' ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
-          <span className="text-2xl mb-1">🎁</span>
+          <GiftIcon className="w-7 h-7 mb-1" />
           <span className="text-xs font-medium">Бокси</span>
         </Link>
 
         {/* Форум */}
         <Link href="/forum" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/forum' || pathname?.startsWith('/forum/') ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
-          <span className="text-2xl mb-1">💬</span>
+          <ChatBubbleLeftRightIcon className="w-7 h-7 mb-1" />
           <span className="text-xs font-medium">Форум</span>
         </Link>
 
@@ -132,7 +141,7 @@ export default function MobileNav() {
           onClick={handleCartClick}
           className={`flex flex-col items-center justify-center h-full text-gray-600 relative`}
         >
-          <span className="text-2xl mb-1">🛒</span>
+          <ShoppingCartIcon className="w-7 h-7 mb-1" />
           {cartCount > 0 && (
             <span className="absolute top-2 right-1/4 translate-x-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
               {cartCount}
@@ -144,7 +153,7 @@ export default function MobileNav() {
         {/* Адмін - тільки для адміністраторів */}
         {isAdmin && (
           <Link href="/admin" className={`flex flex-col items-center justify-center h-full transition-colors relative ${pathname === '/admin' ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
-            <span className="text-2xl mb-1">🔧</span>
+            <WrenchScrewdriverIcon className="w-7 h-7 mb-1" />
             {pendingOrdersCount > 0 && (
               <span className="absolute top-2 right-1/4 translate-x-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
                 {pendingOrdersCount}
@@ -156,7 +165,7 @@ export default function MobileNav() {
 
         {/* Акаунт */}
         <Link href="/account" className={`flex flex-col items-center justify-center h-full transition-colors relative ${pathname === '/account' ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
-          <span className="text-2xl mb-1">👤</span>
+          <UserCircleIcon className="w-7 h-7 mb-1" />
           {user && profile && profile.points > 0 && (
             <span className="absolute top-2 right-1/4 translate-x-2 bg-yellow-400 text-purple-900 text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
               {profile.points}

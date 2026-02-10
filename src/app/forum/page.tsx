@@ -4,14 +4,28 @@ import { useState, useEffect } from 'react';
 import { useAuth, useModal } from '@/app/providers';
 import { getForumThreads, createForumThread, type ForumThread } from '@/lib/firebase';
 import Link from 'next/link';
+import {
+  HomeIcon,
+  ClipboardDocumentListIcon,
+  ChatBubbleLeftRightIcon,
+  QuestionMarkCircleIcon,
+  PaintBrushIcon,
+  NewspaperIcon,
+  PlusIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  EyeIcon,
+  PaperAirplaneIcon,
+  LockClosedIcon,
+  BookmarkIcon
+} from '@heroicons/react/24/solid';
 import Image from 'next/image';
 
 const CATEGORIES = [
-  { id: 'all', name: 'Всі теми', icon: '📋' },
-  { id: 'general', name: 'Загальне', icon: '💬' },
-  { id: 'help', name: 'Допомога', icon: '❓' },
-  { id: 'showcase', name: 'Моя колекція', icon: '🎨' },
-  { id: 'news', name: 'Новини', icon: '📰' },
+  { id: 'all', name: 'Всі теми', icon: <ClipboardDocumentListIcon className="w-5 h-5 inline text-purple-400" /> },
+  { id: 'general', name: 'Загальне', icon: <ChatBubbleLeftRightIcon className="w-5 h-5 inline text-purple-400" /> },
+  { id: 'help', name: 'Допомога', icon: <QuestionMarkCircleIcon className="w-5 h-5 inline text-pink-400" /> },
+  { id: 'showcase', name: 'Моя колекція', icon: <PaintBrushIcon className="w-5 h-5 inline text-blue-400" /> },
+  { id: 'news', name: 'Новини', icon: <NewspaperIcon className="w-5 h-5 inline text-green-400" /> },
 ];
 
 const REACTIONS = {
@@ -145,7 +159,7 @@ export default function ForumPage() {
         <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center justify-between gap-2 md:gap-4">
             <div className="flex items-center gap-2 md:gap-4 min-w-0">
-              <Link href="/" className="text-xl md:text-2xl flex-shrink-0">🏠</Link>
+              <Link href="/" className="text-xl md:text-2xl flex-shrink-0"><HomeIcon className="w-7 h-7 text-purple-500" /></Link>
               <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
                 Форум mlpcutiefamily
               </h1>
@@ -160,7 +174,7 @@ export default function ForumPage() {
               }}
               className="px-3 md:px-4 py-1.5 md:py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full text-sm md:text-base font-semibold hover:shadow-lg transition-shadow whitespace-nowrap flex-shrink-0"
             >
-              <span className="hidden sm:inline">➕ </span>Створити
+              <span className="hidden sm:inline"><PlusIcon className="w-5 h-5 inline mr-1" /></span>Створити
             </button>
           </div>
         </div>
@@ -189,7 +203,7 @@ export default function ForumPage() {
           {/* Search */}
           <input
             type="text"
-            placeholder="🔍 Пошук тем..."
+            placeholder="Пошук тем..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 px-4 py-2 rounded-full text-sm md:text-base border-2 border-gray-200 focus:border-purple-500 focus:outline-none"
@@ -203,7 +217,7 @@ export default function ForumPage() {
           </div>
         ) : filteredThreads.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl shadow-sm">
-            <div className="text-6xl mb-4">📭</div>
+            <PaperAirplaneIcon className="w-16 h-16 mb-4 mx-auto text-purple-300" />
             <p className="text-xl text-gray-600">Тем не знайдено</p>
             <p className="text-gray-500 mt-2">Створіть першу тему!</p>
           </div>
@@ -241,8 +255,8 @@ export default function ForumPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-2">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
-                          {thread.isPinned && <span className="text-lg md:text-xl flex-shrink-0">📌</span>}
-                          {thread.isLocked && <span className="text-lg md:text-xl flex-shrink-0">🔒</span>}
+                          {thread.isPinned && <BookmarkIcon className="w-5 h-5 text-yellow-400 flex-shrink-0" />}
+                          {thread.isLocked && <LockClosedIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />}
                           <h3 className="text-base md:text-xl font-semibold text-gray-900 break-words">
                             {thread.title}
                           </h3>
@@ -261,9 +275,9 @@ export default function ForumPage() {
                         <span className="hidden sm:inline">•</span>
                         <span>{formatDate(thread.createdAt)}</span>
                         <span className="hidden sm:inline">•</span>
-                        <span>💬 {thread.commentsCount}</span>
+                        <span className="flex items-center gap-1"><ChatBubbleOvalLeftEllipsisIcon className="w-4 h-4 inline" /> {thread.commentsCount}</span>
                         <span className="hidden sm:inline">•</span>
-                        <span>👁️ {thread.viewsCount}</span>
+                        <span className="flex items-center gap-1"><EyeIcon className="w-4 h-4 inline" /> {thread.viewsCount}</span>
                         
                         {Object.keys(reactionCounts).length > 0 && (
                           <>
