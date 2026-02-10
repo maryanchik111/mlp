@@ -469,7 +469,7 @@ export default function CatalogPage() {
                       <div className="flex items-center gap-2 text-xs bg-blue-50 rounded-lg p-2 border border-blue-100">
                         <span className="text-sm">🚚</span>
                         <span className="text-gray-700">
-                          <span className="font-semibold text-blue-600">{product.deliveryPrice || '120'}₴</span> доставка
+                          <span className="font-semibold text-blue-600">{product.deliveryPrice || '120'} ₴</span>
                         </span>
                         <span className="text-gray-500">({product.deliveryDays || '1-2'} дн.)</span>
                       </div>

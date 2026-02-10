@@ -84,7 +84,7 @@ export default function TelegramBinder({
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
       <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <span className="text-2xl">📱</span> Telegram
+      Telegram
       </h3>
 
       {error && (
@@ -96,11 +96,10 @@ export default function TelegramBinder({
       {telegramId ? (
         <div className="space-y-3">
           <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-            <p className="text-sm text-gray-600 mb-1">Статус</p>
-            <p className="text-lg font-bold text-green-600">✅ Прив'язано</p>
+            <p className="text-lg font-bold text-green-600">Прив'язано</p>
             <p className="text-xs text-gray-600 mt-2">ID: {telegramId}</p>
             {telegramUsername && (
-              <p className="text-xs text-gray-600 mt-1">Нік: @{telegramUsername}</p>
+              <p className="text-xs text-gray-600 mt-1">NickName: @{telegramUsername}</p>
             )}
           </div>
 
@@ -109,7 +108,7 @@ export default function TelegramBinder({
             disabled={loading}
             className="w-full py-2 px-4 rounded-lg bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '⏳ Завантаження...' : '🔓 Розв\'язати Telegram'}
+            {loading ? '⏳ Завантаження...' : 'Розв\'язати Telegram'}
           </button>
         </div>
       ) : (

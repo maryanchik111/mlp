@@ -114,7 +114,7 @@ export default function AccountPage() {
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-10">
         {/* Заголовок + юзер (мобільний стек) */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">👤 Мій кабінет</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Мій кабінет</h1>
           <p className="text-sm sm:text-base text-gray-600 font-medium mb-6">Керуйте замовленнями та бонусами</p>
 
           {/* Карточка з інфо юзера */}

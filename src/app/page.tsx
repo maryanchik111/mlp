@@ -54,19 +54,19 @@ export default function Home() {
 
           {/* Переваги */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border border-purple-200 rounded-lg p-4 text-center">
+            <div className="bg-white/50 border border-purple-200 rounded-lg p-4 text-center">
               <div className="text-4xl mb-2">✨</div>
               <p className="text-sm font-medium text-gray-700">Оригінальні товари</p>
             </div>
-            <div className="bg-white border border-purple-200 rounded-lg p-4 text-center">
+            <div className="bg-white/50 border border-purple-200 rounded-lg p-4 text-center">
               <div className="text-4xl mb-2">🚀</div>
               <p className="text-sm font-medium text-gray-700">Швидка доставка</p>
             </div>
-            <div className="bg-white border border-purple-200 rounded-lg p-4 text-center">
+            <div className="bg-white/50 border border-purple-200 rounded-lg p-4 text-center">
               <div className="text-4xl mb-2">💚</div>
               <p className="text-sm font-medium text-gray-700">Безпечні платежі</p>
             </div>
-            <div className="bg-white border border-purple-200 rounded-lg p-4 text-center">
+            <div className="bg-white/50 border border-purple-200 rounded-lg p-4 text-center">
               <div className="text-4xl mb-2">🎉</div>
               <p className="text-sm font-medium text-gray-700">Акції щотижня</p>
             </div>

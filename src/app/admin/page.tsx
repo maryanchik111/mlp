@@ -1275,7 +1275,7 @@ export default function AdminPage() {
                             : 'bg-purple-600 text-white hover:bg-purple-700'
                         }`}
                       >
-                        📤 Відправити відповідь
+                        Відправити
                       </button>
                       <button
                         onClick={handleCloseTicket}
@@ -1286,7 +1286,7 @@ export default function AdminPage() {
                             : 'bg-red-600 text-white hover:bg-red-700'
                         }`}
                       >
-                        ✅ Закрити тікет
+                        Закрити тікет
                       </button>
                     </div>
                   </div>
@@ -1543,7 +1543,7 @@ export default function AdminPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-purple-600 mb-2">Ціна продажу (₴)</label>
                   <input
@@ -1562,7 +1562,6 @@ export default function AdminPage() {
                     onChange={(e) => setEditForm({ ...editForm, costPrice: e.target.value })}
                     className="w-full px-4 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-400 bg-orange-50/30 text-gray-900"
                   />
-                  <span className="text-xs text-gray-500">Для статистики</span>
                 </div>
 
                 <div>
@@ -1577,7 +1576,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-green-600 mb-2">Ціна доставки (₴)</label>
                   <input
@@ -1587,7 +1586,7 @@ export default function AdminPage() {
                     className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
                     placeholder="120"
                   />
-                  <span className="text-xs text-gray-500">УКР: 120₴, ЗЗ: 100-300₴</span>
+                  <span className="text-xs text-gray-500">Введіть ціну доставки в гривнях</span>
                 </div>
 
                 <div>
@@ -1599,7 +1598,7 @@ export default function AdminPage() {
                     className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 bg-blue-50/30 text-gray-900"
                     placeholder="1-2"
                   />
-                  <span className="text-xs text-gray-500">УКР: 1-2 дні, ЗЗ: 7-14 днів</span>
+                  <span className="text-xs text-gray-500">Введіть термін доставки у днях (наприклад: 1-2)</span>
                 </div>
               </div>
 
@@ -1699,7 +1698,7 @@ export default function AdminPage() {
                       : 'bg-green-600 text-white hover:bg-green-700'
                   }`}
                 >
-                  {actionLoading ? '⏳ Збереження...' : '💾 Зберегти зміни'}
+                  {actionLoading ? '⏳ Збереження...' : 'Зберегти зміни'}
                 </button>
                 <button
                   onClick={() => setEditingProduct(null)}

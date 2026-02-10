@@ -162,6 +162,8 @@ export default function ProductPage() {
           <Link href="/" className="hover:text-purple-600">Головна</Link> <span>/</span> <Link href="/catalog" className="hover:text-purple-600">Каталог</Link> <span>/</span> <span className="text-gray-900 font-semibold">{product.name}</span>
         </nav>
 
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Галерея */}
           <div>
@@ -210,9 +212,8 @@ export default function ProductPage() {
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-purple-600 bg-purple-50 px-3 py-1 rounded-full">{product.category || ''}</span>
+                    <span className="text-sm font-medium text-purple-600 bg-purple-50 px-2 py-1">{product.category || ''}</span>
                     {Number(product.discount) > 0 && (
                       <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
                         Знижка −{product.discount}%
@@ -260,24 +261,23 @@ export default function ProductPage() {
                 </div>
                 <div className="bg-blue-50 rounded-lg p-3">
                   <p className="text-xs text-gray-600 mb-1">Термін</p>
-                  <p className="text-2xl font-bold text-blue-600">{product.deliveryDays || '1-2'} *</p>
+                  <p className="text-2xl font-bold text-blue-600">{product.deliveryDays || '1-2'} днів</p>
                 </div>
               </div>
               <p className="text-xs text-gray-600 mt-3 px-3 py-2 bg-gray-50 rounded">
-                ✓ Нова Пошта у відділення або на адресу<br />
-                * УКР - доставка в межах України <br />
-                * ЗЗ - доставка з-за кордону <br />
+                Відправка у будь-яке відділення Нової Пошти по Україні<br />
+                Оплата — тільки онлайн (накладений платіж недоступний)
               </p>
             </div>
 
             {/* Кількість */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <label className="block text-sm font-semibold text-gray-900 mb-3">Кількість:</label>
-              <div className="flex items-center gap-2 bg-gray-100 rounded-lg p-2 w-fit">
+              <div className="flex items-center bg-gray-100 rounded-lg p-2 w-full">
                 <button 
                   onClick={() => setQty(Math.max(1, qty - 1))} 
                   disabled={qty <= 1 || isInCart} 
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty <= 1 || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
+                  className={`w-full h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty <= 1 || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
                 >
                   −
                 </button>
@@ -285,7 +285,7 @@ export default function ProductPage() {
                 <button 
                   onClick={() => setQty(Math.min(maxQty, qty + 1))} 
                   disabled={qty >= maxQty || isInCart} 
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty >= maxQty || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
+                  className={`w-full h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty >= maxQty || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
                 >
                   +
                 </button>
