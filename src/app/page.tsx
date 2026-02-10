@@ -52,7 +52,7 @@ export default function Home() {
               mlpcutiefamily store
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду <SparklesIcon className="inline w-6 h-6 text-purple-400 ml-1" />
+              <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду. <SparklesIcon className="inline w-6 h-6 text-purple-400 ml-1" />
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link 
