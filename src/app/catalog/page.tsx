@@ -497,9 +497,9 @@ export default function CatalogPage() {
                         : addedItems[product.id] === true 
                         ? "Додано!" 
                         : cartItems.includes(product.id)
-                        ? "🗑️ Видалити"
+                        ? "Видалити"
                         : product.quantity > 0 
-                        ? "🛒 В кошик" 
+                        ? "В кошик" 
                         : "❌ Закінчився"}
                     </button>
                   </div>

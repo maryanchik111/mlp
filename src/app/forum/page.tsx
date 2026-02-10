@@ -159,7 +159,6 @@ export default function ForumPage() {
         <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center justify-between gap-2 md:gap-4">
             <div className="flex items-center gap-2 md:gap-4 min-w-0">
-              <Link href="/" className="text-xl md:text-2xl flex-shrink-0"><HomeIcon className="w-7 h-7 text-purple-500" /></Link>
               <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
                 Форум mlpcutiefamily
               </h1>
@@ -253,17 +252,17 @@ export default function ForumPage() {
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-start gap-2 mb-2">
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-2">
+                        <div className="flex flex-col items-start gap-2 flex-1 min-w-0">
                           {thread.isPinned && <BookmarkIcon className="w-5 h-5 text-yellow-400 flex-shrink-0" />}
                           {thread.isLocked && <LockClosedIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />}
-                          <h3 className="text-base md:text-xl font-semibold text-gray-900 break-words">
+                          <span className="px-2.5 md:px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs md:text-sm font-medium whitespace-nowrap self-start">
+                            {categoryInfo.icon} {categoryInfo.name}
+                          </span>
+                          <h3 className="text-base md:text-xl font-semibold text-gray-900 break-words mb-1">
                             {thread.title}
                           </h3>
                         </div>
-                        <span className="px-2.5 md:px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs md:text-sm font-medium whitespace-nowrap self-start">
-                          {categoryInfo.icon} {categoryInfo.name}
-                        </span>
                       </div>
 
                       <p className="text-sm md:text-base text-gray-600 line-clamp-2 mb-2 md:mb-3 break-words">

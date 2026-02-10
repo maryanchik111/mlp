@@ -214,23 +214,18 @@ export default function ProductPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-purple-600 bg-purple-50 px-2 py-1">{product.category || ''}</span>
-                    {Number(product.discount) > 0 && (
-                      <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                        Знижка −{product.discount}%
-                      </span>
-                    )}
+                    <span className={`text-sm px-3 py-1 whitespace-nowrap ${isOut ? 'bg-red-100 text-red-800 font-semibold' : 'bg-green-100 text-green-800 font-semibold'}`}>
+                    {isOut ? 'Немає' : `В наявності ${product.quantity} шт`}
+                  </span>
                   </div>
                 </div>
-                <span className={`text-sm px-3 py-1 rounded-full whitespace-nowrap ml-2 ${isOut ? 'bg-red-100 text-red-800 font-semibold' : 'bg-green-100 text-green-800 font-semibold'}`}>
-                  {isOut ? 'Немає' : `${product.quantity} шт`}
-                </span>
               </div>
               <p className="text-gray-700 leading-relaxed">{product.description}</p>
             </div>
 
             {/* Ціна й основна інформація */}
             <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg shadow-sm p-6 border border-purple-100">
-              <div className="flex items-baseline justify-between mb-4">
+              <div className="flex items-baseline justify-between">
                 <div>
                   {product.discount && product.discount > 0 ? (
                     <div className="flex items-baseline gap-3">
@@ -244,7 +239,14 @@ export default function ProductPage() {
                   ) : (
                     <span className="text-4xl font-extrabold text-purple-600">{product.price}₴</span>
                   )}
-                  <p className="text-sm text-gray-600 mt-1">Ціна товару</p>
+                  <div className="flex gap-2">
+                    <p className="text-sm text-gray-600 mt-1">Ціна товару</p>
+                    {Number(product.discount) > 0 && (
+                        <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
+                          Знижка −{product.discount}%
+                        </span>
+                      )}
+                  </div>
                 </div>
               </div>
             </div>

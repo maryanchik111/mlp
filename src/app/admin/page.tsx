@@ -950,7 +950,7 @@ export default function AdminPage() {
 
         {/* Products Tab Content */}
         {activeTab === 'products' && (
-          <div className="space-y-4">
+          <div className="space-y-4 mb-16">
             <div className="bg-white rounded-lg shadow-sm p-6 mb-4 flex justify-between items-center">
               <h2 className="text-lg font-bold text-gray-900">Всього товарів: {products.length}</h2>
               <button
@@ -965,13 +965,13 @@ export default function AdminPage() {
               <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-start gap-4">
                       {product.images && product.images.length > 0 ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
                           src={product.images[0]} 
                           alt={product.name}
-                          className="w-16 h-16 object-cover rounded-full border-2 border-purple-200"
+                          className="object-cover rounded-[.8em]"
                         />
                       ) : (
                         <div className="w-16 h-16 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full">
@@ -1012,13 +1012,13 @@ export default function AdminPage() {
                       disabled={actionLoading}
                       className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 w-full"
                     >
-                      🗑️ Видалити
+                     Видалити
                     </button>
                     <button
                       onClick={() => handleEditProduct(product)}
                       className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium w-full"
                     >
-                      ✏️ Редагувати
+                     Редагувати
                     </button>
                   </div>
                 </div>

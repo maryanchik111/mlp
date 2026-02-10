@@ -313,7 +313,7 @@ export default function ThreadPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-4xl mb-20">
+      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-4xl">
         {/* Thread */}
         <div className="bg-white rounded-2xl p-4 md:p-6 shadow-md mb-6">
           {/* Thread header */}
@@ -333,16 +333,15 @@ export default function ThreadPage() {
             )}
 
             <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
+              <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
                 <span className="font-semibold text-purple-600 text-sm md:text-base">{thread.authorName}</span>
-                <span className="text-gray-400 text-xs md:text-sm">•</span>
-                <span className="text-xs md:text-sm text-gray-500 break-all">{formatDate(thread.createdAt)}</span>
+                <span className="inline-block px-2.5 md:px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs md:text-sm font-medium">
+                  {categoryInfo.icon} {categoryInfo.name}
+                </span>
                 {thread.isPinned && <span className="text-lg md:text-xl">📌</span>}
                 {thread.isLocked && <span className="text-lg md:text-xl">🔒</span>}
               </div>
-              <span className="inline-block px-2.5 md:px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs md:text-sm font-medium">
-                {categoryInfo.icon} {categoryInfo.name}
-              </span>
+              <span className="text-xs md:text-sm text-gray-500 break-all">{formatDate(thread.createdAt)}</span>
             </div>
           </div>
 
@@ -480,7 +479,7 @@ export default function ThreadPage() {
               <button
                 onClick={handleAddComment}
                 disabled={!user || submitting || !newComment.trim() || (thread.isLocked && !isAdmin)}
-                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-medium hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-medium hover:shadow-lg transition-shadow disabled:opacity-50 disabled:cursor-not-allowed w-full"
               >
                 {submitting ? 'Надсилаємо...' : 'Надіслати'}
               </button>
@@ -493,7 +492,7 @@ export default function ThreadPage() {
             const canEditComment = user && (user.uid === comment.authorId || isAdmin);
 
             return (
-              <div key={comment.id} className="bg-white rounded-2xl p-4 md:p-6 shadow-sm">
+              <div key={comment.id} className="bg-white rounded-2xl p-4 md:p-6 shadow-sm mb-20">
                 <div className="flex items-start gap-3 md:gap-4">
                     {comment.authorPhoto ? (
                       <Image
