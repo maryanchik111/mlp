@@ -171,7 +171,7 @@ export default function MobileNav() {
               {profile.points}
             </span>
           )}
-          <span className="text-xs font-medium">Акаунт</span>
+          <span className="text-xs font-medium">Кабінет</span>
         </Link>
       </div>
     </nav>

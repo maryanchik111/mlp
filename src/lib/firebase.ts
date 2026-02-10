@@ -416,6 +416,7 @@ export const fetchAllProducts = async (callback: (products: Product[]) => void) 
   }
 };
 
+
 // Функція для отримання конфігурації платежу (QR, карта, посилання)
 export const getPaymentConfig = () => {
   return {

@@ -272,6 +272,7 @@ export default function BoxBuilderPage() {
     setCurrentStep(2);
     setSelectedItems([]);
   };
+  
 
   const isActivePage = true;
 

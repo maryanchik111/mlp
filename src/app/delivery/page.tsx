@@ -174,7 +174,7 @@ export default function DeliveryPage() {
 
                 <div className="bg-white border-l-4 border-green-400 p-4 rounded">
                   <h4 className="font-bold mb-2">Скільки зберігається посилка на відділенні?</h4>
-                  <p className="text-sm">Нова Пошта зберігає посилку 5 днів, далі — за тарифами перевізника (близько 15₴/день).</p>
+                  <p className="text-sm">Нова Пошта зберігає - 5 днів безкоштовно, далі за тарифами перевізника (близько 15₴/день).</p>
                 </div>
               </div>
             </section>
