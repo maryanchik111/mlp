@@ -101,28 +101,28 @@ export default function MobileNav() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white-80 backdrop-blur-md border-t border-gray-200/50 shadow-lg z-50">
-      <div className={`flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-7' : 'grid grid-cols-6'}`}>
+    <nav className="fixed bottom-0 left-0 right-0 bg-white-80 backdrop-blur-md border-t border-gray-200/50 shadow-lg z-50 rounded-full mx-4 mb-4">
+      <div className={`p-2 flex items-center justify-around h-20 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-7' : 'grid grid-cols-6'}`}>
         {/* Головна */}
-        <Link href="/" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/' ? 'text-purple-600' : 'text-gray-600'}`}>
+        <Link href="/" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/' ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
           <span className="text-2xl mb-1">🏠</span>
           <span className="text-xs font-medium">Головна</span>
         </Link>
 
         {/* Каталог */}
-        <Link href="/catalog" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/catalog' || pathname?.startsWith('/catalog/') ? 'text-purple-600' : 'text-gray-600'}`}>
+        <Link href="/catalog" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/catalog' || pathname?.startsWith('/catalog/') ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
           <span className="text-2xl mb-1">🛍️</span>
           <span className="text-xs font-medium">Каталог</span>
         </Link>
 
         {/* Конструктор боксів */}
-        <Link href="/box-builder" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/box-builder' ? 'text-purple-600' : 'text-gray-600'}`}>
+        <Link href="/box-builder" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/box-builder' ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
           <span className="text-2xl mb-1">🎁</span>
           <span className="text-xs font-medium">Бокси</span>
         </Link>
 
         {/* Форум */}
-        <Link href="/forum" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/forum' || pathname?.startsWith('/forum/') ? 'text-purple-600' : 'text-gray-600'}`}>
+        <Link href="/forum" className={`flex flex-col items-center justify-center h-full transition-colors ${pathname === '/forum' || pathname?.startsWith('/forum/') ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
           <span className="text-2xl mb-1">💬</span>
           <span className="text-xs font-medium">Форум</span>
         </Link>
@@ -143,7 +143,7 @@ export default function MobileNav() {
 
         {/* Адмін - тільки для адміністраторів */}
         {isAdmin && (
-          <Link href="/admin" className={`flex flex-col items-center justify-center h-full transition-colors relative ${pathname === '/admin' ? 'text-purple-600' : 'text-gray-600'}`}>
+          <Link href="/admin" className={`flex flex-col items-center justify-center h-full transition-colors relative ${pathname === '/admin' ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
             <span className="text-2xl mb-1">🔧</span>
             {pendingOrdersCount > 0 && (
               <span className="absolute top-2 right-1/4 translate-x-2 bg-orange-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
@@ -155,7 +155,7 @@ export default function MobileNav() {
         )}
 
         {/* Акаунт */}
-        <Link href="/account" className={`flex flex-col items-center justify-center h-full transition-colors relative ${pathname === '/account' ? 'text-purple-600' : 'text-gray-600'}`}>
+        <Link href="/account" className={`flex flex-col items-center justify-center h-full transition-colors relative ${pathname === '/account' ? 'text-purple-600 bg-gray-300/50 rounded-full backdrop-blur-md p-2' : 'text-gray-600'}`}>
           <span className="text-2xl mb-1">👤</span>
           {user && profile && profile.points > 0 && (
             <span className="absolute top-2 right-1/4 translate-x-2 bg-yellow-400 text-purple-900 text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
