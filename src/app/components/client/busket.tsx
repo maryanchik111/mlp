@@ -128,7 +128,12 @@ export default function Basket() {
     return sum + discountedPrice * item.quantity;
   }, 0);
 
-  const deliveryPrice = totalPrice >= 2000 ? 0 : 120;
+  // Визначаємо ціну доставки як максимальну серед товарів (або 0 якщо не вказано)
+  let deliveryPrice = cartItems.length > 0
+    ? Math.max(...cartItems.map((item: any) => (typeof item.deliveryPrice === 'number' ? item.deliveryPrice : 0)), 0)
+    : 0;
+  // Якщо сума товарів >= 5000, доставка безкоштовна
+  if (totalPrice >= 5000) deliveryPrice = 0;
   const finalPrice = totalPrice + deliveryPrice;
   const estimatedPoints = Math.floor(finalPrice / 100);
 
@@ -307,17 +312,10 @@ export default function Basket() {
                     <span>Сума товарів:</span>
                     <span className="text-lg text-gray-900">{totalPrice}₴</span>
                   </div>
-                  {deliveryPrice > 0 ? (
-                    <div className="flex justify-between items-center font-semibold text-gray-700">
-                      <span>Доставка:</span>
-                      <span className="text-lg text-orange-600">+{deliveryPrice}₴</span>
-                    </div>
-                  ) : (
-                    <div className="flex justify-between items-center font-semibold text-green-700 bg-green-50 px-2 py-1.5 rounded">
-                      <span>Доставка:</span>
-                      <span className="text-lg">Безкоштовна ✓</span>
-                    </div>
-                  )}
+                  <div className={`flex justify-between items-center font-semibold ${deliveryPrice === 0 ? 'text-green-700 bg-green-50 px-2 py-1.5 rounded' : 'text-gray-700'}`}>
+                    <span>Доставка:</span>
+                    <span className="text-lg">{deliveryPrice === 0 ? 'Безкоштовна' : `+${deliveryPrice}₴`}</span>
+                  </div>
                 </div>
 
                 {/* Остаток */}
@@ -329,11 +327,7 @@ export default function Basket() {
                 </div>
 
                 {/* Інформація про доставку */}
-                {deliveryPrice > 0 && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-sm text-blue-900 font-semibold">
-                    🎁 Ще {2000 - totalPrice}₴ для безкоштовної доставки
-                  </div>
-                )}
+                {/* Повідомлення про безкоштовну доставку видалено */}
 
                 {/* Інформація для авторизованих про бали */}
                 {user && estimatedPoints > 0 && (

@@ -30,7 +30,6 @@ const googleProvider = new GoogleAuthProvider();
 // Додайте email адміністраторів сюди
 const ADMIN_EMAILS = [
   // Замініть на реальні email адміністраторів
-  'seniorpandawork@gmail.com',
   'maryanlikesyou@gmail.com',
   'musevi4ka@gmail.com',
 ];

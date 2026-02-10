@@ -480,9 +480,9 @@ export default function CatalogPage() {
                       onClick={() => handleToggleCart(product)}
                       className={`w-full px-4 py-3 rounded-lg font-bold transition-all duration-200 ${
                         addedItems[product.id] === 'removed'
-                          ? "bg-red-500 text-white scale-105 shadow-lg"
+                          ? "bg-red-500 text-white shadow-lg"
                           : addedItems[product.id] === true
-                          ? "bg-green-500 text-white scale-105 shadow-lg"
+                          ? "bg-green-500 text-white shadow-lg"
                           : cartItems.includes(product.id)
                           ? "bg-blue-600 text-white hover:bg-red-600 shadow-md"
                           : product.quantity > 0
@@ -493,9 +493,9 @@ export default function CatalogPage() {
                       title={cartItems.includes(product.id) ? "Видалити з кошика" : "Додати в кошик"}
                     >
                       {addedItems[product.id] === 'removed'
-                        ? "✓ Видалено!"
+                        ? "Видалено!"
                         : addedItems[product.id] === true 
-                        ? "✓ Додано!" 
+                        ? "Додано!" 
                         : cartItems.includes(product.id)
                         ? "🗑️ Видалити"
                         : product.quantity > 0 
