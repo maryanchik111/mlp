@@ -252,15 +252,15 @@ export default function CatalogPage() {
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="flex items-center gap-4 mb-6">
             <div className="text-5xl md:text-6xl">🦄</div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-              Каталог My Little Pony
+            <h1 className="text-3xl md:text-5xl font-bold text-gray-900">
+              Каталог товарів mlpcutiefamily
             </h1>
           </div>
-          <p className="text-lg text-gray-600 mb-6 max-w-2xl leading-relaxed">
+          <p className="text-sm md:text-lg text-gray-600 mb-6 max-w-2xl leading-relaxed">
             Купіть оригінальні іграшки та колекційні фігурки My Little Pony з доставкою по Україні. 
             Великий вибір персонажів, наборів та аксесуарів за найкращими цінами.
           </p>
-          <div className="flex flex-wrap gap-3 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <span className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full font-semibold">
               <span className="text-xl">✨</span> {allProducts.length}+ товарів
             </span>
@@ -584,7 +584,7 @@ export default function CatalogPage() {
               },
               {
                 q: "Скільки коштує доставка?",
-                a: "Доставка безкоштовна при замовленні від 2000₴. В інших випадках - 120₴.",
+                a: <>Доставка безкоштовна при замовленні від 5000₴. Зазвичай вартість доставки по Україні - 80-120₴. <Link href='/delivery' className='underline text-purple-600'>Детальніше про доставку</Link></>,
                 emoji: "🚚"
               },
               {
@@ -594,7 +594,7 @@ export default function CatalogPage() {
               },
               {
                 q: "Можна повернути товар?",
-                a: "Так, протягом 14 днів без причини або при виявленні дефектів.",
+                a: <>Так, товар повернути можна. Ознайомтесь з нашою <Link href='/refund' className='underline text-purple-600'>політикою повернення товарів</Link>.</>,
                 emoji: "↩️"
               },
             ].map((item, index) => (

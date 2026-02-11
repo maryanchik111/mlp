@@ -170,6 +170,78 @@ const CONSTRUCTOR_ITEMS = [
     image: '/products/poster-1.PNG',
     description: 'Яскравий елемент декору кімнати для справжніх фанатів. Доступні 6 варіантів із головними героями. Обраний варіант вказувати при замовленні. Також, можливий формат сюрпризу - оберемо рандом постер.' 
   },
+  { 
+    id: 27, 
+    name: 'Куля з рандомною фігуркою My Little Pony русалки', 
+    category: 'Декор', 
+    price: 399, 
+    images: ['/products/sphere (1).PNG', '/products/sphere (2).PNG', '/products/sphere (3).PNG', '/products/sphere (4).PNG', '/products/sphere (5).PNG', '/products/sphere (6).PNG', '/products/sphere (7).PNG', '/products/sphere (8).PNG'],
+    image: '/products/sphere (1).PNG',
+    description: 'Сюрприз, який дарує радість ✨ У кожній кулі ховається рандомна фігурка русалки My Little Pony. Хто саме попадеться — справжня інтрига до моменту відкриття! У колекції представлені улюблені персонажі в яскравому та детальному виконанні.Фігурки ідеально підходять для гри, колекціонування або як приємний подарунок для шанувальників My Little Pony' 
+  },
+  { 
+    id: 28, 
+    name: 'Рандом пакетик Kayou “Fancy Pony Pet” із мʼяким брелком My Little Pony', 
+    category: 'Декор', 
+    price: 599, 
+    images: ['/products/randompaket (1).PNG', '/products/randompaket (2).PNG', '/products/randompaket (3).PNG'],
+    image: '/products/randompaket (1).PNG',
+    description: 'Сюрприз, який дарує радість ✨ У кожному рандом пакетику ховається мʼякий брелок із поні My Little Pony. Хто саме попадеться — інтрига до останнього моменту! У колекції грн представлені улюблені персонажі, виконані з приємного на дотик матеріалу. Брелок можна прикріпити до рюкзака, сумки, ключів або пеналу — улюблений поні завжди буде поруч 🦄' 
+  },
+  { 
+    id: 29, 
+    name: 'Рандом пакетик із мʼяким брелком My Little Pony', 
+    category: 'Декор', 
+    price: 299, 
+    images: ['/products/miakiibrelok (1).PNG', '/products/miakiibrelok (2).PNG'],
+    image: '/products/miakiibrelok (1).PNG',
+    description: 'Сюрприз, який дарує радість ✨ У кожному рандом пакетику ховається мʼякий брелок із поні My Little Pony. Хто саме попадеться — інтрига до останнього моменту! У колекції грн представлені улюблені персонажі, виконані з приємного на дотик матеріалу. Брелок можна прикріпити до рюкзака, сумки, ключів або пеналу — улюблений поні завжди буде поруч 🦄' 
+  },
+  { 
+    id: 30, 
+    name: 'Рандом пакетик із мʼяким брелком My Little Pony 2', 
+    category: 'Декор', 
+    price: 299, 
+    images: ['/products/brelok2 (1).PNG', '/products/brelok2 (2).PNG'],
+    image: '/products/brelok2 (1).PNG',
+    description: 'Сюрприз, який дарує радість ✨ У кожному рандом пакетику ховається мʼякий брелок із поні My Little Pony. Хто саме попадеться — інтрига до останнього моменту! У колекції грн представлені улюблені персонажі, виконані з приємного на дотик матеріалу. Брелок можна прикріпити до рюкзака, сумки, ключів або пеналу — улюблений поні завжди буде поруч 🦄' 
+  },
+  { 
+    id: 31, 
+    name: 'Лего My Little Pony', 
+    category: 'Декор', 
+    price: 210, 
+    images: ['/products/lego (1).PNG', '/products/lego (2).PNG', '/products/lego (3).PNG'],
+    image: '/products/lego (1).PNG',
+    description: 'У серії представлено 6 різних видів - головних персонажів улюбленого мультсеріалу: Rarity, Twilight Sparkle, Rainbow Dash, Pinkie Pie, Fluttershy, Apple Jack. Обери свого улюбленого героя або збери усю колекцію 🌈' 
+  },
+  { 
+    id: 32, 
+    name: 'Фігурка Флатершай “Party Time” My Little Pony', 
+    category: 'Декор', 
+    price: 399, 
+    images: ['/products/partytime (1).PNG', '/products/partytime (2).PNG', '/products/partytime (3).PNG', '/products/partytime (4).PNG', '/products/partytime (5).PNG'],
+    image: '/products/partytime (1).PNG',
+    description: 'Мила колекційна фігурка для фанатів. У серії 9 варіантів, в упаковці потрапляє випадкова (рандомна) модель. Коробки немає, фігурка йде без упаковки. Комплект: 1 фігурка. Можуть бути незначні пошкодження' 
+  },
+  { 
+    id: 33, 
+    name: 'Фігурка Флатершай “Party Time” My Little Pony 3', 
+    category: 'Декор', 
+    price: 399, 
+    images: ['/products/randpak (1).PNG', '/products/randpak (2).PNG', '/products/randpak (3).PNG'],
+    image: '/products/randpak (1).PNG',
+    description: 'Сюрприз, який дарує радість ✨ У кожному рандом пакетику ховається мʼякий брелок із поні My Little Pony. Хто саме попадеться — інтрига до останнього моменту! У колекції грн представлені улюблені персонажі, виконані з приємного на дотик матеріалу. Брелок можна прикріпити до рюкзака, сумки, ключів або пеналу — улюблений поні завжди буде поруч 🦄' 
+  },
+  { 
+    id: 34, 
+    name: 'Фігурка Флатершай “Party Time” My Little Pony 3', 
+    category: 'Декор', 
+    price: 399, 
+    images: ['/products/randomik (1).PNG', '/products/randomik (2).PNG', '/products/randomik (3).PNG'],
+    image: '/products/randomik (1).PNG',
+    description: 'Сюрприз, який дарує радість ✨ У кожному рандом пакетику ховається мʼякий брелок із поні My Little Pony. Хто саме попадеться — інтрига до останнього моменту! У колекції грн представлені улюблені персонажі, виконані з приємного на дотик матеріалу. Брелок можна прикріпити до рюкзака, сумки, ключів або пеналу — улюблений поні завжди буде поруч 🦄' 
+  },
 ];
 
 export default function BoxBuilderPage() {
@@ -312,10 +384,6 @@ export default function BoxBuilderPage() {
         {/* Header */}
         <section className="py-16 px-4">
           <div className="container mx-auto px-4 max-w-7xl text-center">
-            <div className="inline-flex items-center gap-2 bg-purple-100 px-4 py-2 rounded-full border border-purple-200 mb-6">
-              <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-              <span className="text-sm font-medium text-purple-700">Новинка</span>
-            </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
               <GiftIcon className="inline w-8 h-8 text-pink-400 mb-1 align-middle" /> Конструктор Magic Box
@@ -835,7 +903,7 @@ export default function BoxBuilderPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-gray-900">{calculation.boxPrice} ₴</p>
+                      <p className="text-1xl font-bold text-gray-900">{calculation.boxPrice} ₴</p>
                       <p className="text-sm text-gray-500">коробка</p>
                     </div>
                   </div>
@@ -855,7 +923,7 @@ export default function BoxBuilderPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-pink-600">{calculation.itemsPrice} ₴</p>
+                      <p className="text-1xl font-bold text-pink-600">{calculation.itemsPrice} ₴</p>
                       <p className="text-sm text-gray-500">товари</p>
                     </div>
                   </div>
@@ -897,11 +965,7 @@ export default function BoxBuilderPage() {
                     </div>
                     
                     <div className="mb-6">
-                      <p className="text-5xl font-bold mb-2">{calculation.total}</p>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold">₴</span>
-                        <span className="text-sm opacity-75">українських гривень</span>
-                      </div>
+                      <p className="text-5xl font-bold">{calculation.total}₴</p>
                     </div>
 
                     <button
@@ -921,8 +985,7 @@ export default function BoxBuilderPage() {
                           </>
                         ) : (
                           <>
-                            <span>Спочатку оберіть товари</span>
-                            <span className="text-2xl">⚠️</span>
+                            <span>Товари не обрано</span>
                           </>
                         )}
                       </span>
@@ -1010,14 +1073,9 @@ export default function BoxBuilderPage() {
                     
                     {/* Navigation */}
                     {detailModal.images.length > 1 && (
-                      <div className="flex items-center justify-center gap-4">
-                        <button
-                          onClick={() => setPhotoIndex(prev => (prev - 1 + detailModal.images!.length) % detailModal.images!.length)}
-                          className="px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg hover:bg-purple-700 transition-colors"
-                        >
-                          ← Попереднє
-                        </button>
-                        
+                      
+                      <div className="flex flex-col items-center justify-center gap-4">
+
                         {/* Dots indicator */}
                         <div className="flex gap-2">
                           {detailModal.images.map((_, index) => (
@@ -1032,62 +1090,26 @@ export default function BoxBuilderPage() {
                             />
                           ))}
                         </div>
-                        
+
+                        <div className="flex gap-2 w-full">
+                          <button
+                          onClick={() => setPhotoIndex(prev => (prev - 1 + detailModal.images!.length) % detailModal.images!.length)}
+                          className="px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg hover:bg-purple-700 transition-colors w-full"
+                        >
+                          ←
+                        </button>
                         <button
                           onClick={() => setPhotoIndex(prev => (prev + 1) % detailModal.images!.length)}
-                          className="px-5 py-3 bg-pink-600 text-white text-base font-semibold rounded-lg hover:bg-pink-700 transition-colors"
+                          className="px-5 py-3 bg-pink-600 text-white text-base font-semibold rounded-lg hover:bg-pink-700 transition-colors w-full"
                         >
-                          Наступне →
+                          →
                         </button>
+                        </div>
+                        
+
                       </div>
                     )}
-                  </div>
-                )}
-
-                {/* Product Info */}
-                <div className="space-y-6 border-t border-gray-100 pt-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Category */}
-                    <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                          <TagIcon className="w-5 h-5 text-white" />
-                        </div>
-                        <p className="font-bold text-gray-900 uppercase text-sm">Категорія</p>
-                      </div>
-                      <p className="text-xl font-bold text-purple-700">{detailModal.category}</p>
-                    </div>
-
-                    {/* Price */}
-                    <div className="bg-green-50 p-6 rounded-xl border border-green-200">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                          <CurrencyDollarIcon className="w-5 h-5 text-white" />
-                        </div>
-                        <p className="font-bold text-gray-900 uppercase text-sm">Ціна</p>
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <p className="text-3xl font-bold text-green-700">{detailModal.price}</p>
-                        <p className="text-xl text-green-600">₴</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  {detailModal.description && (
-                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                          <DocumentTextIcon className="w-5 h-5 text-white" />
-                        </div>
-                        <p className="font-bold text-gray-900 uppercase text-sm">Детальний опис</p>
-                      </div>
-                      <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{detailModal.description}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Action Buttons */}
+                    {/* Action Buttons */}
                 <div className="space-y-4 pt-6 border-t border-gray-100">
                   {selectedItems.some(i => i.id === detailModal.id) ? (
                     <button
@@ -1135,6 +1157,52 @@ export default function BoxBuilderPage() {
                     <span>Повернутися до вибору</span>
                   </button>
                 </div>
+                  </div>
+                )}
+
+                {/* Product Info */}
+                <div className="space-y-6 border-t border-gray-100 pt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Category */}
+                    <div className="bg-purple-50 p-6 rounded-xl border border-purple-200">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                          <TagIcon className="w-5 h-5 text-white" />
+                        </div>
+                        <p className="font-bold text-gray-900 uppercase text-sm">Категорія</p>
+                      </div>
+                      <p className="text-xl font-bold text-purple-700">{detailModal.category}</p>
+                    </div>
+
+                    {/* Price */}
+                    <div className="bg-green-50 p-6 rounded-xl border border-green-200">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <CurrencyDollarIcon className="w-5 h-5 text-white" />
+                        </div>
+                        <p className="font-bold text-gray-900 uppercase text-sm">Ціна</p>
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <p className="text-3xl font-bold text-green-700">{detailModal.price}</p>
+                        <p className="text-xl text-green-600">₴</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  {detailModal.description && (
+                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                          <DocumentTextIcon className="w-5 h-5 text-white" />
+                        </div>
+                        <p className="font-bold text-gray-900 uppercase text-sm">Детальний опис</p>
+                      </div>
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{detailModal.description}</p>
+                    </div>
+                  )}
+                </div>
+
               </div>
             </div>
           </div>
