@@ -1,5 +1,5 @@
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mlp-store.com.ua';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mlpcutiefamily.pp.ua';
 
   const routes = [
     {

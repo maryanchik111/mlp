@@ -142,7 +142,7 @@ export default function AddressAutocomplete({
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}${addressType}&countrycodes=ua&accept-language=uk,ru,en`,
         {
           headers: {
-            'User-Agent': 'MyLittlePony-Shop/1.0 (https://mlp-shop.ua)'
+            'User-Agent': 'MyLittlePony-Shop/1.0 (https://mlpcutiefamily.pp.ua)'
           }
         }
       );

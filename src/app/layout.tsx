@@ -27,12 +27,12 @@ export const metadata: Metadata = {
     description: "Купіть оригінальні іграшки My Little Pony та колекційні фігурки з доставкою по Україні",
     type: "website",
     locale: "uk_UA",
-    siteName: "MLP Store",
-    url: "https://mlp-store.com.ua",
+    siteName: "mlpcutiefamily store",
+    url: "https://www.mlpcutiefamily.pp.ua",
   },
   twitter: {
     card: "summary_large_image",
-    title: "My Little Pony Store",
+    title: "mlpcutiefamily store - Офіційні іграшки та колекційні фігурки My Little Pony",
     description: "Офіційні іграшки та колекційні фігурки My Little Pony",
   },
   robots: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   },
   themeColor: "#9333ea",
   alternates: {
-    canonical: "https://mlp-store.com.ua",
+    canonical: "https://www.mlpcutiefamily.pp.ua",
     languages: {
-      uk: "https://mlp-store.com.ua",
+      uk: "https://www.mlpcutiefamily.pp.ua",
     },
   },
 };

@@ -12,14 +12,14 @@ export function JsonLd({ data }: { data: unknown }): React.ReactElement {
 export const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'My Little Pony Store',
-  url: 'https://mlp-store.com.ua',
+  name: 'mlpcutiefamily store',
+  url: 'https://www.mlpcutiefamily.pp.ua',
   description: 'Online store for My Little Pony toys, figures, and collectibles',
-  logo: 'https://mlp-store.com.ua/icon-192.svg',
+  logo: 'https://mlpcutiefamily.pp.ua/icon-192.svg',
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'Customer Service',
-    email: 'support@mlp-store.com.ua',
+    email: 'support@mlpcutiefamily.pp.ua',
   },
   sameAs: [
     'https://instagram.com',
