@@ -937,7 +937,7 @@ export default function AdminPage() {
                           onClick={() => setSelectedOrder(order)}
                           className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
                         >
-                          📋 Інформація
+                          Info
                         </button>
                       </div>
                     </div>

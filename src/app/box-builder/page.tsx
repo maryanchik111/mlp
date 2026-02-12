@@ -23,21 +23,21 @@ const BOX_TYPES = [
     id: 'S', 
     name: 'S', 
     capacity: 5, 
-    price: 299,
+    price: 249,
     description: 'Маленький бокс'
   },
   { 
     id: 'M', 
     name: 'M', 
     capacity: 8, 
-    price: 499,
+    price: 349,
     description: 'Середній бокс'
   },
   { 
     id: 'L', 
     name: 'L', 
     capacity: 12, 
-    price: 799,
+    price: 499,
     description: 'Великий бокс'
   },
 ];

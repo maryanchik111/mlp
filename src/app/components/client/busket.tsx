@@ -14,6 +14,8 @@ interface CartItem {
   category: string;
   maxQuantity?: number; // Максимальна кількість на складі
   discount?: number; // Знижка на товар у %
+  deliveryPrice?: string | number; // Ціна доставки
+  deliveryDays?: string; // Термін доставки
 }
 
 export default function Basket() {
@@ -128,14 +130,12 @@ export default function Basket() {
     return sum + discountedPrice * item.quantity;
   }, 0);
 
-  // Визначаємо ціну доставки як максимальну серед товарів (або 0 якщо не вказано)
-  let deliveryPrice = cartItems.length > 0
-    ? Math.max(...cartItems.map((item: any) => (typeof item.deliveryPrice === 'number' ? item.deliveryPrice : 0)), 0)
-    : 0;
-  // Якщо сума товарів >= 5000, доставка безкоштовна
-  if (totalPrice >= 5000) deliveryPrice = 0;
-  const finalPrice = totalPrice + deliveryPrice;
-  const estimatedPoints = Math.floor(finalPrice / 100);
+  // Визначаємо ціну доставки як значення з першого товару (або 120 за замовчуванням)
+  let deliveryPriceDisplay = cartItems.length > 0
+    ? cartItems[0]?.deliveryPrice || '120'
+    : '120';
+  const finalPrice = totalPrice; // Only goods, delivery is paid separately
+  const estimatedPoints = Math.floor(finalPrice / 100); // Points based on goods only
 
   if (!mounted) {
     return null;
@@ -312,15 +312,16 @@ export default function Basket() {
                     <span>Сума товарів:</span>
                     <span className="text-lg text-gray-900">{totalPrice}₴</span>
                   </div>
-                  <div className={`flex justify-between items-center font-semibold ${deliveryPrice === 0 ? 'text-green-700 bg-green-50 px-2 py-1.5 rounded' : 'text-gray-700'}`}>
+                  <div className="flex justify-between items-center font-semibold text-gray-700">
                     <span>Доставка:</span>
-                    <span className="text-lg">{deliveryPrice === 0 ? 'Безкоштовна' : `+${deliveryPrice}₴`}</span>
+                    <span className="text-lg font-semibold text-blue-600">{deliveryPriceDisplay} ₴</span>
                   </div>
+                  <p className='text-sm'>Ознайомтеся з <Link href="/delivery" className="text-purple-600 underline">умовами доставки</Link></p>
                 </div>
 
                 {/* Остаток */}
                 <div className="bg-gray-100 rounded-lg p-3 flex justify-between items-center">
-                  <span className="font-bold text-gray-900 text-base">До оплати:</span>
+                  <span className="font-bold text-gray-900 text-base">Оплата за товари:</span>
                   <span className="text-3xl font-bold text-indigo-600">
                     {finalPrice}₴
                   </span>

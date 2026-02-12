@@ -43,9 +43,7 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
   // Підрахунок продажів по товарах
   const productSales: Record<number, number> = {};
   let totalSold = 0;
-  let totalRevenue = 0; // фінальна виручка (товари + доставка)
-  let totalGoodsRevenue = 0; // виручка від товарів (без доставки)
-  let totalDeliveryRevenue = 0; // виручка від доставки
+  let totalRevenue = 0; // виручка від товарів (без доставки)
   let totalUserDiscounts = 0; // знижки користувачів (від рівня)
   let totalPoints = 0; // списані бали
   let totalProductDiscounts = 0; // знижки на товари
@@ -62,11 +60,11 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
     const orderPoints = order.redeemedAmount || 0;
     totalPoints += orderPoints;
     
-    // Всього надходження (finalPrice включає і товари і доставку)
+    // Всього надходження від товарів (finalPrice тепер не включає доставку)
     const orderFinalPrice = order.finalPrice || 0;
     totalRevenue += orderFinalPrice;
     
-    // Підрахунок знижок на товари, витрат та доставки
+    // Підрахунок знижок на товари та витрат
     order.items.forEach(item => {
       const originalPrice = parseInt(item.price);
       const discount = item.discount ? Number(item.discount) : 0;
@@ -82,23 +80,13 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
         totalCostPrice += costPrice * item.quantity;
       }
       
-      // Додаємо виручку від доставки (за кожен товар)
-      const itemDeliveryPrice = item.deliveryPrice 
-        ? (typeof item.deliveryPrice === 'string' ? parseInt(item.deliveryPrice) : item.deliveryPrice)
-        : 120; // Fallback на 120 для старих замовлень
-      totalDeliveryRevenue += itemDeliveryPrice;
-      
       productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
       totalSold += item.quantity;
     });
   });
 
-  // Виручка від товарів = все надходження - доставка
-  totalGoodsRevenue = totalRevenue - totalDeliveryRevenue;
-
   // Розрахунок прибутку = Виручка від товарів - Витрати на закупки
-  // (Доставка не входить у прибуток, оскільки витрати на доставку = виручка від доставки)
-  const totalProfit = totalGoodsRevenue - totalCostPrice;
+  const totalProfit = totalRevenue - totalCostPrice;
 
   // Топ-5 товарів
   const topProducts = [...products]
@@ -203,7 +191,7 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
           </div>
         )}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
         <div className="bg-indigo-50 p-4 rounded-lg">
           <p className="text-sm text-gray-500 mb-1">Зареєстровані акаунти</p>
           <p className="text-2xl font-bold text-indigo-700">{usersCount}</p>
@@ -213,30 +201,22 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
           <p className="text-2xl font-bold text-purple-700">{totalSold}</p>
         </div>
         <div className="bg-slate-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-500 mb-1">Всього надходження (грн)</p>
+          <p className="text-sm text-gray-500 mb-1">Надходження за товари (грн)</p>
           <p className="text-2xl font-bold text-slate-700">{totalRevenue}₴</p>
-        </div>
-        <div className="bg-green-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-500 mb-1">Оплата за товари (грн)</p>
-          <p className="text-2xl font-bold text-green-700">{totalGoodsRevenue}₴</p>
-        </div>
-        <div className="bg-cyan-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-500 mb-1">Оплата за доставку (грн)</p>
-          <p className="text-2xl font-bold text-cyan-700">{totalDeliveryRevenue}₴</p>
         </div>
         <div className="bg-blue-50 p-4 rounded-lg">
           <p className="text-sm text-gray-500 mb-1">Списано балів (грн)</p>
           <p className="text-2xl font-bold text-blue-700">{totalPoints}₴</p>
         </div>
+        <div className="bg-amber-50 p-4 rounded-lg">
+          <p className="text-sm text-gray-500 mb-1">Знижки користувачів (грн)</p>
+          <p className="text-2xl font-bold text-amber-700">{totalUserDiscounts}₴</p>
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-pink-50 p-4 rounded-lg">
           <p className="text-sm text-gray-500 mb-1">Витрати на закупки (грн)</p>
           <p className="text-2xl font-bold text-pink-700">{totalCostPrice}₴</p>
-        </div>
-        <div className="bg-orange-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-500 mb-1">Знижки користувачів (грн)</p>
-          <p className="text-2xl font-bold text-orange-700">{totalUserDiscounts}₴</p>
         </div>
         <div className={`p-4 rounded-lg ${totalProfit >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
           <p className="text-sm text-gray-500 mb-1">Чистий прибуток (грн)</p>

@@ -196,7 +196,7 @@ export const fetchUserProfile = async (uid: string): Promise<UserProfile | null>
 
 export const updateUserStatsAfterOrder = async (
   uid: string,
-  orderFinalPrice: number,
+  orderFinalPrice: number, // Price for goods only (delivery is paid separately)
   redeemedPoints: number = 0
 ) => {
   try {
@@ -206,7 +206,7 @@ export const updateUserStatsAfterOrder = async (
     const data = snapshot.val() as UserProfile;
     // Спочатку списуємо бали (не даємо піти в мінус)
     const newPointsBase = Math.max(0, (data.points || 0) - Math.max(0, redeemedPoints));
-    // Додаємо бали за покупку
+    // Додаємо бали за покупку (тільки за товари, не за доставку)
     const addedPoints = Math.floor(orderFinalPrice / 100); // 1 бал за кожні 100₴
     const totalSpent = data.totalSpent + orderFinalPrice;
     const totalOrders = data.totalOrders + 1;
