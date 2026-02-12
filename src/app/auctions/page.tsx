@@ -106,7 +106,10 @@ export default function AuctionsPage() {
               needsUpdate = true;
               // Оновити статус в базі на "ended"
               try {
-                updateAuction(auction.id, { status: 'ended', closedAt: now });
+                // mark ended and set winner using server helper
+                // prefer calling closeAuction so winner fields are set
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                (async () => { const { closeAuction } = await import('@/lib/firebase'); try { await closeAuction(auction.id); } catch(e) { console.error(e); } })();
               } catch (error) {
                 console.error('Помилка оновлення статусу аукціону:', error);
               }
@@ -152,8 +155,9 @@ export default function AuctionsPage() {
     [allAuctions]
   );
 
+  // Accept legacy 'closed' status as finished as well
   const endedAuctions = useMemo(
-    () => allAuctions.filter(a => a.status === 'ended'),
+    () => allAuctions.filter(a => (['ended', 'closed'] as string[]).includes(a.status as string)),
     [allAuctions]
   );
 
@@ -212,11 +216,11 @@ export default function AuctionsPage() {
         {/* Ставки */}
         <div className="grid grid-cols-2 gap-3 mb-4 text-center">
           <div className="bg-purple-50 p-3 rounded">
-            <p className="text-xs text-gray-600">Поточна ціна</p>
+            <p className="text-xs text-gray-600">Поточна ставка</p>
             <p className="text-xl font-bold text-purple-600">{auction.currentPrice}₴</p>
           </div>
           <div className="bg-blue-50 p-3 rounded">
-            <p className="text-xs text-gray-600">Крок</p>
+            <p className="text-xs text-gray-600">Мін. ставка</p>
             <p className="text-lg font-bold text-blue-600">+{auction.minBidStep}₴</p>
           </div>
         </div>
@@ -245,13 +249,22 @@ export default function AuctionsPage() {
         )}
 
         {/* Переможець для завершених */}
-        {auction.status === 'ended' && auction.winnerUserName && (
-          <div className="mb-3 p-3 bg-green-50 rounded border border-green-200">
-            <p className="text-xs text-green-600">🏆 Переможець</p>
-            <p className="font-bold text-green-700">{auction.winnerUserName}</p>
-            <p className="text-sm text-green-600">Ціна: {auction.currentPrice}₴</p>
-          </div>
-        )}
+        {(() => {
+          const lastBid = auction.bids && auction.bids.length ? auction.bids[auction.bids.length - 1] : null;
+          const isFinished = (['ended', 'closed'] as string[]).includes(auction.status as string);
+          const winnerName = auction.winnerUserName || lastBid?.userName || null;
+          const winnerPrice = auction.currentPrice || lastBid?.amount || null;
+          if (isFinished && winnerName) {
+            return (
+              <div className="mb-3 p-3 bg-green-50 rounded border border-green-200">
+                <p className="text-xs text-green-600">🏆 Переможець</p>
+                <p className="font-bold text-green-700">{winnerName}</p>
+                {winnerPrice !== null && <p className="text-sm text-green-600">Ціна: {winnerPrice}₴</p>}
+              </div>
+            );
+          }
+          return null;
+        })()}
 
         {/* Форма для ставки (тільки активні) */}
         {auction.status === 'active' && (
@@ -352,8 +365,8 @@ export default function AuctionsPage() {
           </button>
         )}
 
-        {/* Історія ставок */}
-        {auction.bids && auction.bids.length > 0 && (
+        {/* Історія ставок (приховано в архіві) */}
+        {auction.status !== 'ended' && auction.bids && auction.bids.length > 0 && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <p className="text-sm font-semibold text-gray-700 mb-2">Ставки ({auction.bids.length}):</p>
             <div className="space-y-1 max-h-32 overflow-y-auto">
@@ -382,18 +395,6 @@ export default function AuctionsPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-50 via-purple-50 to-white">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-purple-600">
-            🐴 MLP Store
-          </Link>
-          <div className="flex items-center gap-4">
-            <Basket />
-            <AccountButton />
-          </div>
-        </div>
-      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">🔨 Аукціони</h1>

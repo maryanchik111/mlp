@@ -1840,7 +1840,7 @@ export async function closeAuction(auctionId: string): Promise<void> {
   const lastBid = auction.bids?.[auction.bids.length - 1];
 
   await update(auctionRef, {
-    status: 'closed',
+    status: 'ended',
     closedAt: Date.now(),
     winnerUserId: lastBid?.userId || null,
     winnerUserName: lastBid?.userName || null,

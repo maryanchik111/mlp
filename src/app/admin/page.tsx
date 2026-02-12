@@ -1632,30 +1632,39 @@ export default function AdminPage() {
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-3 mb-3 text-sm">
-                        <div className="bg-purple-50 p-3 rounded">
-                          <p className="text-gray-600">Поточна ціна</p>
-                          <p className="font-bold text-purple-600 text-lg">{auction.currentPrice}₴</p>
+                      {(!(['ended', 'closed'] as string[]).includes(auction.status as string)) ? (
+                        <div className="grid grid-cols-2 gap-3 mb-3 text-sm">
+                          <div className="bg-purple-50 p-3 rounded">
+                            <p className="text-gray-600">Поточна ставка</p>
+                            <p className="font-bold text-purple-600 text-lg">{auction.currentPrice}₴</p>
+                          </div>
+                          <div className="bg-blue-50 p-3 rounded">
+                            <p className="text-gray-600">Мін. ставка</p>
+                            <p className="font-bold text-blue-600">{auction.minBidStep}₴</p>
+                          </div>
+                          <div className="bg-yellow-50 p-3 rounded">
+                            <p className="text-gray-600">Ставок</p>
+                            <p className="font-bold text-yellow-600">{auction.bids?.length || 0}</p>
+                          </div>
+                          <div className="bg-orange-50 p-3 rounded">
+                            <p className="text-gray-600">Таймаут</p>
+                            <p className="font-bold text-orange-600">{auction.timeoutMinutes} хв</p>
+                          </div>
                         </div>
-                        <div className="bg-blue-50 p-3 rounded">
-                          <p className="text-gray-600">Крок</p>
-                          <p className="font-bold text-blue-600">{auction.minBidStep}₴</p>
-                        </div>
-                        <div className="bg-yellow-50 p-3 rounded">
-                          <p className="text-gray-600">Ставок</p>
-                          <p className="font-bold text-yellow-600">{auction.bids?.length || 0}</p>
-                        </div>
-                        <div className="bg-orange-50 p-3 rounded">
-                          <p className="text-gray-600">Таймаут</p>
-                          <p className="font-bold text-orange-600">{auction.timeoutMinutes} хв</p>
-                        </div>
-                      </div>
-
-                      {auction.status === 'ended' && auction.winnerUserName && (
-                        <div className="mb-3 p-3 bg-green-50 rounded border border-green-200">
-                          <p className="text-sm text-green-700"><strong>🏆 Переможець:</strong> {auction.winnerUserName}</p>
-                          <p className="text-sm text-green-700"><strong>Фінальна ціна:</strong> {auction.currentPrice}₴</p>
-                        </div>
+                      ) : (
+                        (() => {
+                          const lastBid = auction.bids && auction.bids.length ? auction.bids[auction.bids.length - 1] : null;
+                          const winnerName = auction.winnerUserName || lastBid?.userName || null;
+                          const winnerPrice = auction.currentPrice || lastBid?.amount || null;
+                          return (
+                            winnerName && (
+                              <div className="mb-3 p-3 bg-green-50 rounded border border-green-200">
+                                <p className="text-sm text-green-700"><strong>🏆 Переможець:</strong> {winnerName}</p>
+                                {winnerPrice !== null && <p className="text-sm text-green-700"><strong>Фінальна ціна:</strong> {winnerPrice}₴</p>}
+                              </div>
+                            )
+                          );
+                        })()
                       )}
 
                       <div className="flex gap-2">
