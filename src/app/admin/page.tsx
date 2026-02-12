@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, listenToSupportTickets } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets } from '@/lib/firebase';
 import { useAuth, useModal } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
-type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support';
+type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support' | 'auctions';
 
 // Список доступних категорій товарів
 const PRODUCT_CATEGORIES = [
@@ -62,6 +62,21 @@ export default function AdminPage() {
   const [ticketReply, setTicketReply] = useState('');
   const [ticketReplyLoading, setTicketReplyLoading] = useState(false);
   
+  // Auctions state
+  const [auctions, setAuctions] = useState<Auction[]>([]);
+  const [showAuctionModal, setShowAuctionModal] = useState(false);
+  const [uploadingAuctionImage, setUploadingAuctionImage] = useState(false);
+  const [newAuctionForm, setNewAuctionForm] = useState({
+    name: '',
+    description: '',
+    startPrice: '',
+    minBidStep: '50',
+    timeoutMinutes: '30',
+    openTime: '',
+    image: '',
+    imageFile: null as File | null,
+  });
+  
   // User profiles cache for authorized orders
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
 
@@ -82,6 +97,14 @@ export default function AdminPage() {
     if (!mounted) return;
     fetchAllProducts((loadedProducts) => {
       setProducts(loadedProducts);
+    });
+  }, [mounted]);
+
+  // Функція для завантаження аукціонів
+  useEffect(() => {
+    if (!mounted) return;
+    fetchAllAuctions((loadedAuctions) => {
+      setAuctions(loadedAuctions);
     });
   }, [mounted]);
 
@@ -824,6 +847,16 @@ export default function AdminPage() {
             >
               🆘 Підтримка
             </button>
+            <button
+              onClick={() => setActiveTab('auctions')}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
+                activeTab === 'auctions'
+                  ? 'bg-purple-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🔨 Аукціони
+            </button>
           </div>
         </div>
 
@@ -1305,6 +1338,356 @@ export default function AdminPage() {
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Auctions Tab Content */}
+        {activeTab === 'auctions' && (
+          <div className="space-y-8">
+            {/* Кнопка створення аукціону */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-bold text-gray-900">🔨 Аукціони</h2>
+                <button
+                  onClick={() => {
+                    setShowAuctionModal(true);
+                    setNewAuctionForm({
+                      name: '',
+                      description: '',
+                      startPrice: '',
+                      minBidStep: '50',
+                      timeoutMinutes: '30',
+                      openTime: '',
+                      image: '',
+                      imageFile: null,
+                    });
+                  }}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-all"
+                >
+                  ＋ Новий аукціон
+                </button>
+              </div>
+            </div>
+
+            {/* Модальне вікно створення аукціону */}
+            {showAuctionModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+                <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto">
+                  {/* Заголовок модалі */}
+                  <div className="bg-purple-600 p-6 flex justify-between items-center sticky top-0">
+                    <h2 className="text-2xl font-bold text-white">🔨 Створення аукціону</h2>
+                    <button
+                      onClick={() => setShowAuctionModal(false)}
+                      className="text-white hover:opacity-80 transition-opacity text-2xl font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* Форма створення */}
+                  <div className="p-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Назва аукціону *</label>
+                      <input
+                        type="text"
+                        value={newAuctionForm.name}
+                        onChange={(e) => setNewAuctionForm({ ...newAuctionForm, name: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-gray-900"
+                        placeholder="Наприклад: Рідка фігурка Rainbow Dash"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Опис</label>
+                      <textarea
+                        value={newAuctionForm.description}
+                        onChange={(e) => setNewAuctionForm({ ...newAuctionForm, description: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-gray-900"
+                        placeholder="Детальний опис товару"
+                        rows={3}
+                      />
+                    </div>
+
+                    {/* Завантаження фото */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">Зображення товару *</label>
+                      <div className="space-y-3">
+                        {/* Upload Button / Drop Zone */}
+                        <label className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed border-purple-300 rounded-lg cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-all">
+                          <div className="flex flex-col items-center justify-center pt-2 pb-2">
+                            <svg className="w-10 h-10 text-purple-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            <p className="text-sm font-medium text-gray-700">
+                              {newAuctionForm.imageFile ? newAuctionForm.imageFile.name : 'Натисніть або перетягніть фото'}
+                            </p>
+                            {newAuctionForm.imageFile && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                {(newAuctionForm.imageFile.size / 1024 / 1024).toFixed(2)} МБ
+                              </p>
+                            )}
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setNewAuctionForm(prev => ({ ...prev, imageFile: file }));
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  setNewAuctionForm(prev => ({ ...prev, image: reader.result as string }));
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+
+                        {/* Preview */}
+                        {newAuctionForm.image && (
+                          <div className="flex gap-4 items-start">
+                            <div className="flex-shrink-0">
+                              <img 
+                                src={newAuctionForm.image} 
+                                alt="Preview" 
+                                className="w-32 h-32 rounded-lg object-cover border border-gray-300 shadow-sm"
+                              />
+                            </div>
+                            <div className="flex-1 flex flex-col justify-between">
+                              <div>
+                                <p className="text-sm font-medium text-gray-700">Файл вибраний:</p>
+                                <p className="text-xs text-gray-600 break-all">{newAuctionForm.imageFile?.name}</p>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setNewAuctionForm(prev => ({ 
+                                    ...prev, 
+                                    imageFile: null,
+                                    image: ''
+                                  }));
+                                }}
+                                className="text-xs px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-all"
+                              >
+                                ✕ Видалити
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Стартова ціна (₴) *</label>
+                        <input
+                          type="number"
+                          value={newAuctionForm.startPrice}
+                          onChange={(e) => setNewAuctionForm({ ...newAuctionForm, startPrice: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-gray-900"
+                          placeholder="100"
+                          min="1"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Крок ставки (₴) *</label>
+                        <input
+                          type="number"
+                          value={newAuctionForm.minBidStep}
+                          onChange={(e) => setNewAuctionForm({ ...newAuctionForm, minBidStep: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-gray-900"
+                          placeholder="50"
+                          min="1"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Час неперебивання (хв) *</label>
+                        <input
+                          type="number"
+                          value={newAuctionForm.timeoutMinutes}
+                          onChange={(e) => setNewAuctionForm({ ...newAuctionForm, timeoutMinutes: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-gray-900"
+                          placeholder="30"
+                          min="1"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Час відкриття аукціону *</label>
+                        <input
+                          type="datetime-local"
+                          value={newAuctionForm.openTime}
+                          onChange={(e) => setNewAuctionForm({ ...newAuctionForm, openTime: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-gray-900"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Кнопки дій */}
+                    <div className="flex gap-3 pt-4 border-t border-gray-200">
+                      <button
+                        onClick={() => setShowAuctionModal(false)}
+                        className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300 transition-all"
+                      >
+                        Скасувати
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (!newAuctionForm.name || !newAuctionForm.startPrice || !newAuctionForm.minBidStep || !newAuctionForm.timeoutMinutes || !newAuctionForm.openTime || !newAuctionForm.imageFile) {
+                            showWarning('Заповніть всі обов\'язкові поля');
+                            return;
+                          }
+
+                          setActionLoading(true);
+                          try {
+                            // Завантажити зображення
+                            let imageUrl: string = '';
+                            if (newAuctionForm.imageFile) {
+                              setUploadingAuctionImage(true);
+                              const file = newAuctionForm.imageFile;
+                              const uploadedUrl = await uploadImage(file, 'auctions');
+                              if (!uploadedUrl) {
+                                throw new Error('Помилка при завантаженні зображення');
+                              }
+                              imageUrl = uploadedUrl;
+                            }
+
+                            const openTimeMs = new Date(newAuctionForm.openTime).getTime();
+                            await createAuction(
+                              newAuctionForm.name,
+                              newAuctionForm.description,
+                              parseInt(newAuctionForm.startPrice),
+                              parseInt(newAuctionForm.minBidStep),
+                              parseInt(newAuctionForm.timeoutMinutes),
+                              openTimeMs,
+                              imageUrl
+                            );
+                            showSuccess('Аукціон створено успішно!');
+                            setShowAuctionModal(false);
+                            setNewAuctionForm({
+                              name: '',
+                              description: '',
+                              startPrice: '',
+                              minBidStep: '50',
+                              timeoutMinutes: '30',
+                              openTime: '',
+                              image: '',
+                              imageFile: null,
+                            });
+                            fetchAllAuctions(setAuctions);
+                          } catch (error) {
+                            showError('Помилка створення аукціону');
+                            console.error(error);
+                          } finally {
+                            setActionLoading(false);
+                            setUploadingAuctionImage(false);
+                          }
+                        }}
+                        disabled={actionLoading || uploadingAuctionImage}
+                        className={`flex-1 px-4 py-2 rounded-lg font-bold transition-all ${
+                          actionLoading || uploadingAuctionImage
+                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
+                      >
+                        {actionLoading ? '⏳ Обробка...' : uploadingAuctionImage ? '📤 Завантаження фото...' : '✅ Створити'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Список аукціонів */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Всі аукціони</h2>
+
+              {auctions.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-600">Немає аукціонів</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {auctions.map((auction) => (
+                    <div
+                      key={auction.id}
+                      className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-gray-900 text-lg">{auction.name}</h3>
+                          <p className="text-sm text-gray-600 mt-1">{auction.description}</p>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ml-4 ${
+                          auction.status === 'active' ? 'bg-green-100 text-green-800'
+                          : auction.status === 'scheduled' ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {auction.status === 'active' ? '🟢 Активний'
+                          : auction.status === 'scheduled' ? '🔵 Запланований'
+                          : '⚫ Завершений'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-3 mb-3 text-sm">
+                        <div className="bg-purple-50 p-3 rounded">
+                          <p className="text-gray-600">Поточна ціна</p>
+                          <p className="font-bold text-purple-600 text-lg">{auction.currentPrice}₴</p>
+                        </div>
+                        <div className="bg-blue-50 p-3 rounded">
+                          <p className="text-gray-600">Крок</p>
+                          <p className="font-bold text-blue-600">{auction.minBidStep}₴</p>
+                        </div>
+                        <div className="bg-yellow-50 p-3 rounded">
+                          <p className="text-gray-600">Ставок</p>
+                          <p className="font-bold text-yellow-600">{auction.bids?.length || 0}</p>
+                        </div>
+                        <div className="bg-orange-50 p-3 rounded">
+                          <p className="text-gray-600">Таймаут</p>
+                          <p className="font-bold text-orange-600">{auction.timeoutMinutes} хв</p>
+                        </div>
+                      </div>
+
+                      {auction.status === 'ended' && auction.winnerUserName && (
+                        <div className="mb-3 p-3 bg-green-50 rounded border border-green-200">
+                          <p className="text-sm text-green-700"><strong>🏆 Переможець:</strong> {auction.winnerUserName}</p>
+                          <p className="text-sm text-green-700"><strong>Фінальна ціна:</strong> {auction.currentPrice}₴</p>
+                        </div>
+                      )}
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            if (confirm('Видалити цей аукціон?')) {
+                              setActionLoading(true);
+                              deleteAuction(auction.id).then(() => {
+                                showSuccess('Аукціон видалено');
+                                fetchAllAuctions(setAuctions);
+                                setActionLoading(false);
+                              }).catch(() => {
+                                showError('Помилка видалення');
+                                setActionLoading(false);
+                              });
+                            }
+                          }}
+                          disabled={actionLoading}
+                          className={`flex-1 font-bold py-2 rounded-lg transition-all text-sm ${
+                            actionLoading
+                              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                              : 'bg-red-600 text-white hover:bg-red-700'
+                          }`}
+                        >
+                          🗑️ Видалити
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

@@ -14,7 +14,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion'; // 1. Імпортуємо анімації
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MobileNav() {
   const { user, profile, loading } = useAuth();
@@ -92,13 +92,11 @@ export default function MobileNav() {
 
   if (!mounted) return null;
 
-  // Допоміжна функція для перевірки активного шляху
   const isActive = (path: string) => {
     if (path === '/') return pathname === '/';
     return pathname?.startsWith(path);
   };
 
-  // Налаштування анімації для елементів
   const navItemVariants = {
     tap: { scale: 0.9 },
     hover: { scale: 1.1 }
@@ -106,9 +104,8 @@ export default function MobileNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white-80 backdrop-blur-sm border-t border-gray-200/50 shadow-lg z-50 rounded-full mx-2 mb-4">
-      <div className={`p-3 flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-7' : 'grid grid-cols-6'} w-full`}>
+      <div className={`p-3 flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-8' : 'grid grid-cols-7'} w-full`}>
         
-        {/* Спільна логіка для кнопок */}
         {[
           { id: 'home', href: '/', icon: HomeIcon, label: 'Головна' },
           { id: 'catalog', href: '/catalog', icon: ShoppingBagIcon, label: 'Каталог' },
@@ -128,7 +125,6 @@ export default function MobileNav() {
               <item.icon className="w-7 h-7" />
             </motion.div>
             
-            {/* Анімований фон-кружечок */}
             {isActive(item.href) && (
               <motion.div
                 layoutId="activeTab"
@@ -139,7 +135,27 @@ export default function MobileNav() {
           </Link>
         ))}
 
-        {/* Кошик (окрема логіка кнопки) */}
+        <Link 
+          href="/auctions" 
+          className="relative flex flex-col items-center justify-center h-full w-full"
+        >
+          <motion.div
+            variants={navItemVariants}
+            whileTap="tap"
+            className={`z-10 transition-colors duration-300 text-2xl ${isActive('/auctions') ? 'text-purple-600' : 'text-gray-500'}`}
+          >
+            🔨
+          </motion.div>
+          
+          {isActive('/auctions') && (
+            <motion.div
+              layoutId="activeAuctionsTab"
+              className="absolute inset-0 bg-purple-100 rounded-full -z-0"
+              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+            />
+          )}
+        </Link>
+
         <button onClick={handleCartClick} className="relative flex flex-col items-center justify-center h-full w-full">
           <motion.div whileTap={{ scale: 0.9 }} className="text-gray-500 z-10">
             <ShoppingCartIcon className="w-7 h-7" />
@@ -158,7 +174,6 @@ export default function MobileNav() {
           </motion.div>
         </button>
 
-        {/* Адмін */}
         {isAdmin && (
           <Link href="/admin" className="relative flex flex-col items-center justify-center h-full w-full">
             <motion.div
@@ -178,7 +193,6 @@ export default function MobileNav() {
           </Link>
         )}
 
-        {/* Акаунт */}
         <Link href="/account" className="relative flex flex-col items-center justify-center h-full w-full">
           <motion.div
             whileTap={{ scale: 0.9 }}
