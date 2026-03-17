@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/app/providers';
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: string;
   quantity: number;
@@ -98,11 +98,11 @@ export default function Basket() {
     });
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
@@ -280,8 +280,8 @@ export default function Basket() {
                             }
                             disabled={item.maxQuantity !== undefined && item.quantity >= item.maxQuantity}
                             className={`px-2.5 py-1.5 text-base font-bold rounded transition-colors ${item.maxQuantity !== undefined && item.quantity >= item.maxQuantity
-                                ? 'text-gray-400 cursor-not-allowed opacity-50'
-                                : 'text-gray-700 hover:bg-white'
+                              ? 'text-gray-400 cursor-not-allowed opacity-50'
+                              : 'text-gray-700 hover:bg-white'
                               }`}
                             aria-label="Збільшити кількість"
                           >

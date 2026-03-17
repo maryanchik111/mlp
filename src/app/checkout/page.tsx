@@ -183,9 +183,8 @@ export default function CheckoutPage() {
 
       // Зменшуємо кількість товарів у базі
       for (const item of cartItems) {
-        const itemId = typeof item.id === 'string' ? parseInt(item.id) : item.id;
-        if (!isNaN(itemId)) {
-          await decreaseProductQuantity(itemId, item.quantity);
+        if (item.id) {
+          await decreaseProductQuantity(String(item.id), item.quantity);
         }
       }
 
@@ -450,8 +449,8 @@ export default function CheckoutPage() {
                 </h2>
                 <div className="space-y-2">
                   <label className={`flex items-center p-3 border rounded-lg cursor-pointer hover:border-indigo-400 transition-colors ${formData.deliveryMethod === 'nova'
-                      ? 'border-indigo-600 bg-indigo-50'
-                      : 'border-gray-300 bg-gray-50'
+                    ? 'border-indigo-600 bg-indigo-50'
+                    : 'border-gray-300 bg-gray-50'
                     }`}>
                     <input
                       type="radio"
@@ -468,8 +467,8 @@ export default function CheckoutPage() {
                   </label>
 
                   <label className={`flex items-center p-3 border rounded-lg cursor-pointer hover:border-indigo-400 transition-colors ${formData.deliveryMethod === 'ukr'
-                      ? 'border-indigo-600 bg-indigo-50'
-                      : 'border-gray-300 bg-gray-50'
+                    ? 'border-indigo-600 bg-indigo-50'
+                    : 'border-gray-300 bg-gray-50'
                     }`}>
                     <input
                       type="radio"
@@ -667,8 +666,8 @@ export default function CheckoutPage() {
                   onClick={handleSubmitOrder}
                   disabled={isLoading}
                   className={`w-full font-bold py-3 rounded-lg transition-colors text-base ${isLoading
-                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
-                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                     }`}
                 >
                   {isLoading ? '⏳ Обробка...' : '✓ Оформити'}

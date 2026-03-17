@@ -49,7 +49,7 @@ export const checkAdminAccess = (user: User | null): boolean => {
 
 // Типи для замовлень
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: string;
   quantity: number;
@@ -345,7 +345,7 @@ export const fetchOrdersByStatus = (status: string, callback: (orders: Order[]) 
 
 // Функція для оновлення статусу замовлення
 export const updateOrderStatus = async (
-  orderId: string, 
+  orderId: string,
   newStatus: 'pending' | 'processing' | 'shipped' | 'ready_for_pickup' | 'completed' | 'cancelled',
   trackingNumber?: string
 ) => {
@@ -353,27 +353,27 @@ export const updateOrderStatus = async (
     // Отримуємо замовлення
     const orderRef = ref(database, `orders/${orderId}`);
     const orderSnapshot = await get(orderRef);
-    
+
     if (!orderSnapshot.exists()) {
       return false;
     }
-    
+
     const order = orderSnapshot.val();
-    
+
     // Підготовлюємо оновлення
     const updateData: any = {
       status: newStatus,
       updatedAt: Date.now(),
     };
-    
+
     // Додаємо ТТН якщо він передано
     if (trackingNumber) {
       updateData.trackingNumber = trackingNumber;
     }
-    
+
     // Оновлюємо в базі даних
     await update(orderRef, updateData);
-    
+
     // Відправляємо Telegram сповіщення через API endpoint
     if (order.userId && newStatus !== 'pending') {
       try {
@@ -391,7 +391,7 @@ export const updateOrderStatus = async (
         console.error('Telegram notification error:', error);
       }
     }
-    
+
     return true;
   } catch (error) {
     console.error('Error updating order status:', error);
@@ -401,7 +401,7 @@ export const updateOrderStatus = async (
 
 // Тип для товару
 export interface Product {
-  id: number;
+  id: string;
   name: string;
   category: string;
   price: string;
@@ -414,17 +414,44 @@ export interface Product {
   discount?: number; // знижка на товар у %
   deliveryPrice?: string; // ціна доставки (наприклад "120" для України, "150" для закордону)
   deliveryDays?: string; // термін доставки (наприклад "1-2" для України, "7-14" для закордону)
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
+ * Перетворення українського тексту в англійський slug (lowercase, translit)
+ */
+export function slugify(text: string): string {
+  const map: Record<string, string> = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd', 'е': 'e', 'є': 'ye', 'ж': 'zh',
+    'з': 'z', 'и': 'y', 'і': 'i', 'ї': 'yi', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+    'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts',
+    'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ь': '', 'ю': 'yu', 'я': 'ya',
+    'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'H', 'Ґ': 'G', 'Д': 'D', 'Е': 'E', 'Є': 'Ye', 'Ж': 'Zh',
+    'З': 'Z', 'И': 'Y', 'І': 'I', 'Ї': 'Yi', 'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N',
+    'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts',
+    'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Shch', 'Ь': '', 'Ю': 'Yu', 'Я': 'Ya'
+  };
+
+  const translit = text.split('').map(char => map[char] || char).join('');
+
+  return translit
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 // Функція для отримання всіх товарів з Firebase
 export const fetchAllProducts = async (callback: (products: Product[]) => void) => {
   try {
     const productsRef = ref(database, 'products');
-    
+
     onValue(productsRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
-        
+
         // Якщо це об'єкт з ключами, перетворіть його в масив
         if (typeof data === 'object' && !Array.isArray(data)) {
           const products: Product[] = Object.values(data) as Product[];
@@ -466,7 +493,7 @@ export const generateOrderNumber = (): string => {
 };
 
 // Функція для оновлення товару (ціна, назва, опис, кількість)
-export const updateProduct = async (productId: number, updates: Partial<Product>) => {
+export const updateProduct = async (productId: string, updates: Partial<Product>) => {
   try {
     const productsRef = ref(database, 'products');
     const snapshot = await get(productsRef);
@@ -507,7 +534,7 @@ export const updateProduct = async (productId: number, updates: Partial<Product>
 };
 
 // Функція для зменшення кількості товару після покупки
-export const decreaseProductQuantity = async (productId: number, quantityToDecrease: number) => {
+export const decreaseProductQuantity = async (productId: string, quantityToDecrease: number) => {
   try {
     const productsRef = ref(database, 'products');
     const snapshot = await get(productsRef);
@@ -540,7 +567,7 @@ export const decreaseProductQuantity = async (productId: number, quantityToDecre
 };
 
 // Отримати один товар за id
-export const fetchProductById = async (id: number): Promise<Product | null> => {
+export const fetchProductById = async (id: string): Promise<Product | null> => {
   try {
     const productsRef = ref(database, 'products');
     const snapshot = await get(productsRef);
@@ -560,15 +587,21 @@ export const fetchProductById = async (id: number): Promise<Product | null> => {
 };
 
 // Функція для додавання нового товару
-export const addProduct = async (newProduct: Omit<Product, 'id'>): Promise<boolean> => {
+export const addProduct = async (newProduct: Omit<Product, 'id' | 'inStock' | 'createdAt' | 'updatedAt'>): Promise<boolean> => {
   try {
     const productsRef = ref(database, 'products');
     const snapshot = await get(productsRef);
 
-    const buildProduct = (id: number): Product => ({
+    // Генеруємо id на основі імені (slug)
+    const slugId = slugify(newProduct.name);
+    const now = Date.now();
+
+    const buildProduct = (id: string): Product => ({
       ...newProduct,
       id,
-      inStock: newProduct.quantity > 0,
+      inStock: (newProduct.quantity || 0) > 0,
+      createdAt: now,
+      updatedAt: now,
     });
 
     if (snapshot.exists()) {
@@ -577,15 +610,22 @@ export const addProduct = async (newProduct: Omit<Product, 'id'>): Promise<boole
       if (Array.isArray(data)) {
         list = data as Product[];
       } else {
-        // конвертуємо об'єкт у масив для уніфікації структури
         list = Object.values(data as Record<string, Product>) as Product[];
       }
-      const maxId = list.length > 0 ? Math.max(...list.map((p) => p.id)) : 0;
-      const productToAdd = buildProduct(maxId + 1);
+
+      // Перевіряємо чи не існує вже такого slugId
+      let finalId = slugId;
+      let counter = 1;
+      while (list.some(p => p.id === finalId)) {
+        finalId = `${slugId}-${counter}`;
+        counter++;
+      }
+
+      const productToAdd = buildProduct(finalId);
       await set(productsRef, [...list, productToAdd]);
       return true;
     } else {
-      const productToAdd = buildProduct(1);
+      const productToAdd = buildProduct(slugId);
       await set(productsRef, [productToAdd]);
       return true;
     }
@@ -596,14 +636,14 @@ export const addProduct = async (newProduct: Omit<Product, 'id'>): Promise<boole
 };
 
 // Функція для видалення товару
-export const deleteProduct = async (productId: number): Promise<boolean> => {
+export const deleteProduct = async (productId: string): Promise<boolean> => {
   try {
     const productsRef = ref(database, 'products');
     const snapshot = await get(productsRef);
 
     if (!snapshot.exists()) return false;
     const data = snapshot.val();
-    
+
     let productToDelete: Product | null = null;
 
     if (Array.isArray(data)) {
@@ -622,7 +662,7 @@ export const deleteProduct = async (productId: number): Promise<boolean> => {
       const list: Product[] = Object.values(obj);
       await set(productsRef, list);
     }
-    
+
     // Видаляємо фото з Storage, якщо є
     if (productToDelete && productToDelete.images && productToDelete.images.length > 0) {
       for (const imageUrl of productToDelete.images) {
@@ -637,7 +677,7 @@ export const deleteProduct = async (productId: number): Promise<boolean> => {
         }
       }
     }
-    
+
     return true;
   } catch (error) {
     console.error('Помилка при видаленні товару:', error);
@@ -662,11 +702,11 @@ export const uploadImage = async (file: File, folder: string = 'products'): Prom
     const randomString = Math.random().toString(36).substring(2, 15);
     const extension = file.name.split('.').pop();
     const fileName = `${folder}/${timestamp}_${randomString}.${extension}`;
-    
+
     // Створюємо референс та завантажуємо файл
     const imageRef = storageRef(storage, fileName);
     const snapshot = await uploadBytes(imageRef, file);
-    
+
     // Отримуємо публічний URL
     const url = await getDownloadURL(snapshot.ref);
     return url;
@@ -817,19 +857,19 @@ export const addAdminReply = async (orderId: string, replyText: string): Promise
     if (!replyText.trim()) {
       throw new Error('Текст відповіді не може бути порожнім');
     }
-    
+
     const reviewRef = ref(database, `reviews/${orderId}`);
     const snapshot = await get(reviewRef);
-    
+
     if (!snapshot.exists()) {
       throw new Error('Відгук не знайдено');
     }
-    
+
     await update(reviewRef, {
       adminReply: replyText.trim(),
       adminReplyAt: Date.now(),
     });
-    
+
     return true;
   } catch (error) {
     console.error('Помилка додавання відповіді адміна:', error);
@@ -847,24 +887,24 @@ export const addAdminReply = async (orderId: string, replyText: string): Promise
 export async function bindTelegramToUser(uid: string, telegramId: string, telegramUsername?: string): Promise<boolean> {
   try {
     console.log('bindTelegramToUser called with:', { uid, telegramId, telegramUsername });
-    
+
     const userRef = ref(database, `users/${uid}`);
-    
+
     // Оновлюємо поля у профілі користувача
     const updateData: any = {
       telegramId: telegramId.trim(),
       updatedAt: Date.now(),
     };
-    
+
     // Додаємо username якщо він передано
     if (telegramUsername) {
       updateData.telegramUsername = telegramUsername.trim();
       console.log('Adding username to user profile:', telegramUsername);
     }
-    
+
     await update(userRef, updateData);
     console.log('User profile updated successfully');
-    
+
     // Також створюємо індекс для швидкого пошуку за telegramId
     const telegramIndexRef = ref(database, `telegram_users/${telegramId}`);
     await set(telegramIndexRef, {
@@ -873,7 +913,7 @@ export async function bindTelegramToUser(uid: string, telegramId: string, telegr
       bindedAt: Date.now(),
     });
     console.log('Telegram index created');
-    
+
     return true;
   } catch (error) {
     console.error('Помилка прив\'язки Telegram:', error);
@@ -888,21 +928,21 @@ export async function getUserByTelegramId(telegramId: string): Promise<{ uid: st
   try {
     const telegramIndexRef = ref(database, `telegram_users/${telegramId}`);
     const snapshot = await get(telegramIndexRef);
-    
+
     if (!snapshot.exists()) {
       return null;
     }
-    
+
     const { uid } = snapshot.val();
-    
+
     // Отримуємо профіль користувача
     const userRef = ref(database, `users/${uid}`);
     const userSnapshot = await get(userRef);
-    
+
     if (!userSnapshot.exists()) {
       return null;
     }
-    
+
     return {
       uid,
       profile: userSnapshot.val() as UserProfile,
@@ -921,26 +961,26 @@ export async function unbindTelegramFromUser(uid: string): Promise<boolean> {
     // Отримуємо telegramId перед видаленням
     const userRef = ref(database, `users/${uid}`);
     const snapshot = await get(userRef);
-    
+
     if (!snapshot.exists()) {
       return false;
     }
-    
+
     const profile = snapshot.val() as UserProfile;
     const telegramId = profile.telegramId;
-    
+
     // Видаляємо telegramId з профілю
     await update(userRef, {
       telegramId: null,
       updatedAt: Date.now(),
     });
-    
+
     // Видаляємо індекс
     if (telegramId) {
       const telegramIndexRef = ref(database, `telegram_users/${telegramId}`);
       await set(telegramIndexRef, null);
     }
-    
+
     return true;
   } catch (error) {
     console.error('Помилка розв\'язання Telegram:', error);
@@ -955,13 +995,13 @@ export async function generateTelegramBindingCode(uid: string): Promise<string> 
   try {
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     const bindingCodeRef = ref(database, `telegram_binding_codes/${code}`);
-    
+
     await set(bindingCodeRef, {
       uid: uid,
       createdAt: Date.now(),
       expiresAt: Date.now() + 15 * 60 * 1000, // 15 хвилин
     });
-    
+
     return code;
   } catch (error) {
     console.error('Помилка генерування коду для прив\'язки:', error);
@@ -976,19 +1016,19 @@ export async function verifyTelegramBindingCode(code: string): Promise<string | 
   try {
     const bindingCodeRef = ref(database, `telegram_binding_codes/${code}`);
     const snapshot = await get(bindingCodeRef);
-    
+
     if (!snapshot.exists()) {
       return null;
     }
-    
+
     const data = snapshot.val();
-    
+
     // Перевірити, чи код не закінчився
     if (data.expiresAt < Date.now()) {
       await set(bindingCodeRef, null); // Видалити протермінований код
       return null;
     }
-    
+
     return data.uid;
   } catch (error) {
     console.error('Помилка перевірки коду для прив\'язки:', error);
@@ -1024,13 +1064,13 @@ export async function sendOrderNotificationToTelegram(
     // Отримуємо профіль користувача для Telegram ID
     const userRef = ref(database, `users/${uid}`);
     const userSnapshot = await get(userRef);
-    
+
     if (!userSnapshot.exists()) {
       return false;
     }
-    
+
     const user = userSnapshot.val() as UserProfile;
-    
+
     // Якщо користувач не прив'язав Telegram, нічого не робимо
     if (!user.telegramId) {
       return false;
@@ -1081,8 +1121,8 @@ export async function sendOrderNotificationToTelegram(
     // Повідомлення для адміну
     if (status === "created") {
       const adminMsg = `🛎️ <b>Нове замовлення №${order.id}</b>\n` +
-        `Продукт: <b>${order.items.map((i:any) => i.name).join(", ")}</b>\n` +
-        `Кількість: <b>${order.items.reduce((sum:any, i:any) => sum + i.quantity, 0)}</b>\n` +
+        `Продукт: <b>${order.items.map((i: any) => i.name).join(", ")}</b>\n` +
+        `Кількість: <b>${order.items.reduce((sum: any, i: any) => sum + i.quantity, 0)}</b>\n` +
         `Дата: <b>${order.createdAt ? new Date(order.createdAt).toLocaleString() : "-"}</b>\n` +
         `Статус: <b>${status}</b>\n` +
         `Сума: <b>${order.finalPrice}₴</b>\n` +
@@ -1109,7 +1149,7 @@ export async function sendOrderNotificationToTelegram(
     }
 
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    
+
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -1143,7 +1183,7 @@ export async function updateOrderStatusWithNotification(
 ): Promise<boolean> {
   try {
     const orderRef = ref(database, `orders/${orderId}`);
-    
+
     // Оновлюємо статус
     await update(orderRef, {
       status: newStatus,
@@ -1306,7 +1346,7 @@ export async function respondToTicket(
 
     const ticket = snapshot.val() as SupportTicket;
     const messages = ticket.messages || [];
-    
+
     // Додаємо сообщение тільки якщо є текст
     if (adminReply.trim()) {
       const adminMessage: SupportMessage = {
@@ -1356,7 +1396,7 @@ export function listenToSupportTickets(
   callback: (tickets: SupportTicket[]) => void
 ): () => void {
   const ticketsRef = ref(database, 'support_tickets');
-  
+
   const unsubscribe = onValue(ticketsRef, (snapshot) => {
     if (!snapshot.exists()) {
       callback([]);
@@ -1424,7 +1464,7 @@ export async function createForumThread(
 ): Promise<string> {
   const threadId = Date.now().toString();
   const threadRef = ref(database, `forum/threads/${threadId}`);
-  
+
   const thread: ForumThread = {
     id: threadId,
     title,
@@ -1450,21 +1490,21 @@ export async function createForumThread(
 export async function getForumThreads(): Promise<ForumThread[]> {
   const threadsRef = ref(database, 'forum/threads');
   const snapshot = await get(threadsRef);
-  
+
   if (!snapshot.exists()) return [];
-  
+
   const threads: ForumThread[] = [];
   snapshot.forEach((child) => {
     threads.push(child.val() as ForumThread);
   });
-  
+
   // Сортуємо: закріплені зверху, потім за датою оновлення
   threads.sort((a, b) => {
     if (a.isPinned && !b.isPinned) return -1;
     if (!a.isPinned && b.isPinned) return 1;
     return b.updatedAt - a.updatedAt;
   });
-  
+
   return threads;
 }
 
@@ -1472,7 +1512,7 @@ export async function getForumThreads(): Promise<ForumThread[]> {
 export async function getForumThread(threadId: string): Promise<ForumThread | null> {
   const threadRef = ref(database, `forum/threads/${threadId}`);
   const snapshot = await get(threadRef);
-  
+
   if (!snapshot.exists()) return null;
   return snapshot.val() as ForumThread;
 }
@@ -1481,7 +1521,7 @@ export async function getForumThread(threadId: string): Promise<ForumThread | nu
 export async function incrementThreadViews(threadId: string): Promise<void> {
   const thread = await getForumThread(threadId);
   if (!thread) return;
-  
+
   const threadRef = ref(database, `forum/threads/${threadId}`);
   await update(threadRef, {
     viewsCount: (thread.viewsCount || 0) + 1,
@@ -1498,7 +1538,7 @@ export async function addForumComment(
 ): Promise<string> {
   const commentId = Date.now().toString();
   const commentRef = ref(database, `forum/comments/${threadId}/${commentId}`);
-  
+
   const comment: ForumComment = {
     id: commentId,
     threadId,
@@ -1513,7 +1553,7 @@ export async function addForumComment(
   };
 
   await set(commentRef, comment);
-  
+
   // Оновити лічильник коментарів та час оновлення теми
   const thread = await getForumThread(threadId);
   if (thread) {
@@ -1523,7 +1563,7 @@ export async function addForumComment(
       updatedAt: Date.now(),
     });
   }
-  
+
   return commentId;
 }
 
@@ -1531,17 +1571,17 @@ export async function addForumComment(
 export async function getForumComments(threadId: string): Promise<ForumComment[]> {
   const commentsRef = ref(database, `forum/comments/${threadId}`);
   const snapshot = await get(commentsRef);
-  
+
   if (!snapshot.exists()) return [];
-  
+
   const comments: ForumComment[] = [];
   snapshot.forEach((child) => {
     comments.push(child.val() as ForumComment);
   });
-  
+
   // Сортуємо за часом створення (старіші першими)
   comments.sort((a, b) => a.createdAt - b.createdAt);
-  
+
   return comments;
 }
 
@@ -1553,7 +1593,7 @@ export async function addThreadReaction(
 ): Promise<void> {
   const thread = await getForumThread(threadId);
   if (!thread) return;
-  
+
   const threadRef = ref(database, `forum/threads/${threadId}/reactions/${userId}`);
   await set(threadRef, reaction);
 }
@@ -1597,12 +1637,12 @@ export async function editForumThread(
 ): Promise<void> {
   const thread = await getForumThread(threadId);
   if (!thread) throw new Error('Thread not found');
-  
+
   const user = auth.currentUser;
   if (thread.authorId !== userId && !checkAdminAccess(user)) {
     throw new Error('Access denied');
   }
-  
+
   const threadRef = ref(database, `forum/threads/${threadId}`);
   await update(threadRef, {
     title,
@@ -1620,16 +1660,16 @@ export async function editForumComment(
 ): Promise<void> {
   const commentsRef = ref(database, `forum/comments/${threadId}/${commentId}`);
   const snapshot = await get(commentsRef);
-  
+
   if (!snapshot.exists()) throw new Error('Comment not found');
-  
+
   const comment = snapshot.val() as ForumComment;
   const user = auth.currentUser;
-  
+
   if (comment.authorId !== userId && !checkAdminAccess(user)) {
     throw new Error('Access denied');
   }
-  
+
   await update(commentsRef, {
     content,
     updatedAt: Date.now(),
@@ -1641,16 +1681,16 @@ export async function editForumComment(
 export async function deleteForumThread(threadId: string, userId: string): Promise<void> {
   const thread = await getForumThread(threadId);
   if (!thread) return;
-  
+
   const user = auth.currentUser;
   if (thread.authorId !== userId && !checkAdminAccess(user)) {
     throw new Error('Access denied');
   }
-  
+
   // Видалити тему та всі її коментарі
   const threadRef = ref(database, `forum/threads/${threadId}`);
   const commentsRef = ref(database, `forum/comments/${threadId}`);
-  
+
   await set(threadRef, null);
   await set(commentsRef, null);
 }
@@ -1663,18 +1703,18 @@ export async function deleteForumComment(
 ): Promise<void> {
   const commentRef = ref(database, `forum/comments/${threadId}/${commentId}`);
   const snapshot = await get(commentRef);
-  
+
   if (!snapshot.exists()) return;
-  
+
   const comment = snapshot.val() as ForumComment;
   const user = auth.currentUser;
-  
+
   if (comment.authorId !== userId && !checkAdminAccess(user)) {
     throw new Error('Access denied');
   }
-  
+
   await set(commentRef, null);
-  
+
   // Оновити лічильник коментарів теми
   const thread = await getForumThread(threadId);
   if (thread) {
@@ -1691,10 +1731,10 @@ export async function toggleThreadPin(threadId: string): Promise<void> {
   if (!checkAdminAccess(user)) {
     throw new Error('Admin access required');
   }
-  
+
   const thread = await getForumThread(threadId);
   if (!thread) return;
-  
+
   const threadRef = ref(database, `forum/threads/${threadId}`);
   await update(threadRef, {
     isPinned: !thread.isPinned,
@@ -1707,10 +1747,10 @@ export async function toggleThreadLock(threadId: string): Promise<void> {
   if (!checkAdminAccess(user)) {
     throw new Error('Admin access required');
   }
-  
+
   const thread = await getForumThread(threadId);
   if (!thread) return;
-  
+
   const threadRef = ref(database, `forum/threads/${threadId}`);
   await update(threadRef, {
     isLocked: !thread.isLocked,

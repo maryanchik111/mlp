@@ -2,19 +2,17 @@ User-agent: *
 Allow: /
 Allow: /catalog
 Allow: /box-builder
+Allow: /auctions
+Allow: /forum
 Allow: /account
 Allow: /checkout
-Disallow: /admin
+Allow: /delivery
+Allow: /privacy
+Allow: /refund
+Allow: /terms
+
 Disallow: /admin/
-Disallow: /_next/
 Disallow: /api/
+Disallow: /_next/
 
-Sitemap: https://www.mlpcutiefamily.pp.ua/sitemap.xml
-
-# Google
-User-agent: Googlebot
-Allow: /
-
-# Yandex
-User-agent: YandexBot
-Allow: /
+Sitemap: https://mlpcutiefamily.pp.ua/sitemap.xml

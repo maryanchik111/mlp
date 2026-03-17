@@ -13,12 +13,12 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
   const [dateRange, setDateRange] = useState<DateRange>('all');
   const [customStartDate, setCustomStartDate] = useState<string>('');
   const [customEndDate, setCustomEndDate] = useState<string>('');
-  
+
   // Функція для отримання дати фільтра
   const getFilteredOrders = (range: DateRange): Order[] => {
     const now = Date.now();
     const completedOrders = orders.filter(order => order.status === 'completed');
-    
+
     switch (range) {
       case 'day':
         return completedOrders.filter(order => now - order.createdAt < 24 * 60 * 60 * 1000);
@@ -36,12 +36,12 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
         return completedOrders;
     }
   };
-  
+
   // Фільтруємо тільки виконані замовлення для статистики
   const filteredOrders = getFilteredOrders(dateRange);
-  
+
   // Підрахунок продажів по товарах
-  const productSales: Record<number, number> = {};
+  const productSales: Record<string, number> = {};
   let totalSold = 0;
   let totalRevenue = 0; // виручка від товарів (без доставки)
   let totalUserDiscounts = 0; // знижки користувачів (від рівня)
@@ -51,19 +51,19 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
 
   filteredOrders.forEach(order => {
     if (!order.items) return;
-    
+
     // Знижка користувача (від рівня/рейтингу)
     const orderUserDiscount = order.discountAmount || 0;
     totalUserDiscounts += orderUserDiscount;
-    
+
     // Списані бали
     const orderPoints = order.redeemedAmount || 0;
     totalPoints += orderPoints;
-    
+
     // Всього надходження від товарів (finalPrice тепер не включає доставку)
     const orderFinalPrice = order.finalPrice || 0;
     totalRevenue += orderFinalPrice;
-    
+
     // Підрахунок знижок на товари та витрат
     order.items.forEach(item => {
       const originalPrice = parseInt(item.price);
@@ -72,14 +72,14 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
         const discountAmount = Math.round(originalPrice * (discount / 100)) * item.quantity;
         totalProductDiscounts += discountAmount;
       }
-      
+
       // Додаємо витрати на закупки (якщо у товарі вказана costPrice)
       const product = products.find(p => p.id === item.id);
       if (product && product.costPrice) {
         const costPrice = parseInt(product.costPrice);
         totalCostPrice += costPrice * item.quantity;
       }
-      
+
       productSales[item.id] = (productSales[item.id] || 0) + item.quantity;
       totalSold += item.quantity;
     });
@@ -107,56 +107,51 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setDateRange('day')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              dateRange === 'day'
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'day'
                 ? 'bg-purple-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             День
           </button>
           <button
             onClick={() => setDateRange('week')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              dateRange === 'week'
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'week'
                 ? 'bg-purple-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             Тиждень
           </button>
           <button
             onClick={() => setDateRange('month')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              dateRange === 'month'
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'month'
                 ? 'bg-purple-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             Місяць
           </button>
           <button
             onClick={() => setDateRange('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              dateRange === 'all'
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'all'
                 ? 'bg-purple-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             За весь час
           </button>
           <button
             onClick={() => setDateRange('custom')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              dateRange === 'custom'
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'custom'
                 ? 'bg-purple-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+              }`}
           >
             Період
           </button>
         </div>
-        
+
         {/* Інпути для власного діапазону дат */}
         {dateRange === 'custom' && (
           <div className="flex gap-4 items-end">

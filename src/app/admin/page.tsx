@@ -421,7 +421,7 @@ export default function AdminPage() {
   };
 
   // Функція для видалення товару
-  const handleDeleteProduct = async (productId: number) => {
+  const handleDeleteProduct = async (productId: string) => {
     if (!confirm('Ви впевнені, що хочете видалити цей товар? Цю дію не можна скасувати!')) return;
     setActionLoading(true);
     try {
@@ -1051,10 +1051,10 @@ export default function AdminPage() {
                         <img
                           src={product.images[0]}
                           alt={product.name}
-                          className="object-cover rounded-[.8em]"
+                          className="md:w-24 md:h-24 object-cover rounded-[.8em]"
                         />
                       ) : (
-                        <div className="w-16 h-16 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full">
+                        <div className="md:w-24 md:h-24 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full">
                           {product.image || '📦'}
                         </div>
                       )}

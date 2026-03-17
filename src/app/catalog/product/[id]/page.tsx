@@ -10,10 +10,7 @@ import AccountButton from '@/app/components/client/account-button';
 export default function ProductPage() {
   const params = useParams();
   const idParam = Array.isArray(params?.id) ? params?.id[0] : (params?.id as string | undefined);
-  const productId = useMemo(() => {
-    const n = Number(idParam);
-    return Number.isFinite(n) ? n : null;
-  }, [idParam]);
+  const productId = idParam || null;
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,7 +55,7 @@ export default function ProductPage() {
         setProduct(p);
         setLoading(false);
         if (p) setQty(Math.min(1, Math.max(0, p.quantity)) || 1);
-        
+
         // Перевіряємо чи товар вже в кошику
         const cartRaw = localStorage.getItem('mlp-cart');
         if (cartRaw && p) {
@@ -79,7 +76,7 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (!product) return;
-    
+
     if (isInCart) {
       // Видаляємо з кошика
       const cartRaw = localStorage.getItem('mlp-cart');
@@ -91,7 +88,7 @@ export default function ProductPage() {
       setIsInCart(false);
       return;
     }
-    
+
     // Додаємо в кошик
     const cartRaw = localStorage.getItem('mlp-cart');
     const cart = cartRaw ? JSON.parse(cartRaw) : [];
@@ -156,236 +153,235 @@ export default function ProductPage() {
 
   return (
     <>
-    <main className="min-h-screen bg-gray-50 py-8 pb-32">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <nav className="text-sm text-gray-600 mb-6">
-          <Link href="/" className="hover:text-purple-600">Головна</Link> <span>/</span> <Link href="/catalog" className="hover:text-purple-600">Каталог</Link> <span>/</span> <span className="text-gray-900 font-semibold">{product.name}</span>
-        </nav>
+      <main className="min-h-screen bg-gray-50 py-8 pb-32">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <nav className="text-sm text-gray-600 mb-6">
+            <Link href="/" className="hover:text-purple-600">Головна</Link> <span>/</span> <Link href="/catalog" className="hover:text-purple-600">Каталог</Link> <span>/</span> <span className="text-gray-900 font-semibold">{product.name}</span>
+          </nav>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Галерея */}
-          <div>
-            {images.length > 0 ? (
-              <div>
-                <div className="w-full h-80 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden relative group">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={images[Math.min(activeIndex, images.length - 1)]}
-                    alt={product.name}
-                    className="object-contain max-h-80 cursor-zoom-in"
-                    onClick={() => setIsFullscreen(true)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIsFullscreen(true)}
-                    className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label="Переглянути на весь екран"
-                  >🔍</button>
-                </div>
-                {images.length > 1 && (
-                  <div className="flex gap-2 mt-3 overflow-x-auto">
-                    {images.map((src, idx) => (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        key={idx}
-                        src={src}
-                        onClick={() => setActiveIndex(idx)}
-                        className={`h-16 w-16 object-cover rounded border cursor-pointer ${idx === activeIndex ? 'ring-2 ring-purple-600' : 'opacity-80 hover:opacity-100'}`}
-                        alt="thumb"
-                      />
-                    ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Галерея */}
+            <div>
+              {images.length > 0 ? (
+                <div>
+                  <div className="w-full h-80 bg-white rounded-lg shadow-sm flex items-center justify-center overflow-hidden relative group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={images[Math.min(activeIndex, images.length - 1)]}
+                      alt={product.name}
+                      className="object-contain max-h-80 cursor-zoom-in"
+                      onClick={() => setIsFullscreen(true)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setIsFullscreen(true)}
+                      className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Переглянути на весь екран"
+                    >🔍</button>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="w-full h-80 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg shadow-sm flex items-center justify-center">
-                <div className="text-8xl">{product.image || '📦'}</div>
-              </div>
-            )}
-          </div>
-
-          {/* Інформація */}
-          <div className="space-y-6">
-            {/* Заголовок й категорія */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-purple-600 bg-purple-50 px-2 py-1">{product.category || ''}</span>
-                    <span className={`text-sm px-3 py-1 whitespace-nowrap ${isOut ? 'bg-red-100 text-red-800 font-semibold' : 'bg-green-100 text-green-800 font-semibold'}`}>
-                    {isOut ? 'Немає' : `В наявності ${product.quantity} шт`}
-                  </span>
-                  </div>
+                  {images.length > 1 && (
+                    <div className="flex gap-2 mt-3 overflow-x-auto">
+                      {images.map((src, idx) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          key={idx}
+                          src={src}
+                          onClick={() => setActiveIndex(idx)}
+                          className={`h-16 w-16 object-cover rounded border cursor-pointer ${idx === activeIndex ? 'ring-2 ring-purple-600' : 'opacity-80 hover:opacity-100'}`}
+                          alt="thumb"
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-              <p className="text-gray-700 leading-relaxed">{product.description}</p>
+              ) : (
+                <div className="w-full h-80 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg shadow-sm flex items-center justify-center">
+                  <div className="text-8xl">{product.image || '📦'}</div>
+                </div>
+              )}
             </div>
 
-            {/* Ціна й основна інформація */}
-            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg shadow-sm p-6 border border-purple-100">
-              <div className="flex items-baseline justify-between">
-                <div>
-                  {product.discount && product.discount > 0 ? (
-                    <div className="flex items-baseline gap-3">
-                      <span className="text-lg text-gray-500 line-through">
-                        {product.price}₴
-                      </span>
-                      <span className="text-4xl font-extrabold text-purple-600">
-                        {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
+            {/* Інформація */}
+            <div className="space-y-6">
+              {/* Заголовок й категорія */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-purple-600 bg-purple-50 px-2 py-1">{product.category || ''}</span>
+                      <span className={`text-sm px-3 py-1 whitespace-nowrap ${isOut ? 'bg-red-100 text-red-800 font-semibold' : 'bg-green-100 text-green-800 font-semibold'}`}>
+                        {isOut ? 'Немає' : `В наявності ${product.quantity} шт`}
                       </span>
                     </div>
-                  ) : (
-                    <span className="text-4xl font-extrabold text-purple-600">{product.price}₴</span>
-                  )}
-                  <div className="flex gap-2">
-                    <p className="text-sm text-gray-600 mt-1">Ціна товару</p>
-                    {Number(product.discount) > 0 && (
+                  </div>
+                </div>
+                <p className="text-gray-700 leading-relaxed">{product.description}</p>
+              </div>
+
+              {/* Ціна й основна інформація */}
+              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-lg shadow-sm p-6 border border-purple-100">
+                <div className="flex items-baseline justify-between">
+                  <div>
+                    {product.discount && product.discount > 0 ? (
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-lg text-gray-500 line-through">
+                          {product.price}₴
+                        </span>
+                        <span className="text-4xl font-extrabold text-purple-600">
+                          {Math.round((typeof product.price === 'string' ? parseFloat(product.price) : product.price) * (1 - product.discount / 100))}₴
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-4xl font-extrabold text-purple-600">{product.price}₴</span>
+                    )}
+                    <div className="flex gap-2">
+                      <p className="text-sm text-gray-600 mt-1">Ціна товару</p>
+                      {Number(product.discount) > 0 && (
                         <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
                           Знижка −{product.discount}%
                         </span>
                       )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Доставка */}
-            <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-2xl">🚚</span> Доставка
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-600 mb-1">Вартість</p>
-                  <p className="text-2xl font-bold text-blue-600">{product.deliveryPrice || '120'}₴</p>
+              {/* Доставка */}
+              <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <span className="text-2xl">🚚</span> Доставка
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-600 mb-1">Вартість</p>
+                    <p className="text-2xl font-bold text-blue-600">{product.deliveryPrice || '120'}₴</p>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <p className="text-xs text-gray-600 mb-1">Термін</p>
+                    <p className="text-2xl font-bold text-blue-600">{product.deliveryDays || '1-2'} днів</p>
+                  </div>
                 </div>
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-600 mb-1">Термін</p>
-                  <p className="text-2xl font-bold text-blue-600">{product.deliveryDays || '1-2'} днів</p>
+                <p className="text-xs text-gray-600 mt-3 px-3 py-2 bg-gray-50 rounded">
+                  Відправка у будь-яке відділення Нової Пошти по Україні<br />
+                  Оплата — тільки онлайн (накладений платіж недоступний)
+                </p>
+              </div>
+
+              {/* Кількість */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <label className="block text-sm font-semibold text-gray-900 mb-3">Кількість:</label>
+                <div className="flex items-center bg-gray-100 rounded-lg p-2 w-full">
+                  <button
+                    onClick={() => setQty(Math.max(1, qty - 1))}
+                    disabled={qty <= 1 || isInCart}
+                    className={`w-full h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty <= 1 || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
+                  >
+                    −
+                  </button>
+                  <span className="text-purple-600 px-4 py-1 font-bold text-lg min-w-12 text-center">{qty}</span>
+                  <button
+                    onClick={() => setQty(Math.min(maxQty, qty + 1))}
+                    disabled={qty >= maxQty || isInCart}
+                    className={`w-full h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty >= maxQty || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
-              <p className="text-xs text-gray-600 mt-3 px-3 py-2 bg-gray-50 rounded">
-                Відправка у будь-яке відділення Нової Пошти по Україні<br />
-                Оплата — тільки онлайн (накладений платіж недоступний)
-              </p>
-            </div>
 
-            {/* Кількість */}
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <label className="block text-sm font-semibold text-gray-900 mb-3">Кількість:</label>
-              <div className="flex items-center bg-gray-100 rounded-lg p-2 w-full">
-                <button 
-                  onClick={() => setQty(Math.max(1, qty - 1))} 
-                  disabled={qty <= 1 || isInCart} 
-                  className={`w-full h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty <= 1 || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
-                >
-                  −
-                </button>
-                <span className="text-purple-600 px-4 py-1 font-bold text-lg min-w-12 text-center">{qty}</span>
-                <button 
-                  onClick={() => setQty(Math.min(maxQty, qty + 1))} 
-                  disabled={qty >= maxQty || isInCart} 
-                  className={`w-full h-10 rounded-lg flex items-center justify-center font-bold transition-colors ${qty >= maxQty || isInCart ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-white active:bg-purple-100'}`}
-                >
-                  +
-                </button>
-              </div>
+              {/* Кнопка */}
+              <button
+                onClick={handleAddToCart}
+                disabled={isOut || qty <= 0}
+                className={`w-full py-4 rounded-lg font-bold text-lg transition-all shadow-md hover:shadow-lg active:scale-95 ${isOut
+                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    : isInCart
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : added === 'added'
+                        ? 'bg-green-500 text-white'
+                        : 'bg-purple-600 text-white hover:bg-purple-700'
+                  }`}
+              >
+                {isInCart ? '🗑️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик!' : '🛒 Додати в кошик')}
+              </button>
             </div>
-
-            {/* Кнопка */}
-            <button 
-              onClick={handleAddToCart} 
-              disabled={isOut || qty <= 0} 
-              className={`w-full py-4 rounded-lg font-bold text-lg transition-all shadow-md hover:shadow-lg active:scale-95 ${
-                isOut 
-                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed' 
-                  : isInCart 
-                    ? 'bg-red-500 text-white hover:bg-red-600' 
-                    : added === 'added'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-purple-600 text-white hover:bg-purple-700'
-              }`}
-            >
-              {isInCart ? '🗑️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик!' : '🛒 Додати в кошик')}
-            </button>
           </div>
-        </div>
 
-        {/* SEO JSON-LD */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org/',
-            '@type': 'Product',
-            name: product.name,
-            description: product.description,
-            image: images.length > 0 ? images : undefined,
-            offers: {
-              '@type': 'Offer',
-              priceCurrency: 'UAH',
-              price: String(product.price),
-              availability: product.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-            }
-          })
-        }} />
-      </div>
-    </main>
-    <Basket />
-    <AccountButton />
-    {isFullscreen && images.length > 0 && (
-      <div className="fixed inset-0 bg-black/90 z-[9999] flex flex-col">
-        <div className="flex items-center justify-between p-4 text-white text-sm">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsFullscreen(false)}
-              className="px-3 py-1 rounded bg-white/20 hover:bg-white/30 font-medium"
-            >Закрити (Esc)</button>
+          {/* SEO JSON-LD */}
+          <script type="application/ld+json" dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org/',
+              '@type': 'Product',
+              name: product.name,
+              description: product.description,
+              image: images.length > 0 ? images : undefined,
+              offers: {
+                '@type': 'Offer',
+                priceCurrency: 'UAH',
+                price: String(product.price),
+                availability: product.quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+              }
+            })
+          }} />
+        </div>
+      </main>
+      <Basket />
+      <AccountButton />
+      {isFullscreen && images.length > 0 && (
+        <div className="fixed inset-0 bg-black/90 z-[9999] flex flex-col">
+          <div className="flex items-center justify-between p-4 text-white text-sm">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsFullscreen(false)}
+                className="px-3 py-1 rounded bg-white/20 hover:bg-white/30 font-medium"
+              >Закрити (Esc)</button>
+              {images.length > 1 && (
+                <span className="text-white/70">{activeIndex + 1} / {images.length}</span>
+              )}
+            </div>
             {images.length > 1 && (
-              <span className="text-white/70">{activeIndex + 1} / {images.length}</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setActiveIndex(prev => (prev - 1 + images.length) % images.length)}
+                  className="px-2 py-1 rounded bg-white/20 hover:bg-white/30"
+                  aria-label="Попереднє"
+                >←</button>
+                <button
+                  onClick={() => setActiveIndex(prev => (prev + 1) % images.length)}
+                  className="px-2 py-1 rounded bg-white/20 hover:bg-white/30"
+                  aria-label="Наступне"
+                >→</button>
+              </div>
             )}
           </div>
+          <div className="flex-1 flex items-center justify-center p-4 select-none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={images[Math.min(activeIndex, images.length - 1)]}
+              alt={product.name}
+              className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl"
+              draggable={false}
+            />
+          </div>
           {images.length > 1 && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => setActiveIndex(prev => (prev - 1 + images.length) % images.length)}
-                className="px-2 py-1 rounded bg-white/20 hover:bg-white/30"
-                aria-label="Попереднє"
-              >←</button>
-              <button
-                onClick={() => setActiveIndex(prev => (prev + 1) % images.length)}
-                className="px-2 py-1 rounded bg-white/20 hover:bg-white/30"
-                aria-label="Наступне"
-              >→</button>
+            <div className="p-4 flex gap-2 overflow-x-auto bg-black/60">
+              {images.map((src, idx) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={idx}
+                  src={src}
+                  alt={product.name + ' thumbnail ' + (idx + 1)}
+                  onClick={() => setActiveIndex(idx)}
+                  className={`h-16 w-16 object-cover rounded cursor-pointer transition-all ${idx === activeIndex ? 'ring-2 ring-purple-400 scale-105' : 'opacity-70 hover:opacity-100'}`}
+                  draggable={false}
+                />
+              ))}
             </div>
           )}
         </div>
-        <div className="flex-1 flex items-center justify-center p-4 select-none">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={images[Math.min(activeIndex, images.length - 1)]}
-            alt={product.name}
-            className="max-h-[90vh] max-w-[90vw] object-contain shadow-2xl"
-            draggable={false}
-          />
-        </div>
-        {images.length > 1 && (
-          <div className="p-4 flex gap-2 overflow-x-auto bg-black/60">
-            {images.map((src, idx) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={idx}
-                src={src}
-                alt={product.name + ' thumbnail ' + (idx + 1)}
-                onClick={() => setActiveIndex(idx)}
-                className={`h-16 w-16 object-cover rounded cursor-pointer transition-all ${idx === activeIndex ? 'ring-2 ring-purple-400 scale-105' : 'opacity-70 hover:opacity-100'}`}
-                draggable={false}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    )}
+      )}
     </>
   );
 }

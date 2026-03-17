@@ -47,7 +47,7 @@ export default function ThreadPage() {
   const threadId = params.threadId as string;
   const { user } = useAuth();
   const { showWarning, showError, showConfirm, showSuccess } = useModal();
-  
+
   const [thread, setThread] = useState<ForumThread | null>(null);
   const [comments, setComments] = useState<ForumComment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,10 +74,10 @@ export default function ThreadPage() {
         router.push('/forum');
         return;
       }
-      
+
       setThread(threadData);
       await incrementThreadViews(threadId);
-      
+
       const commentsData = await getForumComments(threadId);
       setComments(commentsData);
     } catch (error) {
@@ -136,13 +136,13 @@ export default function ThreadPage() {
 
     try {
       const currentReaction = thread.reactions?.[user.uid];
-      
+
       if (currentReaction === reaction) {
         await removeThreadReaction(threadId, user.uid);
       } else {
         await addThreadReaction(threadId, user.uid, reaction);
       }
-      
+
       loadThread();
     } catch (error) {
       console.error('Error updating reaction:', error);
@@ -161,13 +161,13 @@ export default function ThreadPage() {
 
     try {
       const currentReaction = comment.reactions?.[user.uid];
-      
+
       if (currentReaction === reaction) {
         await removeCommentReaction(threadId, commentId, user.uid);
       } else {
         await addCommentReaction(threadId, commentId, user.uid, reaction);
       }
-      
+
       loadThread();
     } catch (error) {
       console.error('Error updating reaction:', error);
@@ -303,12 +303,9 @@ export default function ThreadPage() {
       <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-10">
         <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center gap-2 md:gap-4">
-            <Link href="/forum" className="text-xl md:text-2xl hover:scale-110 transition-transform flex-shrink-0">
-              ⬅️
+            <Link href="/forum" className="text-black text-xl md:text-2xl hover:scale-110 transition-transform flex-shrink-0">
+              ⬅️ Назад до форуму
             </Link>
-            <h1 className="text-base md:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent truncate">
-              Назад до форуму
-            </h1>
           </div>
         </div>
       </header>
@@ -389,16 +386,15 @@ export default function ThreadPage() {
                 {Object.entries(REACTIONS).map(([key, emoji]) => {
                   const count = threadReactionCounts[key] || 0;
                   const isActive = user && thread.reactions?.[user.uid] === key;
-                  
+
                   return (
                     <button
                       key={key}
                       onClick={() => handleThreadReaction(key)}
-                      className={`flex items-center gap-0.5 md:gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-full transition-all text-sm md:text-base ${
-                        isActive
-                          ? 'bg-purple-100 border-2 border-purple-500'
-                          : 'bg-gray-100 hover:bg-gray-200'
-                      }`}
+                      className={`flex items-center gap-0.5 md:gap-1 px-2 md:px-3 py-1 md:py-1.5 rounded-full transition-all text-sm md:text-base ${isActive
+                        ? 'bg-purple-100 border-2 border-purple-500'
+                        : 'bg-gray-100 hover:bg-gray-200'
+                        }`}
                       title={key}
                     >
                       <span className="text-base md:text-lg">{emoji}</span>
@@ -454,7 +450,7 @@ export default function ThreadPage() {
         </div>
 
         {/* Comments */}
-        <div className="space-y-4">
+        <div className="space-y-4 mb-20">
           <h2 className="text-lg md:text-xl font-bold text-gray-900">
             💬 Коментарі ({comments.length})
           </h2>
@@ -468,12 +464,12 @@ export default function ThreadPage() {
                 !user
                   ? 'Увійдіть в акаунт, щоб коментувати...'
                   : thread.isLocked && !isAdmin
-                  ? 'Коментування заблоковано адміністратором'
-                  : 'Напишіть коментар...'
+                    ? 'Коментування заблоковано адміністратором'
+                    : 'Напишіть коментар...'
               }
               rows={4}
               disabled={!user || (thread.isLocked && !isAdmin)}
-              className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none resize-none disabled:bg-gray-100"
+              className="text-black w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none resize-none disabled:bg-gray-100"
             />
             <div className="flex justify-end mt-3">
               <button
@@ -494,32 +490,32 @@ export default function ThreadPage() {
             return (
               <div key={comment.id} className="bg-white rounded-2xl p-4 md:p-6 shadow-sm mb-20">
                 <div className="flex items-start gap-3 md:gap-4">
-                    {comment.authorPhoto ? (
-                      <Image
-                        src={comment.authorPhoto}
-                        alt={comment.authorName}
-                        width={40}
-                        height={40}
-                        className="rounded-full w-10 h-10 md:w-12 md:h-12 flex-shrink-0"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-lg md:text-xl font-bold">
-                        {comment.authorName[0]?.toUpperCase()}
-                      </div>
-                    )}
+                  {comment.authorPhoto ? (
+                    <Image
+                      src={comment.authorPhoto}
+                      alt={comment.authorName}
+                      width={40}
+                      height={40}
+                      className="rounded-full w-10 h-10 md:w-12 md:h-12 flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-lg md:text-xl font-bold">
+                      {comment.authorName[0]?.toUpperCase()}
+                    </div>
+                  )}
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
-                        <span className="font-semibold text-purple-600 text-sm md:text-base">{comment.authorName}</span>
-                        <span className="text-gray-400 text-xs md:text-sm">•</span>
-                        <span className="text-xs md:text-sm text-gray-500 break-all">{formatDate(comment.createdAt)}</span>
-                        {comment.isEdited && (
-                          <>
-                            <span className="text-gray-400 text-xs md:text-sm">•</span>
-                            <span className="text-xs md:text-sm text-gray-500 italic">змінено</span>
-                          </>
-                        )}
-                      </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
+                      <span className="font-semibold text-purple-600 text-sm md:text-base">{comment.authorName}</span>
+                      <span className="text-gray-400 text-xs md:text-sm">•</span>
+                      <span className="text-xs md:text-sm text-gray-500 break-all">{formatDate(comment.createdAt)}</span>
+                      {comment.isEdited && (
+                        <>
+                          <span className="text-gray-400 text-xs md:text-sm">•</span>
+                          <span className="text-xs md:text-sm text-gray-500 italic">змінено</span>
+                        </>
+                      )}
+                    </div>
 
                     {editingCommentId === comment.id ? (
                       <div className="space-y-3">
@@ -553,16 +549,15 @@ export default function ThreadPage() {
                           {Object.entries(REACTIONS).map(([key, emoji]) => {
                             const count = commentReactionCounts[key] || 0;
                             const isActive = user && comment.reactions?.[user.uid] === key;
-                            
+
                             return (
                               <button
                                 key={key}
                                 onClick={() => handleCommentReaction(comment.id, key)}
-                                className={`flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 md:py-1 text-xs md:text-sm rounded-full transition-all ${
-                                  isActive
-                                    ? 'bg-purple-100 border-2 border-purple-500'
-                                    : 'bg-gray-100 hover:bg-gray-200'
-                                }`}
+                                className={`flex items-center gap-0.5 md:gap-1 px-1.5 md:px-2 py-0.5 md:py-1 text-xs md:text-sm rounded-full transition-all ${isActive
+                                  ? 'bg-purple-100 border-2 border-purple-500'
+                                  : 'bg-gray-100 hover:bg-gray-200'
+                                  }`}
                                 title={key}
                               >
                                 <span className="text-sm md:text-base">{emoji}</span>
