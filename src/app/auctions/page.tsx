@@ -186,7 +186,7 @@ export default function AuctionsPage() {
       await placeBid(
         auction.id,
         user.uid,
-        user.displayName || 'Анонім',
+        profile?.displayName || user.displayName || 'Анонім',
         bid
       );
       showSuccess('Ставка прийнята!');

@@ -3,7 +3,17 @@ const ADMIN_TELEGRAM_ID = "7365171162";
 
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, query, orderByChild, limitToLast, onValue, update, get, set, equalTo } from 'firebase/database';
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, User } from 'firebase/auth';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged,
+  signOut,
+  User,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  updateProfile
+} from 'firebase/auth';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 // Firebase конфігурація (замініть своїми значеннями з Firebase Console)
@@ -175,6 +185,37 @@ export const signInWithGoogle = async () => {
 
 export const logout = () => signOut(auth);
 
+// --- Phone Authentication ---
+
+/**
+ * Ініціалізує RecaptchaVerifier для підтвердження номера телефону
+ * @param containerId ID елемента, в якому буде рендеритись (може бути пустий для invisible)
+ */
+export const setupRecaptcha = (containerId: string) => {
+  if (typeof window === 'undefined') return null;
+
+  return new RecaptchaVerifier(auth, containerId, {
+    'size': 'invisible',
+    'callback': (response: any) => {
+      // reCAPTCHA solved, allow signInWithPhoneNumber.
+    }
+  });
+};
+
+/**
+ * Відправляє код підтвердження на номер телефону
+ */
+export const signInWithPhone = async (phoneNumber: string, appVerifier: any) => {
+  try {
+    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+    return confirmationResult;
+  } catch (error) {
+    console.error('Помилка відправки SMS:', error);
+    throw error;
+  }
+};
+
+
 export const subscribeAuth = (callback: (user: User | null) => void) => {
   return onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -201,10 +242,22 @@ export const ensureUserProfile = async (user: User) => {
   const userRef = ref(database, `users/${user.uid}`);
   const snapshot = await get(userRef);
   const now = Date.now();
+
+  const displayName = user.displayName || user.phoneNumber || 'Користувач';
+
+  // Якщо в об'єкті Auth немає імені (для телефонів), оновимо його
+  if (!user.displayName) {
+    try {
+      await updateProfile(user, { displayName });
+    } catch (e) {
+      console.error('Помилка оновлення Auth профілю:', e);
+    }
+  }
+
   if (!snapshot.exists()) {
     const base: UserProfile = {
       uid: user.uid,
-      displayName: user.displayName,
+      displayName: displayName,
       email: user.email,
       photoURL: user.photoURL,
       points: 0,
@@ -228,6 +281,47 @@ export const fetchUserProfile = async (uid: string): Promise<UserProfile | null>
     console.error('Помилка отримання профілю:', e);
     return null;
   }
+};
+
+/**
+ * Оновлює ім'я користувача в Auth та RTDB
+ */
+export const updateUserName = async (user: User, newName: string) => {
+  if (!user || !newName.trim()) return;
+
+  // 1. Оновлюємо в Auth
+  await updateProfile(user, { displayName: newName });
+
+  // 2. Оновлюємо в RTDB
+  const userRef = ref(database, `users/${user.uid}`);
+  await update(userRef, {
+    displayName: newName,
+    updatedAt: Date.now()
+  });
+};
+
+/**
+ * Оновлює фото профілю (завантажує в Storage та оновлює профілі)
+ */
+export const updateUserPhoto = async (user: User, file: File) => {
+  if (!user || !file) return;
+
+  // 1. Завантажуємо в Storage
+  const photoRef = storageRef(getStorage(), `avatars/${user.uid}`);
+  await uploadBytes(photoRef, file);
+  const photoURL = await getDownloadURL(photoRef);
+
+  // 2. Оновлюємо в Auth
+  await updateProfile(user, { photoURL });
+
+  // 3. Оновлюємо в RTDB
+  const userRef = ref(database, `users/${user.uid}`);
+  await update(userRef, {
+    photoURL,
+    updatedAt: Date.now()
+  });
+
+  return photoURL;
 };
 
 export const updateUserStatsAfterOrder = async (
@@ -1590,8 +1684,6 @@ export async function createForumThread(
     authorId: userId,
     authorName: userName,
     authorPhoto: userPhoto,
-    isAdmin,
-    authorRank,
     category,
     createdAt: Date.now(),
     updatedAt: Date.now(),
@@ -1601,6 +1693,9 @@ export async function createForumThread(
     viewsCount: 0,
     reactions: {},
   };
+
+  if (isAdmin !== undefined) thread.isAdmin = isAdmin;
+  if (authorRank !== undefined) thread.authorRank = authorRank;
 
   await set(threadRef, thread);
   return threadId;
@@ -1714,15 +1809,16 @@ export async function addForumComment(
     authorId: userId,
     authorName: userName,
     authorPhoto: userPhoto,
-    isAdmin,
-    authorRank,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     reactions: {},
     isEdited: false,
-    replyToId,
-    replyToName,
   };
+
+  if (isAdmin !== undefined) comment.isAdmin = isAdmin;
+  if (authorRank !== undefined) comment.authorRank = authorRank;
+  if (replyToId !== undefined) comment.replyToId = replyToId;
+  if (replyToName !== undefined) comment.replyToName = replyToName;
 
   await set(commentRef, comment);
 

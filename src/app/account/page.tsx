@@ -3,15 +3,72 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers';
-import { fetchUserOrders, type Order } from '@/lib/firebase';
+import { fetchUserOrders, type Order, updateUserName, updateUserPhoto } from '@/lib/firebase';
 import TelegramBinder from '@/app/components/client/telegram-binder';
 import SupportButton from '@/app/components/client/support-button';
+import PhoneLogin from '@/app/components/client/PhoneLogin';
+import { useModal } from '@/app/providers';
 
 export default function AccountPage() {
   const { user, profile, loading, signIn, signOut, refreshProfile } = useAuth();
+  const { showSuccess, showError } = useModal();
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  // Редагування імені
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [isSavingName, setIsSavingName] = useState(false);
+
+  // Редагування фото
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!user || !file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      showError('Фото занадто велике (макс 2MB)');
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+    try {
+      await updateUserPhoto(user, file);
+      await refreshProfile();
+      showSuccess('Фото оновлено!');
+    } catch (e) {
+      console.error('Помилка оновлення фото:', e);
+      showError('Не вдалося оновити фото.');
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  useEffect(() => {
+    if (profile?.displayName) {
+      setNewName(profile.displayName);
+    } else if (user?.displayName) {
+      setNewName(user.displayName);
+    }
+  }, [profile, user]);
+
+  const handleUpdateName = async () => {
+    if (!user || !newName.trim()) return;
+    setIsSavingName(true);
+    try {
+      await updateUserName(user, newName);
+      await refreshProfile();
+      setIsEditingName(false);
+      showSuccess('Ім\'я оновлено!');
+    } catch (e) {
+      console.error('Помилка оновлення імені:', e);
+      showError('Не вдалося оновити ім\'я.');
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -39,13 +96,17 @@ export default function AccountPage() {
           <div className="bg-white p-8 rounded-lg shadow-sm">
             <div className="text-6xl mb-4">🦄</div>
             <h1 className="text-2xl font-bold mb-4 text-gray-900">Увійдіть в акаунт</h1>
-            <p className="text-gray-600 mb-6 font-medium text-sm">Авторизуйтесь через Google щоб бачити історію покупок, рейтинг та бали.</p>
-            <button
-              onClick={() => signIn().then(() => refreshProfile())}
-              className="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors"
-            >
-              🔐 Увійти через Google
-            </button>
+            <p className="text-gray-600 mb-6 font-medium text-sm">Авторизуйтесь щоб бачити історію покупок, рейтинг та бали.</p>
+
+            <div className="space-y-4">
+              <button
+                onClick={() => signIn().then(() => refreshProfile())}
+                className="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+              >
+                🔐 Увійти через Google
+              </button>
+            </div>
+
             <Link href="/catalog" className="block mt-6 text-purple-600 hover:text-purple-700 font-bold transition-colors">← До каталогу</Link>
           </div>
         </div>
@@ -150,11 +211,77 @@ export default function AccountPage() {
 
           {/* Карточка з інфо юзера */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center gap-3">
-              {user.photoURL && <img src={user.photoURL} alt="avatar" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-purple-300" />}
-              <div className="min-w-0">
-                <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">{user.displayName}</p>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              {/* Аватар з можливістю зміни */}
+              <div className="relative group/avatar">
+                {user.photoURL || profile?.photoURL ? (
+                  <img
+                    src={profile?.photoURL || user.photoURL || ''}
+                    alt="avatar"
+                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-purple-300 object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-xl sm:text-2xl font-bold border-2 border-white shadow-sm">
+                    {(profile?.displayName || user.displayName || 'К')[0].toUpperCase()}
+                  </div>
+                )}
+                <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity cursor-pointer">
+                  {isUploadingPhoto ? (
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <span className="text-white text-xs font-bold">📷</span>
+                  )}
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    disabled={isUploadingPhoto}
+                  />
+                </label>
+              </div>
+
+              <div className="min-w-0 flex-1">
+                {isEditingName ? (
+                  <div className="flex items-center gap-2 w-full">
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      className="text-black flex-1 min-w-0 px-2 py-1 border-2 border-purple-300 rounded-lg focus:outline-none text-sm sm:text-base font-semibold"
+                      autoFocus
+                      maxLength={30}
+                    />
+                    <button
+                      onClick={handleUpdateName}
+                      disabled={isSavingName || !newName.trim()}
+                      className="p-1 px-2 bg-green-500 text-white rounded-lg text-xs font-bold hover:bg-green-600 disabled:opacity-50"
+                    >
+                      {isSavingName ? '...' : '💾'}
+                    </button>
+                    <button
+                      onClick={() => setIsEditingName(false)}
+                      disabled={isSavingName}
+                      className="p-1 px-2 bg-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-300 disabled:opacity-50"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 group">
+                    <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                      {profile?.displayName || user.displayName || 'Користувач'}
+                    </p>
+                    <button
+                      onClick={() => setIsEditingName(true)}
+                      className="text-gray-400 hover:text-purple-600 transition-colors text-xs p-1"
+                      title="Змінити ім'я"
+                    >
+                      ✏️
+                    </button>
+                  </div>
+                )}
+                <p className="text-xs text-gray-500 truncate">{user.email || user.phoneNumber}</p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">

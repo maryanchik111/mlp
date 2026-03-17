@@ -123,7 +123,7 @@ export default function ThreadClient() {
             await addForumComment(
                 threadId,
                 user.uid,
-                user.displayName || 'Анонім',
+                profile?.displayName || user.displayName || 'Анонім',
                 user.photoURL,
                 newComment,
                 checkIsAdmin(user.email),

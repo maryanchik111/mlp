@@ -107,7 +107,7 @@ export default function ForumPage() {
     try {
       await createForumThread(
         user.uid,
-        user.displayName || 'Анонім',
+        profile?.displayName || user.displayName || 'Анонім',
         user.photoURL,
         newThread.title,
         newThread.content,
