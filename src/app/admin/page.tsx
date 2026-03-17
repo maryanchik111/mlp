@@ -1054,68 +1054,70 @@ export default function AdminPage() {
               </button>
             </div>
 
-            {products.map((product) => (
-              <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex flex-col items-start gap-4">
-                      {product.images && product.images.length > 0 ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={product.images[0]}
-                          alt={product.name}
-                          className="md:w-24 md:h-24 object-cover rounded-[.8em]"
-                        />
-                      ) : (
-                        <div className="md:w-24 md:h-24 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full">
-                          {product.image || '📦'}
+            <div className="gap-2 flex flex-col md:grid md:grid-cols-2">
+              {products.map((product) => (
+                <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex flex-col items-start gap-4">
+                        {product.images && product.images.length > 0 ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={product.images[0]}
+                            alt={product.name}
+                            className="md:w-48 md:h-48 object-cover rounded-[.8em]"
+                          />
+                        ) : (
+                          <div className="md:w-48 md:h-48 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full">
+                            {product.image || '📦'}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-lg font-bold text-gray-900">{product.name}</p>
+                          <p className="text-sm text-gray-600">{product.category}</p>
+                          <div className={`text-sm font-medium ${product.quantity > 0 ? 'text-green-400' : 'text-red-800'
+                            }`}>
+                            {product.quantity > 0 ? 'В наявності' : 'Немає в наявності'}
+                          </div>
                         </div>
-                      )}
+                      </div>
+
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <p className="text-lg font-bold text-gray-900">{product.name}</p>
-                        <p className="text-sm text-gray-600">{product.category}</p>
-                        <div className={`text-sm font-medium ${product.quantity > 0 ? 'text-green-400' : 'text-red-800'
-                          }`}>
-                          {product.quantity > 0 ? 'В наявності' : 'Немає в наявності'}
-                        </div>
+                        <p className="text-sm text-gray-600">Ціна</p>
+                        <p className="font-bold text-purple-600 text-lg">{product.price}₴</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600">Кількість</p>
+                        <p className="font-semibold text-gray-900">{product.quantity} шт</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-sm text-gray-600">Опис</p>
+                        <p className="text-gray-900">{product.description}</p>
                       </div>
                     </div>
 
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Ціна</p>
-                      <p className="font-bold text-purple-600 text-lg">{product.price}₴</p>
+                    <div className="flex justify-between gap-2">
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        disabled={actionLoading}
+                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 w-full"
+                      >
+                        Видалити
+                      </button>
+                      <button
+                        onClick={() => handleEditProduct(product)}
+                        className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium w-full"
+                      >
+                        Редагувати
+                      </button>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Кількість</p>
-                      <p className="font-semibold text-gray-900">{product.quantity} шт</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-sm text-gray-600">Опис</p>
-                      <p className="text-gray-900">{product.description}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between gap-2">
-                    <button
-                      onClick={() => handleDeleteProduct(product.id)}
-                      disabled={actionLoading}
-                      className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 w-full"
-                    >
-                      Видалити
-                    </button>
-                    <button
-                      onClick={() => handleEditProduct(product)}
-                      className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium w-full"
-                    >
-                      Редагувати
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 

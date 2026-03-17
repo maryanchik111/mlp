@@ -264,11 +264,11 @@ export default function CatalogPage() {
         {/* Заголовок сторінки */}
         <section className="py-12 md:py-16 bg-white border-b border-gray-200">
           <div className="container mx-auto px-4 max-w-7xl">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="text-5xl md:text-6xl">🦄</div>
+            <div className="flex items-center gap-2 mb-6">
               <h1 className="text-3xl md:text-5xl font-bold text-gray-900">
                 Каталог товарів mlpcutiefamily
               </h1>
+              <div className=""><img src="/png/IMG_20260210_181913_338.PNG" alt="" className="w-24 h-auto" /></div>
             </div>
             <p className="text-sm md:text-lg text-gray-600 mb-6 max-w-2xl leading-relaxed">
               Купіть оригінальні іграшки та колекційні фігурки My Little Pony з доставкою по Україні.
