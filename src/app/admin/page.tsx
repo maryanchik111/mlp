@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, syncBoxItemToCatalog, removeBoxItemFromCatalog, type BoxType, type BoxItem } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, fetchAllUsers, updateUserProfileAdmin, checkAdminAccess, isAdmin as checkIsAdmin, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, syncBoxItemToCatalog, removeBoxItemFromCatalog, type BoxType, type BoxItem, type ScreenshotReview, fetchAllScreenshotReviews, addScreenshotReview, deleteScreenshotReview } from '@/lib/firebase';
 import { useAuth, useModal } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
-type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support' | 'auctions' | 'boxes';
+type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support' | 'auctions' | 'boxes' | 'users';
 
 // Список доступних категорій товарів
 const PRODUCT_CATEGORIES = [
@@ -53,6 +53,9 @@ export default function AdminPage() {
 
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [screenshotReviews, setScreenshotReviews] = useState<ScreenshotReview[]>([]);
+  const [reviewTab, setReviewTab] = useState<'text' | 'screenshots'>('text');
+  const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
   const [replyingToReview, setReplyingToReview] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
 
@@ -112,6 +115,17 @@ export default function AdminPage() {
     addToCatalog: false, // чи додати до каталогу «із закордону»
   });
 
+  // Users state
+  const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+  const [userEditForm, setUserEditForm] = useState({
+    displayName: '',
+    rating: 0,
+    points: 0,
+    discountPercent: 0,
+    isBlocked: false,
+  });
+
   // User profiles cache for authorized orders
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
 
@@ -149,6 +163,8 @@ export default function AdminPage() {
     const loadReviews = async () => {
       const allReviews = await fetchAllReviews();
       setReviews(allReviews);
+      const allScreenshots = await fetchAllScreenshotReviews();
+      setScreenshotReviews(allScreenshots);
     };
     loadReviews();
   }, [mounted]);
@@ -212,6 +228,61 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Помилка:', error);
       showError('Помилка видалення відгуку');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Функції для скріншотів відгуків
+  const handleUploadScreenshotReview = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingScreenshot(true);
+    setActionLoading(true);
+    let uploadedCount = 0;
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!file.type.startsWith('image/')) continue;
+        const imageUrl = await uploadImage(file, 'reviews');
+        if (imageUrl) {
+          await addScreenshotReview(imageUrl);
+          uploadedCount++;
+        }
+      }
+      if (uploadedCount > 0) {
+        showSuccess(`Завантажено ${uploadedCount} скріншотів відгуків`);
+        const allScreenshots = await fetchAllScreenshotReviews();
+        setScreenshotReviews(allScreenshots);
+      }
+    } catch (error) {
+      console.error('Помилка завантаження скріншотів відгуків:', error);
+      showError('Помилка завантаження скріншотів');
+    } finally {
+      setUploadingScreenshot(false);
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteScreenshotReview = async (id: string, imageUrl: string) => {
+    if (!confirm('Видалити цей скріншот відгуку?')) return;
+    setActionLoading(true);
+    try {
+      if (imageUrl.includes('firebasestorage.googleapis.com')) {
+        await deleteImage(imageUrl);
+      }
+      const success = await deleteScreenshotReview(id);
+      if (success) {
+        showSuccess('Скріншот відгуку видалено');
+        const allScreenshots = await fetchAllScreenshotReviews();
+        setScreenshotReviews(allScreenshots);
+      } else {
+        showError('Не вдалося видалити скріншот відгуку');
+      }
+    } catch (error) {
+      console.error('Помилка видалення скріншотів відгуків:', error);
+      showError('Помилка видалення скріншоту');
     } finally {
       setActionLoading(false);
     }
@@ -777,7 +848,69 @@ export default function AdminPage() {
     };
 
     loadUserProfiles();
-  }, [orders, statusFilter]);
+  }, [orders, statusFilter, mounted]);
+
+  // Завантажити користувачів при перемиканні на вкладку "Користувачі"
+  useEffect(() => {
+    if (activeTab === 'users' && mounted) {
+      const loadUsers = async () => {
+        const users = await fetchAllUsers();
+        setAllUsers(users);
+      };
+      loadUsers();
+    }
+  }, [activeTab, mounted]);
+
+  // Функції для управління користувачами
+  const handleEditUser = (userProfile: UserProfile) => {
+    setEditingUser(userProfile);
+    setUserEditForm({
+      displayName: userProfile.displayName || '',
+      rating: userProfile.rating || 0,
+      points: userProfile.points || 0,
+      discountPercent: userProfile.discountPercent || 0,
+      isBlocked: userProfile.isBlocked || false,
+    });
+  };
+
+  const handleSaveUser = async () => {
+    if (!editingUser) return;
+    setActionLoading(true);
+
+    const success = await updateUserProfileAdmin(editingUser.uid, userEditForm);
+
+    if (success) {
+      showSuccess('Дані користувача оновлено');
+      const users = await fetchAllUsers();
+      setAllUsers(users);
+      setEditingUser(null);
+    } else {
+      showError('Помилка при оновленні даних');
+    }
+    setActionLoading(false);
+  };
+
+  const handleToggleBlockUser = async (userProfile: UserProfile) => {
+    const newStatus = !userProfile.isBlocked;
+    const confirm = await showConfirm(
+      newStatus ? 'Блокування' : 'Розблокування',
+      `Ви впевнені, що хочете ${newStatus ? 'заблокувати' : 'розблокувати'} акаунт ${userProfile.displayName || userProfile.email}?`
+    );
+
+    if (!confirm) return;
+
+    setActionLoading(true);
+    const success = await updateUserProfileAdmin(userProfile.uid, { isBlocked: newStatus });
+
+    if (success) {
+      showSuccess(`Акаунт ${newStatus ? 'заблоковано' : 'розблоковано'}`);
+      const users = await fetchAllUsers();
+      setAllUsers(users);
+    } else {
+      showError('Помилка при зміні статусу акаунта');
+    }
+    setActionLoading(false);
+  };
 
   // Показуємо екран завантаження під час перевірки доступу
   if (authLoading || !mounted) {
@@ -841,7 +974,7 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 py-12">
+    <main className="min-h-screen bg-gray-50 py-12 pb-20">
       <div className="container mx-auto px-4">
         {/* Заголовок */}
         <div className="mb-8">
@@ -854,7 +987,7 @@ export default function AdminPage() {
 
         {/* Tabs (адаптивні) */}
         <div className="bg-white rounded-lg shadow-sm p-2 mb-8">
-          <div className="grid grid-cols-2 md:flex gap-2">
+          <div className="grid grid-cols-2 md:grid md:grid-cols-4 gap-2">
             <button
               onClick={() => setActiveTab('stats')}
               className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'stats'
@@ -917,6 +1050,15 @@ export default function AdminPage() {
                 }`}
             >
               🎁 Бокси
+            </button>
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'users'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              👥 Користувачі
             </button>
           </div>
         </div>
@@ -1124,116 +1266,191 @@ export default function AdminPage() {
         {/* Reviews Tab Content */}
         {activeTab === 'reviews' && (
           <div className="space-y-4">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
-              <h2 className="text-lg font-bold text-gray-900 mb-2">Всього відгуків: {reviews.length}</h2>
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex bg-gray-100 p-1 rounded-lg w-full sm:w-auto">
+                <button
+                  onClick={() => setReviewTab('text')}
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-colors ${reviewTab === 'text' ? 'bg-white text-purple-700 shadow flex items-center gap-2 justify-center' : 'text-gray-600 hover:bg-gray-200 flex items-center justify-center'}`}
+                >
+                  📝 Відгуки на сайті
+                </button>
+                <button
+                  onClick={() => setReviewTab('screenshots')}
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-colors ${reviewTab === 'screenshots' ? 'bg-white text-purple-700 shadow flex items-center gap-2 justify-center' : 'text-gray-600 hover:bg-gray-200 flex items-center justify-center'}`}
+                >
+                  📸 Скріншоти (Telegram)
+                </button>
+              </div>
+              <h2 className="text-lg font-bold text-gray-900">
+                Всього: {reviewTab === 'text' ? reviews.length : screenshotReviews.length}
+              </h2>
             </div>
 
-            {reviews.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                <p className="text-gray-600">Немає відгуків</p>
-              </div>
-            ) : (
-              reviews.map((review) => (
-                <div key={review.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <p className="text-lg font-bold text-purple-700">{review.displayName || 'Користувач'}</p>
-                        <div className="flex gap-0.5" aria-label={`Рейтинг ${review.rating}`}>
-                          {[1, 2, 3, 4, 5].map(i => (
-                            <span key={i} className={`text-lg ${i <= review.rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-500 mb-1">Замовлення: #{review.orderId}</p>
-                      <p className="text-xs text-gray-500">{new Date(review.createdAt).toLocaleString('uk-UA')}</p>
-                    </div>
-                    <button
-                      onClick={() => handleDeleteReview(review.orderId)}
-                      disabled={actionLoading}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${actionLoading
-                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                        : 'bg-red-600 text-white hover:bg-red-700'
-                        }`}
-                    >
-                      🗑️ Видалити
-                    </button>
-                  </div>
-                  <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
-                    <p className="text-gray-800 leading-relaxed">
-                      {review.text?.length ? `"${review.text}"` : '⭐ Без коментаря'}
-                    </p>
-                  </div>
-
-                  {/* Відповідь адміна якщо є */}
-                  {review.adminReply && (
-                    <div className="mt-4 ml-8 bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 p-4 rounded">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-purple-500">
-                          <img src="/storeimage.jpg" alt="Магазин MLP" className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-bold text-purple-700">MLP Cutie Family</p>
-                            <span className="text-xs text-purple-500">
-                              {new Date(review.adminReplyAt || Date.now()).toLocaleString('uk-UA')}
-                            </span>
-                          </div>
-                          <p className="text-gray-700 leading-relaxed">{review.adminReply}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Форма для додавання відповіді */}
-                  {!review.adminReply && (
-                    <div className="mt-4">
-                      {replyingToReview === review.orderId ? (
-                        <div className="ml-8 space-y-3">
-                          <textarea
-                            value={replyText}
-                            onChange={(e) => setReplyText(e.target.value)}
-                            placeholder="Напишіть відповідь від імені магазину..."
-                            className="text-purple-600 w-full p-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                            rows={3}
-                            disabled={actionLoading}
-                          />
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleSendReply(review.orderId)}
-                              disabled={actionLoading || !replyText.trim()}
-                              className={`px-4 py-2 rounded-lg font-medium transition-colors ${actionLoading || !replyText.trim()
-                                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                                : 'bg-purple-600 text-white hover:bg-purple-700'
-                                }`}
-                            >
-                              📤 Відправити
-                            </button>
-                            <button
-                              onClick={() => {
-                                setReplyingToReview(null);
-                                setReplyText('');
-                              }}
-                              disabled={actionLoading}
-                              className="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
-                            >
-                              Скасувати
-                            </button>
-                          </div>
-                        </div>
+            {reviewTab === 'screenshots' && (
+              <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+                <div className="mb-6 border-b border-gray-100 pb-4">
+                  <label className={`block w-full sm:w-1/2 md:w-1/3 border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingScreenshot ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      disabled={uploadingScreenshot || actionLoading}
+                      onChange={handleUploadScreenshotReview}
+                      className="hidden"
+                    />
+                    <div className="text-purple-600">
+                      {uploadingScreenshot ? (
+                        <>
+                          <span className="text-2xl animate-spin inline-block">⏳</span>
+                          <p className="text-sm font-medium mt-2">Завантаження...</p>
+                        </>
                       ) : (
-                        <button
-                          onClick={() => setReplyingToReview(review.orderId)}
-                          disabled={actionLoading}
-                          className="ml-8 px-4 py-2 rounded-lg font-medium bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
-                        >
-                          💬 Відповісти
-                        </button>
+                        <>
+                          <span className="text-3xl">📸</span>
+                          <p className="text-sm font-medium mt-2">Завантажити скріншоти</p>
+                          <p className="text-xs text-gray-500 mt-1">Натисніть або перетягніть</p>
+                        </>
                       )}
                     </div>
-                  )}
+                  </label>
                 </div>
-              ))
+
+                {screenshotReviews.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">Немає скріншотів відгуків.</div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {screenshotReviews.map(sr => (
+                      <div key={sr.id} className="relative group border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                        <img src={sr.imageUrl} alt="Review screenshot" className="w-full h-40 object-cover" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <button
+                            onClick={() => handleDeleteScreenshotReview(sr.id, sr.imageUrl)}
+                            className="bg-red-600 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-700"
+                            disabled={actionLoading}
+                          >
+                            Видалити
+                          </button>
+                        </div>
+                        <div className="text-[10px] text-gray-400 p-1 text-center bg-white border-t border-gray-100">
+                          {new Date(sr.createdAt).toLocaleDateString('uk-UA')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {reviewTab === 'text' && (
+              <>
+                {reviews.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                    <p className="text-gray-600">Немає відгуків</p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <div key={review.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all p-6 mb-4">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <p className="text-lg font-bold text-purple-700">{review.displayName || 'Користувач'}</p>
+                            <div className="flex gap-0.5" aria-label={`Рейтинг ${review.rating}`}>
+                              {[1, 2, 3, 4, 5].map(i => (
+                                <span key={i} className={`text-lg ${i <= review.rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-1">Замовлення: #{review.orderId}</p>
+                          <p className="text-xs text-gray-500">{new Date(review.createdAt).toLocaleString('uk-UA')}</p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteReview(review.orderId)}
+                          disabled={actionLoading}
+                          className={`px-4 py-2 rounded-lg font-medium transition-colors ${actionLoading
+                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            : 'bg-red-600 text-white hover:bg-red-700'
+                            }`}
+                        >
+                          🗑️ Видалити
+                        </button>
+                      </div>
+                      <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
+                        <p className="text-gray-800 leading-relaxed">
+                          {review.text?.length ? `"${review.text}"` : '⭐ Без коментаря'}
+                        </p>
+                      </div>
+
+                      {/* Відповідь адміна якщо є */}
+                      {review.adminReply && (
+                        <div className="mt-4 ml-8 bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 p-4 rounded">
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border-2 border-purple-500">
+                              <img src="/storeimage.jpg" alt="Магазин MLP" className="w-full h-full object-cover" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-bold text-purple-700">MLP Cutie Family</p>
+                                <span className="text-xs text-purple-500">
+                                  {new Date(review.adminReplyAt || Date.now()).toLocaleString('uk-UA')}
+                                </span>
+                              </div>
+                              <p className="text-gray-700 leading-relaxed">{review.adminReply}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Форма для додавання відповіді */}
+                      {!review.adminReply && (
+                        <div className="mt-4">
+                          {replyingToReview === review.orderId ? (
+                            <div className="ml-8 space-y-3">
+                              <textarea
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder="Напишіть відповідь від імені магазину..."
+                                className="text-purple-600 w-full p-3 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                rows={3}
+                                disabled={actionLoading}
+                              />
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleSendReply(review.orderId)}
+                                  disabled={actionLoading || !replyText.trim()}
+                                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${actionLoading || !replyText.trim()
+                                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                    : 'bg-purple-600 text-white hover:bg-purple-700'
+                                    }`}
+                                >
+                                  📤 Відправити
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setReplyingToReview(null);
+                                    setReplyText('');
+                                  }}
+                                  disabled={actionLoading}
+                                  className="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+                                >
+                                  Скасувати
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setReplyingToReview(review.orderId)}
+                              disabled={actionLoading}
+                              className="ml-8 px-4 py-2 rounded-lg font-medium bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
+                            >
+                              💬 Відповісти
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </>
             )}
           </div>
         )}
@@ -2953,7 +3170,126 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* ======= MODAL: BoxType ======= */}
+      {/* =============================== USERS TAB =============================== */}
+      {activeTab === 'users' && (
+        <div className="container mx-auto px-4 mb-20 overflow-x-auto">
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Управління користувачами</h2>
+                <p className="text-gray-500 text-sm mt-1">Редагування профілів, нарахування балів та блокування</p>
+              </div>
+              <div className="bg-purple-50 px-4 py-2 rounded-lg flex items-center">
+                <p className="text-xs text-purple-600 font-semibold uppercase">Всього користувачів <span className="text-2xl font-bold text-purple-700 leading-none">{allUsers.length}</span></p>
+              </div>
+            </div>
+
+            {allUsers.length === 0 ? (
+              <div className="p-20 text-center">
+                <div className="text-6xl mb-4">👥</div>
+                <h3 className="text-xl font-bold text-gray-700">Користувачів ще немає</h3>
+              </div>
+            ) : (
+              <table className="w-full text-left border-collapse min-w-[800px]">
+                <thead>
+                  <tr className="bg-gray-50 text-gray-600 text-xs font-bold uppercase tracking-wider">
+                    <th className="px-6 py-4">Користувач</th>
+                    <th className="px-6 py-4">Рейтинг</th>
+                    <th className="px-6 py-4">Бали</th>
+                    <th className="px-6 py-4">Знижка</th>
+                    <th className="px-6 py-4">Статус</th>
+                    <th className="px-6 py-4">Реєстрація</th>
+                    <th className="px-6 py-4 text-right">Дії</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {allUsers.map((u) => (
+                    <tr key={u.uid} className={`hover:bg-gray-50 transition-colors ${u.isBlocked ? 'bg-red-50/50' : ''}`}>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold overflow-hidden shadow-inner">
+                            {u.photoURL ? (
+                              <img src={u.photoURL} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              (u.displayName || u.email || '?')[0].toUpperCase()
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 leading-tight">
+                              {u.displayName || 'Без імені'}
+                              {checkIsAdmin(u.email) && <span className="ml-2 text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded uppercase font-bold">Admin</span>}
+                              {u.isBlocked && <span className="ml-2 text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded uppercase font-bold">Blocked</span>}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">{u.email}</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5 font-mono select-all">ID: {u.uid}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-purple-600 font-bold">
+                        <div className="flex items-center gap-1">
+                          <span>⭐</span>
+                          {u.rating}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-yellow-600 font-bold text-lg">
+                        {u.points}
+                      </td>
+                      <td className="px-6 py-4 text-green-600 font-bold">
+                        {u.discountPercent}%
+                      </td>
+                      <td className="px-6 py-4">
+                        {u.isBlocked ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                            Заблоковано
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                            Активний
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-gray-500 text-xs">
+                        {new Date(u.createdAt).toLocaleDateString('uk-UA')}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handleEditUser(u)}
+                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-all title='Редагувати'"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => handleToggleBlockUser(u)}
+                            className={`p-2 rounded-lg transition-all ${u.isBlocked ? 'text-green-600 hover:bg-green-50' : 'text-red-600 hover:bg-red-50'
+                              }`}
+                            title={u.isBlocked ? 'Розблокувати' : 'Заблокувати'}
+                          >
+                            {u.isBlocked ? (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                            ) : (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
+
       {showBoxTypeModal && (
         <div className="fixed inset-0 bg-black/60 z-500 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -3389,6 +3725,102 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+      {/* ======= MODAL: Edit User ======= */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/60 z-[10000] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white flex justify-between items-center">
+              <h3 className="text-xl font-bold">
+                👤 Редагування профілю
+              </h3>
+              <button
+                onClick={() => setEditingUser(null)}
+                className="hover:scale-110 transition-transform text-2xl font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-xs text-gray-500 mb-2 truncate">UID: {editingUser.uid}</p>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Ім'я (DisplayName)</label>
+                <input
+                  type="text"
+                  value={userEditForm.displayName}
+                  onChange={e => setUserEditForm(f => ({ ...f, displayName: e.target.value }))}
+                  className="w-full border-2 border-gray-100 rounded-xl px-4 py-2 focus:border-purple-400 focus:outline-none text-black"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Рейтинг ⭐</label>
+                  <input
+                    type="number"
+                    value={userEditForm.rating}
+                    onChange={e => setUserEditForm(f => ({ ...f, rating: Number(e.target.value) }))}
+                    className="w-full border-2 border-gray-100 rounded-xl px-4 py-2 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Знижка % 💳</label>
+                  <input
+                    type="number"
+                    value={userEditForm.discountPercent}
+                    onChange={e => setUserEditForm(f => ({ ...f, discountPercent: Number(e.target.value) }))}
+                    className="w-full border-2 border-gray-100 rounded-xl px-4 py-2 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Бали лояльності 🎯</label>
+                <input
+                  type="number"
+                  value={userEditForm.points}
+                  onChange={e => setUserEditForm(f => ({ ...f, points: Number(e.target.value) }))}
+                  className="w-full border-2 border-gray-100 rounded-xl px-4 py-2 focus:border-purple-400 focus:outline-none text-black text-lg font-bold"
+                />
+              </div>
+
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div
+                    onClick={() => setUserEditForm(f => ({ ...f, isBlocked: !f.isBlocked }))}
+                    className={`relative w-12 h-6 rounded-full transition-colors ${userEditForm.isBlocked ? 'bg-red-500' : 'bg-gray-300'
+                      }`}
+                  >
+                    <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${userEditForm.isBlocked ? 'translate-x-6' : 'translate-x-0.5'
+                      }`} />
+                  </div>
+                  <span className={`text-sm font-bold ${userEditForm.isBlocked ? 'text-red-600' : 'text-gray-700'}`}>
+                    {userEditForm.isBlocked ? '🔒 Акаунт заблоковано' : '🔓 Акаунт активний'}
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div className="p-6 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={() => setEditingUser(null)}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors"
+              >
+                Скасувати
+              </button>
+              <button
+                disabled={actionLoading}
+                onClick={handleSaveUser}
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-60"
+              >
+                {actionLoading ? 'Збереження...' : 'Зберегти зміни'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
+
   );
 }

@@ -103,6 +103,7 @@ export interface UserProfile {
   discountPercent: number; // розмір знижки, що застосовується при оформленні
   telegramId?: string;     // Telegram ID користувача (якщо прив'язано)
   telegramUsername?: string; // Telegram username користувача (якщо прив'язано)
+  isBlocked?: boolean;     // чи заблоковано акаунт
   createdAt: number;
   updatedAt: number;
 }
@@ -120,6 +121,12 @@ export interface Review {
   createdAt: number;   // час створення
   adminReply?: string; // відповідь адміна (якщо є)
   adminReplyAt?: number; // час відповіді адміна
+}
+
+export interface ScreenshotReview {
+  id: string;
+  imageUrl: string;
+  createdAt: number;
 }
 
 // =====================
@@ -280,6 +287,37 @@ export const fetchUsersCount = async (): Promise<number> => {
   } catch (e) {
     console.error('Помилка отримання кількості користувачів:', e);
     return 0;
+  }
+};
+
+// Отримати всіх користувачів (для адмінки)
+export const fetchAllUsers = async (): Promise<UserProfile[]> => {
+  try {
+    const snapshot = await get(ref(database, 'users'));
+    if (!snapshot.exists()) return [];
+    const data = snapshot.val() as Record<string, UserProfile>;
+    return Object.values(data).sort((a, b) => b.createdAt - a.createdAt);
+  } catch (e) {
+    console.error('Помилка отримання всіх користувачів:', e);
+    return [];
+  }
+};
+
+// Оновити профіль користувача адміном
+export const updateUserProfileAdmin = async (
+  uid: string,
+  updates: Partial<UserProfile>
+): Promise<boolean> => {
+  try {
+    const userRef = ref(database, `users/${uid}`);
+    await update(userRef, {
+      ...updates,
+      updatedAt: Date.now(),
+    });
+    return true;
+  } catch (e) {
+    console.error('Помилка оновлення профілю користувача адміном:', e);
+    return false;
   }
 };
 
@@ -849,6 +887,54 @@ export const deleteReview = async (orderId: string): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Помилка видалення відгуку:', error);
+    return false;
+  }
+};
+
+// =====================
+// СКРІНШОТИ ВІДГУКІВ
+// =====================
+
+export const fetchAllScreenshotReviews = async (): Promise<ScreenshotReview[]> => {
+  try {
+    const reviewsRef = ref(database, 'screenshot_reviews');
+    const snapshot = await get(reviewsRef);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const list: ScreenshotReview[] = Object.values(data);
+      return list.sort((a, b) => b.createdAt - a.createdAt);
+    }
+    return [];
+  } catch (error) {
+    console.error('Помилка отримання скріншотів відгуків:', error);
+    return [];
+  }
+};
+
+export const addScreenshotReview = async (imageUrl: string): Promise<string | null> => {
+  try {
+    const id = Date.now().toString();
+    const reviewRef = ref(database, `screenshot_reviews/${id}`);
+    const review: ScreenshotReview = {
+      id,
+      imageUrl,
+      createdAt: Date.now(),
+    };
+    await set(reviewRef, review);
+    return id;
+  } catch (error) {
+    console.error('Помилка додавання скріншоту відгуку:', error);
+    return null;
+  }
+};
+
+export const deleteScreenshotReview = async (id: string): Promise<boolean> => {
+  try {
+    const reviewRef = ref(database, `screenshot_reviews/${id}`);
+    await set(reviewRef, null);
+    return true;
+  } catch (error) {
+    console.error('Помилка видалення скріншоту відгуку:', error);
     return false;
   }
 };
@@ -1432,6 +1518,8 @@ export interface ForumThread {
   authorId: string;
   authorName: string;
   authorPhoto: string | null;
+  isAdmin?: boolean;
+  authorRank?: number;
   category: string; // 'general' | 'help' | 'showcase' | 'news'
   createdAt: number;
   updatedAt: number;
@@ -1449,10 +1537,14 @@ export interface ForumComment {
   authorId: string;
   authorName: string;
   authorPhoto: string | null;
+  isAdmin?: boolean;
+  authorRank?: number;
   createdAt: number;
   updatedAt: number;
   reactions: { [userId: string]: string };
   isEdited: boolean;
+  replyToId?: string;
+  replyToName?: string;
 }
 
 // Створити нову тему
@@ -1462,7 +1554,9 @@ export async function createForumThread(
   userPhoto: string | null,
   title: string,
   content: string,
-  category: string
+  category: string,
+  isAdmin?: boolean,
+  authorRank?: number
 ): Promise<string> {
   const threadId = Date.now().toString();
   const threadRef = ref(database, `forum/threads/${threadId}`);
@@ -1474,6 +1568,8 @@ export async function createForumThread(
     authorId: userId,
     authorName: userName,
     authorPhoto: userPhoto,
+    isAdmin,
+    authorRank,
     category,
     createdAt: Date.now(),
     updatedAt: Date.now(),
@@ -1510,6 +1606,35 @@ export async function getForumThreads(): Promise<ForumThread[]> {
   return threads;
 }
 
+// Підписатися на всі теми (realtime)
+export function subscribeToForumThreads(callback: (threads: ForumThread[]) => void): () => void {
+  const threadsRef = ref(database, 'forum/threads');
+
+  const unsubscribe = onValue(threadsRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      callback([]);
+      return;
+    }
+
+    const threads: ForumThread[] = [];
+    snapshot.forEach((child) => {
+      threads.push(child.val() as ForumThread);
+    });
+
+    // Сортуємо: закріплені зверху, потім за датою оновлення
+    threads.sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return b.updatedAt - a.updatedAt;
+    });
+
+    callback(threads);
+  });
+
+  return unsubscribe;
+}
+
+
 // Отримати тему за ID
 export async function getForumThread(threadId: string): Promise<ForumThread | null> {
   const threadRef = ref(database, `forum/threads/${threadId}`);
@@ -1517,6 +1642,21 @@ export async function getForumThread(threadId: string): Promise<ForumThread | nu
 
   if (!snapshot.exists()) return null;
   return snapshot.val() as ForumThread;
+}
+
+// Підписатися на тему за ID (realtime)
+export function subscribeToForumThread(threadId: string, callback: (thread: ForumThread | null) => void): () => void {
+  const threadRef = ref(database, `forum/threads/${threadId}`);
+
+  const unsubscribe = onValue(threadRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      callback(null);
+      return;
+    }
+    callback(snapshot.val() as ForumThread);
+  });
+
+  return unsubscribe;
 }
 
 // Збільшити лічильник переглядів
@@ -1536,7 +1676,11 @@ export async function addForumComment(
   userId: string,
   userName: string,
   userPhoto: string | null,
-  content: string
+  content: string,
+  isAdmin?: boolean,
+  authorRank?: number,
+  replyToId?: string,
+  replyToName?: string
 ): Promise<string> {
   const commentId = Date.now().toString();
   const commentRef = ref(database, `forum/comments/${threadId}/${commentId}`);
@@ -1548,10 +1692,14 @@ export async function addForumComment(
     authorId: userId,
     authorName: userName,
     authorPhoto: userPhoto,
+    isAdmin,
+    authorRank,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     reactions: {},
     isEdited: false,
+    replyToId,
+    replyToName,
   };
 
   await set(commentRef, comment);
@@ -1585,6 +1733,30 @@ export async function getForumComments(threadId: string): Promise<ForumComment[]
   comments.sort((a, b) => a.createdAt - b.createdAt);
 
   return comments;
+}
+
+// Підписатися на коментарі теми (realtime)
+export function subscribeToForumComments(threadId: string, callback: (comments: ForumComment[]) => void): () => void {
+  const commentsRef = ref(database, `forum/comments/${threadId}`);
+
+  const unsubscribe = onValue(commentsRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      callback([]);
+      return;
+    }
+
+    const comments: ForumComment[] = [];
+    snapshot.forEach((child) => {
+      comments.push(child.val() as ForumComment);
+    });
+
+    // Сортуємо за часом створення (старіші першими)
+    comments.sort((a, b) => a.createdAt - b.createdAt);
+
+    callback(comments);
+  });
+
+  return unsubscribe;
 }
 
 // Додати реакцію до теми

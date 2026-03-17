@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth, useModal } from '@/app/providers';
-import { getForumThreads, createForumThread, type ForumThread } from '@/lib/firebase';
+import { subscribeToForumThreads, createForumThread, isAdmin, type ForumThread } from '@/lib/firebase';
 import Link from 'next/link';
 import {
   HomeIcon,
@@ -37,7 +37,7 @@ const REACTIONS = {
 };
 
 export default function ForumPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { showWarning, showError } = useModal();
   const [threads, setThreads] = useState<ForumThread[]>([]);
   const [filteredThreads, setFilteredThreads] = useState<ForumThread[]>([]);
@@ -53,24 +53,18 @@ export default function ForumPage() {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    loadThreads();
+    setLoading(true);
+    const unsubscribe = subscribeToForumThreads((data) => {
+      setThreads(data);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     filterThreads();
   }, [threads, selectedCategory, searchQuery]);
-
-  const loadThreads = async () => {
-    try {
-      const data = await getForumThreads();
-      setThreads(data);
-    } catch (error) {
-      console.error('Error loading threads:', error);
-      showError('Не вдалося завантажити теми форуму');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const filterThreads = () => {
     let filtered = threads;
@@ -104,6 +98,11 @@ export default function ForumPage() {
       return;
     }
 
+    if (profile?.isBlocked) {
+      showError('Ваш акаунт заблоковано. Створення тем недоступне.');
+      return;
+    }
+
     setCreating(true);
     try {
       await createForumThread(
@@ -112,11 +111,12 @@ export default function ForumPage() {
         user.photoURL,
         newThread.title,
         newThread.content,
-        newThread.category
+        newThread.category,
+        isAdmin(user.email),
+        profile?.rating || 1
       );
       setShowCreateModal(false);
       setNewThread({ title: '', content: '', category: 'general' });
-      loadThreads();
     } catch (error) {
       console.error('Error creating thread:', error);
       showError('Не вдалося створити тему');
@@ -151,6 +151,22 @@ export default function ForumPage() {
   const getCategoryInfo = (categoryId: string) => {
     return CATEGORIES.find(c => c.id === categoryId) || CATEGORIES[1];
   };
+
+  if (profile?.isBlocked) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 text-black">
+        <div className="bg-white p-8 md:p-12 rounded-3xl shadow-2xl max-w-lg text-center border-t-8 border-red-500">
+          <div className="text-7xl mb-6">🔒</div>
+          <h1 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tighter">Доступ обмежено</h1>
+          <p className="text-gray-600 font-medium mb-8">Ваш акаунт було заблоковано. Ви не можете переглядати форум та брати участь в обговореннях.</p>
+          <div className="flex flex-col gap-3">
+            <Link href="https://t.me/mlp_cutie_family_bot" className="bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-black transition-all shadow-lg">Зв'язатися з підтримкою</Link>
+            <Link href="/" className="text-purple-600 font-bold hover:underline">На головну</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
@@ -189,8 +205,8 @@ export default function ForumPage() {
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-sm md:text-base font-medium transition-all ${selectedCategory === category.id
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
                   }`}
               >
                 {category.icon} {category.name}
@@ -269,7 +285,19 @@ export default function ForumPage() {
                       </p>
 
                       <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-500">
-                        <span className="font-medium text-purple-600">{thread.authorName}</span>
+                        <div className="flex items-center gap-1.5 md:gap-2">
+                          <span className="font-medium text-purple-600">{thread.authorName}</span>
+                          {thread.isAdmin && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">
+                              👑 Адмін
+                            </span>
+                          )}
+                          {thread.authorRank && !thread.isAdmin && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-blue-200">
+                              ⭐ Рівень {thread.authorRank}
+                            </span>
+                          )}
+                        </div>
                         <span className="hidden sm:inline">•</span>
                         <span>{formatDate(thread.createdAt)}</span>
                         <span className="hidden sm:inline">•</span>
@@ -301,7 +329,7 @@ export default function ForumPage() {
 
       {/* Create thread modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-500">
           <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               Створити нову тему
@@ -319,8 +347,8 @@ export default function ForumPage() {
                       key={category.id}
                       onClick={() => setNewThread({ ...newThread, category: category.id })}
                       className={`px-4 py-2 rounded-full font-medium transition-all ${newThread.category === category.id
-                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                     >
                       {category.icon} {category.name}
@@ -339,7 +367,7 @@ export default function ForumPage() {
                   value={newThread.title}
                   onChange={(e) => setNewThread({ ...newThread, title: e.target.value })}
                   placeholder="Коротка і зрозуміла назва..."
-                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
+                  className="text-black w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
                   maxLength={100}
                 />
               </div>
@@ -354,7 +382,7 @@ export default function ForumPage() {
                   onChange={(e) => setNewThread({ ...newThread, content: e.target.value })}
                   placeholder="Розкажіть більше про тему..."
                   rows={6}
-                  className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none resize-none"
+                  className="text-black w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none resize-none"
                   maxLength={5000}
                 />
               </div>

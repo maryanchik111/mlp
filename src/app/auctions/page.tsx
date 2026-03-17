@@ -9,7 +9,7 @@ import { useAuth } from '@/app/providers';
 import { useModal } from '@/app/providers';
 
 export default function AuctionsPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { showSuccess, showError, showWarning } = useModal();
   const [allAuctions, setAllAuctions] = useState<Auction[]>([]);
   const [bidAmount, setBidAmount] = useState<Record<string, string>>({});
@@ -73,7 +73,7 @@ export default function AuctionsPage() {
       const hours = Math.floor(remaining / 3600000);
       const minutes = Math.floor((remaining % 3600000) / 60000);
       const seconds = Math.floor((remaining % 60000) / 1000);
-      
+
       if (hours > 0) {
         setTimers(prev => ({
           ...prev,
@@ -109,7 +109,7 @@ export default function AuctionsPage() {
                 // mark ended and set winner using server helper
                 // prefer calling closeAuction so winner fields are set
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-                (async () => { const { closeAuction } = await import('@/lib/firebase'); try { await closeAuction(auction.id); } catch(e) { console.error(e); } })();
+                (async () => { const { closeAuction } = await import('@/lib/firebase'); try { await closeAuction(auction.id); } catch (e) { console.error(e); } })();
               } catch (error) {
                 console.error('Помилка оновлення статусу аукціону:', error);
               }
@@ -332,13 +332,12 @@ export default function AuctionsPage() {
             <button
               onClick={() => handlePlaceBid(auction)}
               disabled={placingBid[auction.id] || !user || !bidAmount[auction.id]}
-              className={`w-full font-bold py-3 rounded-lg transition-all text-lg ${
-                placingBid[auction.id] || !user
-                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                  : bidAmount[auction.id]
+              className={`w-full font-bold py-3 rounded-lg transition-all text-lg ${placingBid[auction.id] || !user
+                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                : bidAmount[auction.id]
                   ? 'bg-purple-600 text-white hover:bg-purple-700'
                   : 'bg-gray-300 text-gray-600 cursor-not-allowed'
-              }`}
+                }`}
             >
               {placingBid[auction.id] ? '⏳ Обробка...' : !user ? '🔒 Авторизуйтись' : bidAmount[auction.id] ? `🔨 Ставка ${bidAmount[auction.id]}₴` : 'Вкажіть суму'}
             </button>
@@ -388,6 +387,27 @@ export default function AuctionsPage() {
       <main className="min-h-screen bg-gradient-to-b from-purple-50 via-purple-50 to-white py-8">
         <div className="flex items-center justify-center h-96">
           <p className="text-xl text-gray-600">⏳ Завантаження...</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (profile?.isBlocked) {
+    return (
+      <main className="min-h-screen bg-white py-12 text-black">
+        <div className="container mx-auto px-4 max-w-md text-center">
+          <div className="bg-red-50 p-10 rounded-3xl border-2 border-red-200 shadow-xl">
+            <div className="text-6xl mb-6">🔨🚫</div>
+            <h1 className="text-2xl font-black text-red-600 mb-4 uppercase tracking-tight">Доступ обмежено</h1>
+            <p className="text-gray-700 font-bold mb-6">Ви не можете брати участь в аукціонах, оскільки ваш акаунт було заблоковано модератором.</p>
+            <Link
+              href="https://t.me/mlp_cutie_family_bot"
+              className="block w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg mb-4"
+            >
+              📣 Звернутися в підтримку
+            </Link>
+            <Link href="/" className="text-gray-500 hover:text-gray-700 font-bold">← Повернутися на головну</Link>
+          </div>
         </div>
       </main>
     );

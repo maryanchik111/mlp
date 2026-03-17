@@ -34,19 +34,50 @@ export default function AccountPage() {
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-gray-50 py-12">
+      <main className="min-h-screen bg-gray-50 py-12 text-black">
         <div className="container mx-auto px-4 max-w-md text-center">
           <div className="bg-white p-8 rounded-lg shadow-sm">
             <div className="text-6xl mb-4">🦄</div>
             <h1 className="text-2xl font-bold mb-4 text-gray-900">Увійдіть в акаунт</h1>
-            <p className="text-gray-600 mb-6">Авторизуйтесь через Google щоб бачити історію покупок, рейтинг та бали.</p>
+            <p className="text-gray-600 mb-6 font-medium text-sm">Авторизуйтесь через Google щоб бачити історію покупок, рейтинг та бали.</p>
             <button
               onClick={() => signIn().then(() => refreshProfile())}
-              className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+              className="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors"
             >
               🔐 Увійти через Google
             </button>
-            <Link href="/catalog" className="block mt-6 text-purple-600 hover:text-purple-700">← До каталогу</Link>
+            <Link href="/catalog" className="block mt-6 text-purple-600 hover:text-purple-700 font-bold transition-colors">← До каталогу</Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (profile?.isBlocked) {
+    return (
+      <main className="min-h-screen bg-red-50 py-12 text-black">
+        <div className="container mx-auto px-4 max-w-md text-center mb-12">
+          <div className="bg-white p-8 rounded-2xl shadow-2xl border-4 border-red-500">
+            <div className="text-7xl mb-6">🔒</div>
+            <h1 className="text-3xl font-black mb-4 text-red-600 uppercase tracking-widest">Акаунт заблоковано</h1>
+            <div className="bg-red-50 p-4 rounded-xl mb-6">
+              <p className="text-gray-700 font-bold mb-2">На жаль, ваш доступ до особистого кабінету призупинено.</p>
+              <p className="text-sm text-gray-500 font-semibold italic">Зверніться в підтримку для з’ясування причин.</p>
+            </div>
+            <div className="space-y-3">
+              <a
+                href="https://t.me/mlp_cutie_family_bot"
+                className="block w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg"
+              >
+                💌 Написати в підтримку
+              </a>
+              <button
+                onClick={() => signOut()}
+                className="w-full bg-white border-2 border-red-500 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 transition-all"
+              >
+                🚪 Вийти з акаунта
+              </button>
+            </div>
           </div>
         </div>
       </main>
@@ -102,7 +133,7 @@ export default function AccountPage() {
   };
 
   const getDeliveryLabel = (method: string) => {
-  return 'Нова Пошта';
+    return 'Нова Пошта';
   };
 
   const formatDate = (timestamp: number) => {
@@ -205,7 +236,7 @@ export default function AccountPage() {
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-xs">
-                    {order.items.slice(0,6).map(i => (
+                    {order.items.slice(0, 6).map(i => (
                       <div key={i.id} className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded border border-gray-200">
                         <span>{i.image}</span>
                         <span className="truncate text-gray-700">{i.name}</span>

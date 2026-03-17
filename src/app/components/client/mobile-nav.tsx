@@ -197,10 +197,14 @@ export default function MobileNav() {
         <Link href="/account" className="relative flex flex-col items-center justify-center h-full w-full">
           <motion.div
             whileTap={{ scale: 0.9 }}
-            className={`z-10 ${isActive('/account') ? 'text-purple-600' : 'text-gray-500'}`}
+            className={`z-10 ${profile?.isBlocked ? 'text-red-600' : isActive('/account') ? 'text-purple-600' : 'text-gray-500'}`}
           >
             <UserCircleIcon className="w-7 h-7" />
-            {user && profile && profile.points > 0 && (
+            {profile?.isBlocked ? (
+              <span className="absolute top-0 right-1 translate-x-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-lg">
+                🔒
+              </span>
+            ) : user && profile && profile.points > 0 && (
               <span className="absolute top-2 right-1/4 translate-x-2 bg-yellow-400 text-purple-900 text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
                 {profile.points}
               </span>

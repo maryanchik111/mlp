@@ -5,11 +5,12 @@ interface AdminStatsProps {
   orders: Order[];
   products: Product[];
   usersCount?: number;
+  onTabChange?: (tab: 'users') => void;
 }
 
 type DateRange = 'all' | 'month' | 'week' | 'day' | 'custom';
 
-export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersCount = 0 }) => {
+export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersCount = 0, onTabChange }) => {
   const [dateRange, setDateRange] = useState<DateRange>('all');
   const [customStartDate, setCustomStartDate] = useState<string>('');
   const [customEndDate, setCustomEndDate] = useState<string>('');
@@ -108,8 +109,8 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
           <button
             onClick={() => setDateRange('day')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'day'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
             День
@@ -117,8 +118,8 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
           <button
             onClick={() => setDateRange('week')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'week'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
             Тиждень
@@ -126,8 +127,8 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
           <button
             onClick={() => setDateRange('month')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'month'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
             Місяць
@@ -135,8 +136,8 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
           <button
             onClick={() => setDateRange('all')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'all'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
             За весь час
@@ -144,8 +145,8 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
           <button
             onClick={() => setDateRange('custom')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${dateRange === 'custom'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-purple-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
             Період
@@ -187,9 +188,12 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
         )}
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
-        <div className="bg-indigo-50 p-4 rounded-lg">
+        <div
+          onClick={() => onTabChange?.('users')}
+          className="bg-indigo-50 p-4 rounded-lg cursor-pointer hover:bg-indigo-100 transition-colors border-2 border-transparent hover:border-indigo-200"
+        >
           <p className="text-sm text-gray-500 mb-1">Зареєстровані акаунти</p>
-          <p className="text-2xl font-bold text-indigo-700">{usersCount}</p>
+          <p className="text-2xl font-bold text-indigo-700">{usersCount} 👥</p>
         </div>
         <div className="bg-purple-50 p-4 rounded-lg">
           <p className="text-sm text-gray-500 mb-1">Всього продано товарів</p>
