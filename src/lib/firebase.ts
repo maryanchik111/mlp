@@ -1871,3 +1871,233 @@ export async function deleteAuction(auctionId: string): Promise<void> {
   const auctionRef = ref(database, `auctions/${auctionId}`);
   await set(auctionRef, null);
 }
+
+// =====================
+// БОКСИ (BOX TYPES & BOX ITEMS)
+// =====================
+
+/**
+ * Тип боксу (S/M/L або будь-який інший розмір, що визначає адмін)
+ */
+export interface BoxType {
+  id: string;           // унікальний ключ (timestamp-based)
+  name: string;         // назва, наприклад "S", "M", "L" або "Маленький"
+  description: string;  // опис боксу
+  capacity: number;     // максимальна кількість товарів
+  basePrice: number;    // базова ціна боксу (без вартості товарів)
+  image: string;        // URL зображення (Firebase Storage)
+  isActive: boolean;    // чи показувати клієнтам
+  sortOrder: number;    // порядок відображення
+  createdAt: number;
+  updatedAt: number;
+}
+
+/**
+ * Товар для конструктора боксів (окремо від каталогу)
+ */
+export interface BoxItem {
+  id: string;           // унікальний ключ
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  image: string;        // головне фото (URL)
+  images: string[];     // галерея фото
+  isActive: boolean;    // чи показувати клієнтам
+  createdAt: number;
+  updatedAt: number;
+}
+
+// ---------- BoxType CRUD ----------
+
+/**
+ * Слухати зміни типів боксів у реальному часі
+ */
+export function listenToBoxTypes(callback: (types: BoxType[]) => void): () => void {
+  const boxTypesRef = ref(database, 'box_types');
+  const unsubscribe = onValue(boxTypesRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      callback([]);
+      return;
+    }
+    const data = snapshot.val();
+    const types: BoxType[] = Object.values(data) as BoxType[];
+    types.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    callback(types);
+  });
+  return unsubscribe;
+}
+
+/**
+ * Отримати всі типи боксів (одноразово)
+ */
+export async function fetchAllBoxTypes(): Promise<BoxType[]> {
+  try {
+    const snapshot = await get(ref(database, 'box_types'));
+    if (!snapshot.exists()) return [];
+    const data = snapshot.val();
+    const types: BoxType[] = Object.values(data) as BoxType[];
+    return types.sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+  } catch (e) {
+    console.error('Помилка отримання типів боксів:', e);
+    return [];
+  }
+}
+
+/**
+ * Створити новий тип боксу
+ */
+export async function createBoxType(
+  data: Omit<BoxType, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string | null> {
+  try {
+    const id = Date.now().toString();
+    const boxTypeRef = ref(database, `box_types/${id}`);
+    const now = Date.now();
+    await set(boxTypeRef, {
+      ...data,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  } catch (e) {
+    console.error('Помилка створення типу боксу:', e);
+    return null;
+  }
+}
+
+/**
+ * Оновити тип боксу
+ */
+export async function updateBoxType(
+  id: string,
+  updates: Partial<Omit<BoxType, 'id' | 'createdAt'>>
+): Promise<boolean> {
+  try {
+    const boxTypeRef = ref(database, `box_types/${id}`);
+    await update(boxTypeRef, { ...updates, updatedAt: Date.now() });
+    return true;
+  } catch (e) {
+    console.error('Помилка оновлення типу боксу:', e);
+    return false;
+  }
+}
+
+/**
+ * Видалити тип боксу
+ */
+export async function deleteBoxType(id: string): Promise<boolean> {
+  try {
+    await set(ref(database, `box_types/${id}`), null);
+    return true;
+  } catch (e) {
+    console.error('Помилка видалення типу боксу:', e);
+    return false;
+  }
+}
+
+// ---------- BoxItem CRUD ----------
+
+/**
+ * Слухати зміни товарів боксів у реальному часі
+ */
+export function listenToBoxItems(callback: (items: BoxItem[]) => void): () => void {
+  const boxItemsRef = ref(database, 'box_items');
+  const unsubscribe = onValue(boxItemsRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      callback([]);
+      return;
+    }
+    const data = snapshot.val();
+    const items: BoxItem[] = Object.values(data) as BoxItem[];
+    items.sort((a, b) => b.createdAt - a.createdAt);
+    callback(items);
+  });
+  return unsubscribe;
+}
+
+/**
+ * Отримати всі товари для боксів (одноразово)
+ */
+export async function fetchAllBoxItems(): Promise<BoxItem[]> {
+  try {
+    const snapshot = await get(ref(database, 'box_items'));
+    if (!snapshot.exists()) return [];
+    const data = snapshot.val();
+    const items: BoxItem[] = Object.values(data) as BoxItem[];
+    return items.sort((a, b) => b.createdAt - a.createdAt);
+  } catch (e) {
+    console.error('Помилка отримання товарів боксів:', e);
+    return [];
+  }
+}
+
+/**
+ * Створити новий товар для боксів
+ */
+export async function createBoxItem(
+  data: Omit<BoxItem, 'id' | 'createdAt' | 'updatedAt'>
+): Promise<string | null> {
+  try {
+    const id = Date.now().toString();
+    const boxItemRef = ref(database, `box_items/${id}`);
+    const now = Date.now();
+    await set(boxItemRef, {
+      ...data,
+      id,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return id;
+  } catch (e) {
+    console.error('Помилка створення товару для боксу:', e);
+    return null;
+  }
+}
+
+/**
+ * Оновити товар для боксів
+ */
+export async function updateBoxItem(
+  id: string,
+  updates: Partial<Omit<BoxItem, 'id' | 'createdAt'>>
+): Promise<boolean> {
+  try {
+    const boxItemRef = ref(database, `box_items/${id}`);
+    await update(boxItemRef, { ...updates, updatedAt: Date.now() });
+    return true;
+  } catch (e) {
+    console.error('Помилка оновлення товару боксу:', e);
+    return false;
+  }
+}
+
+/**
+ * Видалити товар для боксів (та його фото зі Storage)
+ */
+export async function deleteBoxItem(id: string): Promise<boolean> {
+  try {
+    // Отримуємо товар перед видаленням щоб видалити фото
+    const snapshot = await get(ref(database, `box_items/${id}`));
+    if (snapshot.exists()) {
+      const item = snapshot.val() as BoxItem;
+      const allImages = [item.image, ...(item.images || [])].filter(Boolean);
+      for (const url of allImages) {
+        if (url && url.includes('firebasestorage.googleapis.com')) {
+          try {
+            const imgRef = storageRef(storage, url);
+            await deleteObject(imgRef);
+          } catch (err) {
+            console.warn('Не вдалося видалити фото:', err);
+          }
+        }
+      }
+    }
+    await set(ref(database, `box_items/${id}`), null);
+    return true;
+  } catch (e) {
+    console.error('Помилка видалення товару боксу:', e);
+    return false;
+  }
+}

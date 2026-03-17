@@ -188,11 +188,10 @@ export default function ForumPage() {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-sm md:text-base font-medium transition-all ${
-                  selectedCategory === category.id
+                className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-sm md:text-base font-medium transition-all ${selectedCategory === category.id
                     ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
                     : 'bg-white text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 {category.icon} {category.name}
               </button>
@@ -205,7 +204,7 @@ export default function ForumPage() {
             placeholder="Пошук тем..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-full text-sm md:text-base border-2 border-gray-200 focus:border-purple-500 focus:outline-none"
+            className="text-black flex-1 px-4 py-2 rounded-full text-sm md:text-base border-2 border-gray-200 focus:border-purple-500 focus:outline-none"
           />
         </div>
 
@@ -225,7 +224,7 @@ export default function ForumPage() {
             {filteredThreads.map(thread => {
               const categoryInfo = getCategoryInfo(thread.category);
               const reactionCounts = getReactionCount(thread.reactions);
-              
+
               return (
                 <Link
                   key={thread.id}
@@ -277,7 +276,7 @@ export default function ForumPage() {
                         <span className="flex items-center gap-1"><ChatBubbleOvalLeftEllipsisIcon className="w-4 h-4 inline" /> {thread.commentsCount}</span>
                         <span className="hidden sm:inline">•</span>
                         <span className="flex items-center gap-1"><EyeIcon className="w-4 h-4 inline" /> {thread.viewsCount}</span>
-                        
+
                         {Object.keys(reactionCounts).length > 0 && (
                           <>
                             <span className="hidden sm:inline">•</span>
@@ -319,11 +318,10 @@ export default function ForumPage() {
                     <button
                       key={category.id}
                       onClick={() => setNewThread({ ...newThread, category: category.id })}
-                      className={`px-4 py-2 rounded-full font-medium transition-all ${
-                        newThread.category === category.id
+                      className={`px-4 py-2 rounded-full font-medium transition-all ${newThread.category === category.id
                           ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
+                        }`}
                     >
                       {category.icon} {category.name}
                     </button>

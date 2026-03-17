@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const showToast = (type: 'success' | 'error' | 'warning' | 'info', message: string, duration: number = 3000) => {
     const id = Date.now();
     const toast: Toast = { id, type, message, duration };
-    
+
     setToasts((prev) => [...prev, toast]);
 
     setTimeout(() => {
@@ -126,16 +126,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     showInfo: (message: string) => showToast('info', message),
     showConfirm: (
       title: string,
-      message: string,
-      onConfirm: () => void,
+      message?: string,
+      onConfirm?: () => void,
       onCancel?: () => void
     ) =>
-      showModal('confirm', title, message, {
-        onConfirm,
-        onCancel,
-        showCancel: true,
-        confirmText: 'Так',
-        cancelText: 'Ні',
+      new Promise<boolean>((resolve) => {
+        showModal('confirm', title, message || '', {
+          onConfirm: () => {
+            if (onConfirm) onConfirm();
+            resolve(true);
+          },
+          onCancel: () => {
+            if (onCancel) onCancel();
+            resolve(false);
+          },
+          showCancel: true,
+          confirmText: 'Так',
+          cancelText: 'Ні',
+        });
       }),
     showPrompt: (
       title: string,

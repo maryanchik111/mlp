@@ -55,14 +55,14 @@ export default function Home() {
               <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду. <SparklesIcon className="inline w-6 h-6 text-purple-400 ml-1" />
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                href="/catalog" 
+              <Link
+                href="/catalog"
                 className="px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
               >
                 <ShoppingBagIcon className="w-6 h-6" /> Каталог товарів
               </Link>
-              <Link 
-                href="/box-builder" 
+              <Link
+                href="/box-builder"
                 className="px-8 py-3 bg-white border-2 border-purple-400 text-purple-600 font-semibold rounded-lg hover:bg-purple-50 transition-colors flex items-center justify-center gap-2"
               >
                 <GiftIcon className="w-6 h-6" /> Створити бокс
@@ -137,8 +137,8 @@ export default function Home() {
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
               Обговорюйте улюблених поні, діліться колекціями та знаходьте друзів!
             </p>
-            <Link 
-              href="/forum" 
+            <Link
+              href="/forum"
               className="inline-block px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors"
             >
               Перейти до форуму →
@@ -179,7 +179,7 @@ export default function Home() {
       </div>
 
       {/* Футер */}
-      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10 mb-16">
+      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10 pb-32">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Основна інформація */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">

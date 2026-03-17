@@ -120,10 +120,10 @@ export default function CheckoutPage() {
     if (!formData.address.trim()) newErrors.address = 'Введіть адресу';
     if (!formData.city.trim()) newErrors.city = 'Введіть місто';
 
-  // Оплата лише онлайн карткою — якщо за якоїсь причини інше значення, валідуємо
-  if (formData.paymentMethod !== 'card') newErrors.paymentMethod = 'Доступна лише оплата онлайн';
-  // Доставка лише Нова Пошта
-  if (formData.deliveryMethod !== 'nova') newErrors.deliveryMethod = 'Доступна лише доставка Нова Пошта';
+    // Оплата лише онлайн карткою — якщо за якоїсь причини інше значення, валідуємо
+    if (formData.paymentMethod !== 'card') newErrors.paymentMethod = 'Доступна лише оплата онлайн';
+    // Доставка лише Нова Пошта
+    if (formData.deliveryMethod !== 'nova') newErrors.deliveryMethod = 'Доступна лише доставка Нова Пошта';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -133,22 +133,22 @@ export default function CheckoutPage() {
   const handleSubmitOrder = async () => {
     if (!validateForm()) return;
 
-      // Перевіряємо чи не перевищує кількість товарів максимальну доступну
-      const invalidItems = cartItems.filter(item => 
-        item.maxQuantity !== undefined && item.quantity > item.maxQuantity
-      );
-    
-      if (invalidItems.length > 0) {
-        showError('Деякі товари перевищують доступну кількість на складі. Будь ласка, перевірте кошик.');
-        return;
-      }
+    // Перевіряємо чи не перевищує кількість товарів максимальну доступну
+    const invalidItems = cartItems.filter(item =>
+      item.maxQuantity !== undefined && item.quantity > item.maxQuantity
+    );
+
+    if (invalidItems.length > 0) {
+      showError('Деякі товари перевищують доступну кількість на складі. Будь ласка, перевірте кошик.');
+      return;
+    }
 
     setIsLoading(true);
     try {
       // Генеруємо людський номер замовлення
       const orderId = generateOrderNumber();
       const ordersRef = ref(database, `orders/${orderId}`);
-      
+
       const newOrder = {
         id: orderId,
         firstName: formData.firstName,
@@ -192,7 +192,7 @@ export default function CheckoutPage() {
       // Оновлюємо статистику користувача (бали, рейтинг) якщо авторизований
       if (user) {
         await updateUserStatsAfterOrder(user.uid, finalPrice, appliedRedeemedPoints);
-        
+
         // Відправляємо сповіщення в Telegram на сервері
         try {
           await fetch('/api/orders/notify', {
@@ -242,11 +242,11 @@ export default function CheckoutPage() {
   // Обчислення вартості доставки з парсюванням рядків типу "50-100"
   // Беремо ціну доставки з першого товару (всі товари мають однакову інші не можуть)
   let deliveryPriceDisplay = '120'; // За замовчуванням
-  
+
   if (cartItems.length > 0 && cartItems[0]?.deliveryPrice) {
     deliveryPriceDisplay = String(cartItems[0].deliveryPrice);
   }
-  
+
   // Розраховуємо числове значення для checkout
   const deliveryPrice = (() => {
     const delivPriceStr = deliveryPriceDisplay.trim();
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
           <p className="text-gray-600 mt-2 text-sm">Заповніть форму для оформлення покупки</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-20">
           {/* Основна форма - 2 колони */}
           <div className="lg:col-span-2">
             <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 space-y-6">
@@ -330,9 +330,8 @@ export default function CheckoutPage() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
-                        errors.firstName ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${errors.firstName ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                        }`}
                       placeholder="Ваше ім'я"
                     />
                     {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
@@ -344,9 +343,8 @@ export default function CheckoutPage() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
-                        errors.lastName ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${errors.lastName ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                        }`}
                       placeholder="Ваше прізвище"
                     />
                     {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
@@ -360,9 +358,8 @@ export default function CheckoutPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
-                        errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                        }`}
                       placeholder="example@mail.com"
                     />
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
@@ -374,9 +371,8 @@ export default function CheckoutPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${
-                        errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                        }`}
                       placeholder="+380 XX XXX XX XX"
                     />
                     {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
@@ -453,11 +449,10 @@ export default function CheckoutPage() {
                   🚚 Спосіб доставки
                 </h2>
                 <div className="space-y-2">
-                  <label className={`flex items-center p-3 border rounded-lg cursor-pointer hover:border-indigo-400 transition-colors ${
-                    formData.deliveryMethod === 'nova' 
-                      ? 'border-indigo-600 bg-indigo-50' 
+                  <label className={`flex items-center p-3 border rounded-lg cursor-pointer hover:border-indigo-400 transition-colors ${formData.deliveryMethod === 'nova'
+                      ? 'border-indigo-600 bg-indigo-50'
                       : 'border-gray-300 bg-gray-50'
-                  }`}>
+                    }`}>
                     <input
                       type="radio"
                       name="deliveryMethod"
@@ -471,12 +466,11 @@ export default function CheckoutPage() {
                       <p className="text-xs text-gray-600 mt-0.5">Доставка у відділення або на адресу.</p>
                     </div>
                   </label>
-                  
-                  <label className={`flex items-center p-3 border rounded-lg cursor-pointer hover:border-indigo-400 transition-colors ${
-                    formData.deliveryMethod === 'ukr' 
-                      ? 'border-indigo-600 bg-indigo-50' 
+
+                  <label className={`flex items-center p-3 border rounded-lg cursor-pointer hover:border-indigo-400 transition-colors ${formData.deliveryMethod === 'ukr'
+                      ? 'border-indigo-600 bg-indigo-50'
                       : 'border-gray-300 bg-gray-50'
-                  }`}>
+                    }`}>
                     <input
                       type="radio"
                       name="deliveryMethod"
@@ -543,7 +537,7 @@ export default function CheckoutPage() {
                   const originalPrice = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
                   const discount = item.discount ? Number(item.discount) : 0;
                   const discountedPrice = discount > 0 ? Math.round(originalPrice * (1 - discount / 100)) : originalPrice;
-                  
+
                   return (
                     <div key={item.id} className="pb-2 border-b border-gray-300 bg-gray-50 p-2 rounded-lg">
                       <div className="flex justify-between items-start gap-2">
@@ -568,7 +562,7 @@ export default function CheckoutPage() {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Вміст коробки (якщо це конструктор боксу) */}
                       {item.customBox && (
                         <div className="mt-2 pt-2 border-t border-gray-200 text-xs">
@@ -672,11 +666,10 @@ export default function CheckoutPage() {
                 <button
                   onClick={handleSubmitOrder}
                   disabled={isLoading}
-                  className={`w-full font-bold py-3 rounded-lg transition-colors text-base ${
-                    isLoading
+                  className={`w-full font-bold py-3 rounded-lg transition-colors text-base ${isLoading
                       ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
                       : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                  }`}
+                    }`}
                 >
                   {isLoading ? '⏳ Обробка...' : '✓ Оформити'}
                 </button>

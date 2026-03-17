@@ -10,7 +10,8 @@ import {
   ChatBubbleLeftRightIcon,
   ShoppingCartIcon,
   WrenchScrewdriverIcon,
-  UserCircleIcon
+  UserCircleIcon,
+  TrophyIcon
 } from '@heroicons/react/24/solid';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -105,16 +106,16 @@ export default function MobileNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white-80 backdrop-blur-sm border-t border-gray-200/50 shadow-lg z-50 rounded-full mx-2 mb-4">
       <div className={`p-3 flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-8' : 'grid grid-cols-7'} w-full`}>
-        
+
         {[
           { id: 'home', href: '/', icon: HomeIcon, label: 'Головна' },
           { id: 'catalog', href: '/catalog', icon: ShoppingBagIcon, label: 'Каталог' },
           { id: 'box', href: '/box-builder', icon: GiftIcon, label: 'Бокс' },
           { id: 'forum', href: '/forum', icon: ChatBubbleLeftRightIcon, label: 'Форум' },
         ].map((item) => (
-          <Link 
-            key={item.id} 
-            href={item.href} 
+          <Link
+            key={item.id}
+            href={item.href}
             className="relative flex flex-col items-center justify-center h-full w-full"
           >
             <motion.div
@@ -124,7 +125,7 @@ export default function MobileNav() {
             >
               <item.icon className="w-7 h-7" />
             </motion.div>
-            
+
             {isActive(item.href) && (
               <motion.div
                 layoutId="activeTab"
@@ -135,18 +136,18 @@ export default function MobileNav() {
           </Link>
         ))}
 
-        <Link 
-          href="/auctions" 
+        <Link
+          href="/auctions"
           className="relative flex flex-col items-center justify-center h-full w-full"
         >
           <motion.div
             variants={navItemVariants}
             whileTap="tap"
-            className={`z-10 transition-colors duration-300 text-2xl ${isActive('/auctions') ? 'text-purple-600' : 'text-gray-500'}`}
+            className={`z-10 transition-colors duration-300 ${isActive('/auctions') ? 'text-purple-600' : 'text-gray-500'}`}
           >
-            🔨
+            <TrophyIcon className="w-7 h-7" />
           </motion.div>
-          
+
           {isActive('/auctions') && (
             <motion.div
               layoutId="activeAuctionsTab"
@@ -161,9 +162,9 @@ export default function MobileNav() {
             <ShoppingCartIcon className="w-7 h-7" />
             <AnimatePresence>
               {cartCount > 0 && (
-                <motion.span 
-                  initial={{ scale: 0 }} 
-                  animate={{ scale: 1 }} 
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
                   exit={{ scale: 0 }}
                   className="absolute top-0 right-1 translate-x-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white"
                 >

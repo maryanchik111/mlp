@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, type BoxType, type BoxItem } from '@/lib/firebase';
 import { useAuth, useModal } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
-type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support' | 'auctions';
+type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support' | 'auctions' | 'boxes';
 
 // Список доступних категорій товарів
 const PRODUCT_CATEGORIES = [
@@ -30,7 +30,7 @@ export default function AdminPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [mounted, setMounted] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  
+
   // Products state
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -50,18 +50,18 @@ export default function AdminPage() {
     discount: 0,
   });
   const [uploadingImages, setUploadingImages] = useState(false);
-  
+
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
   const [replyingToReview, setReplyingToReview] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
-  
+
   // Support tickets state
   const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
   const [ticketReply, setTicketReply] = useState('');
   const [ticketReplyLoading, setTicketReplyLoading] = useState(false);
-  
+
   // Auctions state
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [showAuctionModal, setShowAuctionModal] = useState(false);
@@ -76,14 +76,48 @@ export default function AdminPage() {
     image: '',
     imageFile: null as File | null,
   });
-  
+
+  // Boxes state
+  const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
+  const [boxItems, setBoxItems] = useState<BoxItem[]>([]);
+  const [boxesSubTab, setBoxesSubTab] = useState<'types' | 'items'>('types');
+
+  // Box Types forms
+  const [showBoxTypeModal, setShowBoxTypeModal] = useState(false);
+  const [editingBoxType, setEditingBoxType] = useState<BoxType | null>(null);
+  const [uploadingBoxTypeImage, setUploadingBoxTypeImage] = useState(false);
+  const [boxTypeForm, setBoxTypeForm] = useState({
+    name: '',
+    description: '',
+    capacity: '5',
+    basePrice: '',
+    image: '',
+    isActive: true,
+    sortOrder: '0',
+    imageFile: null as File | null,
+  });
+
+  // Box Items forms
+  const [showBoxItemModal, setShowBoxItemModal] = useState(false);
+  const [editingBoxItem, setEditingBoxItem] = useState<BoxItem | null>(null);
+  const [uploadingBoxItemImages, setUploadingBoxItemImages] = useState(false);
+  const [boxItemForm, setBoxItemForm] = useState({
+    name: '',
+    description: '',
+    category: '',
+    price: '',
+    image: '',
+    images: [] as string[],
+    isActive: true,
+  });
+
   // User profiles cache for authorized orders
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
 
   // Перевірка доступу адміністратора
   useEffect(() => {
     if (authLoading) return; // Чекаємо завершення завантаження auth
-    
+
     if (!user || !checkAdminAccess(user)) {
       // Якщо не авторизований або не адмін - редірект на головну
       router.push('/');
@@ -124,7 +158,7 @@ export default function AdminPage() {
 
     const unsubscribe = listenToSupportTickets((tickets) => {
       setSupportTickets(tickets);
-      
+
       // Якщо вибраний тікет був видалений, очищуємо
       if (selectedTicket && !tickets.find(t => t.id === selectedTicket.id)) {
         setSelectedTicket(null);
@@ -139,6 +173,17 @@ export default function AdminPage() {
 
     return () => unsubscribe();
   }, [mounted, selectedTicket]);
+
+  // Real-time listeners для боксів
+  useEffect(() => {
+    if (!mounted) return;
+    const unsubscribeTypes = listenToBoxTypes((types) => setBoxTypes(types));
+    const unsubscribeItems = listenToBoxItems((items) => setBoxItems(items));
+    return () => {
+      unsubscribeTypes();
+      unsubscribeItems();
+    };
+  }, [mounted]);
 
   // Кількість зареєстрованих акаунтів
   useEffect(() => {
@@ -177,7 +222,7 @@ export default function AdminPage() {
       showWarning('Введіть текст відповіді');
       return;
     }
-    
+
     setActionLoading(true);
     try {
       const success = await addAdminReply(orderId, replyText);
@@ -222,12 +267,12 @@ export default function AdminPage() {
     setActionLoading(true);
     try {
       let payload = { ...editForm } as any;
-      
+
       // Price має бути рядком
       if (typeof payload.price === 'number') {
         payload.price = String(payload.price);
       }
-      
+
       // CostPrice має бути рядком (якщо вказана)
       if (payload.costPrice && typeof payload.costPrice === 'number') {
         payload.costPrice = String(payload.costPrice);
@@ -244,7 +289,7 @@ export default function AdminPage() {
       if (!payload.deliveryDays) {
         payload.deliveryDays = '1-2';
       }
-      
+
       // Якщо введено discount як рядок – парсимо
       if (typeof payload.discount === 'string') {
         payload.discount = parseInt(payload.discount) || 0;
@@ -259,7 +304,7 @@ export default function AdminPage() {
       // НЕ змінюємо image (емоджі), залишаємо як є
       // image - це емоджі для картки в каталозі
       // images - це галерея фото для сторінки товару
-      
+
       const success = await updateProduct(editingProduct.id, payload);
       if (success) {
         showSuccess('Товар оновлено успішно!');
@@ -302,19 +347,19 @@ export default function AdminPage() {
     setActionLoading(true);
     try {
       let payload = { ...newProductForm } as any;
-      
+
       // Валідація
       if (!payload.name || !payload.price || !payload.category) {
         showError('Заповніть обов\'язкові поля: назва, ціна, категорія');
         setActionLoading(false);
         return;
       }
-      
+
       // Price має бути рядком
       if (typeof payload.price === 'number') {
         payload.price = String(payload.price);
       }
-      
+
       // CostPrice має бути рядком (якщо вказана)
       if (payload.costPrice && typeof payload.costPrice === 'number') {
         payload.costPrice = String(payload.costPrice);
@@ -331,7 +376,7 @@ export default function AdminPage() {
       if (!payload.deliveryDays) {
         payload.deliveryDays = '1-2';
       }
-      
+
       // Парсимо discount
       if (typeof payload.discount === 'string') {
         payload.discount = parseInt(payload.discount) || 0;
@@ -343,7 +388,7 @@ export default function AdminPage() {
           .map((s: string) => s.trim())
           .filter(Boolean);
       }
-      
+
       const success = await addProduct(payload);
       if (success) {
         showSuccess('Товар створено успішно!');
@@ -400,32 +445,32 @@ export default function AdminPage() {
   // Функція для завантаження фото
   const handleImageUpload = async (files: FileList | null, formType: 'create' | 'edit') => {
     if (!files || files.length === 0) return;
-    
+
     setUploadingImages(true);
     const uploadedUrls: string[] = [];
-    
+
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        
+
         // Перевіряємо тип файлу
         if (!file.type.startsWith('image/')) {
           showWarning(`Файл ${file.name} не є зображенням`);
           continue;
         }
-        
+
         // Перевіряємо розмір (макс 5MB)
         if (file.size > 5 * 1024 * 1024) {
           showWarning(`Файл ${file.name} завеликий (більше 5MB)`);
           continue;
         }
-        
+
         const url = await uploadImage(file);
         if (url) {
           uploadedUrls.push(url);
         }
       }
-      
+
       if (uploadedUrls.length > 0) {
         if (formType === 'create') {
           setNewProductForm({
@@ -451,13 +496,13 @@ export default function AdminPage() {
   // Функція для видалення фото з форми
   const handleRemoveImage = async (imageUrl: string, formType: 'create' | 'edit') => {
     if (!confirm('Видалити це фото?')) return;
-    
+
     try {
       // Видаляємо з Storage якщо це Firebase URL
       if (imageUrl.includes('firebasestorage.googleapis.com')) {
         await deleteImage(imageUrl);
       }
-      
+
       // Видаляємо з форми
       if (formType === 'create') {
         setNewProductForm({
@@ -543,10 +588,10 @@ export default function AdminPage() {
   // Функція для позначення як відправлено
   const handleMarkShipped = async () => {
     if (!selectedOrder) return;
-    
+
     const trackingNumber = prompt('Введіть трек-номер ТТН (12 цифр):', '');
     if (trackingNumber === null) return; // Користувач скасував
-    
+
     if (!trackingNumber.trim()) {
       showError('ТТН не можна пропустити');
       return;
@@ -557,11 +602,11 @@ export default function AdminPage() {
       const success = await updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber);
       if (success) {
         showSuccess('Замовлення позначено як відправлене!\n📦 ТТН відправлено користувачу');
-        setSelectedOrder({ 
-          ...selectedOrder, 
-          status: 'shipped', 
+        setSelectedOrder({
+          ...selectedOrder,
+          status: 'shipped',
           trackingNumber: trackingNumber,
-          updatedAt: Date.now() 
+          updatedAt: Date.now()
         });
       } else {
         showError('Помилка при оновленні статусу');
@@ -584,10 +629,10 @@ export default function AdminPage() {
       const success = await updateOrderStatus(selectedOrder.id, 'ready_for_pickup');
       if (success) {
         showSuccess('Замовлення позначено як готове до забору!\n📮 Сповіщення відправлено користувачу');
-        setSelectedOrder({ 
-          ...selectedOrder, 
-          status: 'ready_for_pickup', 
-          updatedAt: Date.now() 
+        setSelectedOrder({
+          ...selectedOrder,
+          status: 'ready_for_pickup',
+          updatedAt: Date.now()
         });
       } else {
         showError('Помилка при оновленні статусу');
@@ -683,15 +728,15 @@ export default function AdminPage() {
 
   // Фільтрувати замовлення при зміні списку
   useEffect(() => {
-    let filtered = statusFilter === 'all' 
-      ? orders 
+    let filtered = statusFilter === 'all'
+      ? orders
       : orders.filter(order => order.status === statusFilter);
-    
+
     // Сортуємо за датою створення - нові зверху
     filtered = filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-    
+
     setFilteredOrders(filtered);
-    
+
     // Завантажуємо профілі користувачів для авторизованих замовлень
     const loadUserProfiles = async () => {
       const userIds = new Set<string>();
@@ -700,7 +745,7 @@ export default function AdminPage() {
           userIds.add(order.userId);
         }
       });
-      
+
       const profiles: Record<string, UserProfile> = {};
       for (const uid of Array.from(userIds)) {
         if (!userProfiles[uid]) {
@@ -712,12 +757,12 @@ export default function AdminPage() {
           profiles[uid] = userProfiles[uid];
         }
       }
-      
+
       if (Object.keys(profiles).length > 0) {
         setUserProfiles(prev => ({ ...prev, ...profiles }));
       }
     };
-    
+
     loadUserProfiles();
   }, [orders, statusFilter]);
 
@@ -799,63 +844,66 @@ export default function AdminPage() {
           <div className="grid grid-cols-2 md:flex gap-2">
             <button
               onClick={() => setActiveTab('stats')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                activeTab === 'stats'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'stats'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               📊 Статистика
             </button>
             <button
               onClick={() => setActiveTab('orders')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                activeTab === 'orders'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'orders'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               📦 Замовлення
             </button>
             <button
               onClick={() => setActiveTab('products')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                activeTab === 'products'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'products'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               🛍️ Товари
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                activeTab === 'reviews'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'reviews'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               💬 Відгуки
             </button>
             <button
               onClick={() => setActiveTab('support')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                activeTab === 'support'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'support'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               🆘 Підтримка
             </button>
             <button
               onClick={() => setActiveTab('auctions')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                activeTab === 'auctions'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'auctions'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
             >
               🔨 Аукціони
+            </button>
+            <button
+              onClick={() => setActiveTab('boxes')}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'boxes'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              🎁 Бокси
             </button>
           </div>
         </div>
@@ -874,11 +922,10 @@ export default function AdminPage() {
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                      statusFilter === status
-                        ? 'bg-purple-600 text-white shadow-md'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${statusFilter === status
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
                   >
                     {status === 'all' ? 'Все (Усі)' : getStatusLabel(status)}
                   </button>
@@ -993,7 +1040,7 @@ export default function AdminPage() {
                 Додати
               </button>
             </div>
-            
+
             {products.map((product) => (
               <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
                 <div className="p-6">
@@ -1001,8 +1048,8 @@ export default function AdminPage() {
                     <div className="flex flex-col items-start gap-4">
                       {product.images && product.images.length > 0 ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img 
-                          src={product.images[0]} 
+                        <img
+                          src={product.images[0]}
                           alt={product.name}
                           className="object-cover rounded-[.8em]"
                         />
@@ -1014,14 +1061,13 @@ export default function AdminPage() {
                       <div>
                         <p className="text-lg font-bold text-gray-900">{product.name}</p>
                         <p className="text-sm text-gray-600">{product.category}</p>
-                        <div className={`text-sm font-medium ${
-                      product.quantity > 0 ? 'text-green-400' : 'text-red-800'
-                    }`}>
-                      {product.quantity > 0 ? 'В наявності' : 'Немає в наявності'}
-                    </div>
+                        <div className={`text-sm font-medium ${product.quantity > 0 ? 'text-green-400' : 'text-red-800'
+                          }`}>
+                          {product.quantity > 0 ? 'В наявності' : 'Немає в наявності'}
+                        </div>
                       </div>
                     </div>
-      
+
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -1045,13 +1091,13 @@ export default function AdminPage() {
                       disabled={actionLoading}
                       className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 w-full"
                     >
-                     Видалити
+                      Видалити
                     </button>
                     <button
                       onClick={() => handleEditProduct(product)}
                       className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium w-full"
                     >
-                     Редагувати
+                      Редагувати
                     </button>
                   </div>
                 </div>
@@ -1066,7 +1112,7 @@ export default function AdminPage() {
             <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
               <h2 className="text-lg font-bold text-gray-900 mb-2">Всього відгуків: {reviews.length}</h2>
             </div>
-            
+
             {reviews.length === 0 ? (
               <div className="bg-white rounded-lg shadow-sm p-8 text-center">
                 <p className="text-gray-600">Немає відгуків</p>
@@ -1079,7 +1125,7 @@ export default function AdminPage() {
                       <div className="flex items-center gap-2 mb-2">
                         <p className="text-lg font-bold text-purple-700">{review.displayName || 'Користувач'}</p>
                         <div className="flex gap-0.5" aria-label={`Рейтинг ${review.rating}`}>
-                          {[1,2,3,4,5].map(i => (
+                          {[1, 2, 3, 4, 5].map(i => (
                             <span key={i} className={`text-lg ${i <= review.rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
                           ))}
                         </div>
@@ -1090,11 +1136,10 @@ export default function AdminPage() {
                     <button
                       onClick={() => handleDeleteReview(review.orderId)}
                       disabled={actionLoading}
-                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                        actionLoading
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                          : 'bg-red-600 text-white hover:bg-red-700'
-                      }`}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors ${actionLoading
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-red-600 text-white hover:bg-red-700'
+                        }`}
                     >
                       🗑️ Видалити
                     </button>
@@ -1104,7 +1149,7 @@ export default function AdminPage() {
                       {review.text?.length ? `"${review.text}"` : '⭐ Без коментаря'}
                     </p>
                   </div>
-                  
+
                   {/* Відповідь адміна якщо є */}
                   {review.adminReply && (
                     <div className="mt-4 ml-8 bg-gradient-to-r from-purple-50 to-pink-50 border-l-4 border-purple-600 p-4 rounded">
@@ -1124,7 +1169,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Форма для додавання відповіді */}
                   {!review.adminReply && (
                     <div className="mt-4">
@@ -1142,11 +1187,10 @@ export default function AdminPage() {
                             <button
                               onClick={() => handleSendReply(review.orderId)}
                               disabled={actionLoading || !replyText.trim()}
-                              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                                actionLoading || !replyText.trim()
-                                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                                  : 'bg-purple-600 text-white hover:bg-purple-700'
-                              }`}
+                              className={`px-4 py-2 rounded-lg font-medium transition-colors ${actionLoading || !replyText.trim()
+                                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                                : 'bg-purple-600 text-white hover:bg-purple-700'
+                                }`}
                             >
                               📤 Відправити
                             </button>
@@ -1188,7 +1232,7 @@ export default function AdminPage() {
               <p className="text-sm text-gray-600 mb-4">
                 Всього: <span className="font-bold text-purple-600">{supportTickets.length}</span>
               </p>
-              
+
               {supportTickets.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">Немає тікетів підтримки</p>
@@ -1199,23 +1243,21 @@ export default function AdminPage() {
                     <button
                       key={ticket.id}
                       onClick={() => setSelectedTicket(ticket)}
-                      className={`w-full text-left p-3 rounded-lg transition-all border-l-4 ${
-                        selectedTicket?.id === ticket.id
-                          ? 'bg-purple-100 border-l-purple-600 shadow-md'
-                          : ticket.status === 'closed'
+                      className={`w-full text-left p-3 rounded-lg transition-all border-l-4 ${selectedTicket?.id === ticket.id
+                        ? 'bg-purple-100 border-l-purple-600 shadow-md'
+                        : ticket.status === 'closed'
                           ? 'bg-gray-50 border-l-gray-400 hover:bg-gray-100'
                           : ticket.status === 'responded'
-                          ? 'bg-blue-50 border-l-blue-500 hover:bg-blue-100'
-                          : 'bg-yellow-50 border-l-yellow-500 hover:bg-yellow-100'
-                      }`}
+                            ? 'bg-blue-50 border-l-blue-500 hover:bg-blue-100'
+                            : 'bg-yellow-50 border-l-yellow-500 hover:bg-yellow-100'
+                        }`}
                     >
                       <div className="flex justify-between items-start gap-2 mb-1">
                         <p className="font-semibold text-gray-900 truncate flex-1">{ticket.telegramUsername || `ID: ${ticket.telegramId}`}</p>
-                        <span className={`text-xs font-bold px-2 py-1 rounded whitespace-nowrap ${
-                          ticket.status === 'open' ? 'bg-yellow-200 text-yellow-800' :
+                        <span className={`text-xs font-bold px-2 py-1 rounded whitespace-nowrap ${ticket.status === 'open' ? 'bg-yellow-200 text-yellow-800' :
                           ticket.status === 'responded' ? 'bg-blue-200 text-blue-800' :
-                          'bg-green-200 text-green-800'
-                        }`}>
+                            'bg-green-200 text-green-800'
+                          }`}>
                           {ticket.status === 'open' ? '🔴 Нове' : ticket.status === 'responded' ? '🟡 Відповідь' : 'Завершено'}
                         </span>
                       </div>
@@ -1239,7 +1281,7 @@ export default function AdminPage() {
                     <h2 className="text-xl font-bold text-gray-900 mb-2">#{selectedTicket.id}</h2>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p><span className="font-semibold">Користувач:</span> {selectedTicket.telegramUsername ? `@${selectedTicket.telegramUsername}` : selectedTicket.telegramId}</p>
-                      <p><span className="font-semibold">Статус:</span> 
+                      <p><span className="font-semibold">Статус:</span>
                         {selectedTicket.status === 'open' ? ' 🔴 Нове' : selectedTicket.status === 'responded' ? ' 🟡 Відповідь отримана' : ' Завершено'}
                       </p>
                       <p><span className="font-semibold">Дата:</span> {new Date(selectedTicket.createdAt).toLocaleString('uk-UA')}</p>
@@ -1263,11 +1305,10 @@ export default function AdminPage() {
                     selectedTicket.messages.map((msg, idx) => (
                       <div
                         key={idx}
-                        className={`p-3 rounded-lg ${
-                          msg.isAdmin
-                            ? 'bg-purple-100 border-l-4 border-purple-600 ml-8'
-                            : 'bg-yellow-100 border-l-4 border-yellow-500 mr-8'
-                        }`}
+                        className={`p-3 rounded-lg ${msg.isAdmin
+                          ? 'bg-purple-100 border-l-4 border-purple-600 ml-8'
+                          : 'bg-yellow-100 border-l-4 border-yellow-500 mr-8'
+                          }`}
                       >
                         <div className="flex justify-between items-start mb-1">
                           <p className={`text-xs font-semibold ${msg.isAdmin ? 'text-purple-700' : 'text-yellow-700'}`}>
@@ -1302,22 +1343,20 @@ export default function AdminPage() {
                       <button
                         onClick={handleRespondToTicket}
                         disabled={ticketReplyLoading || !ticketReply.trim()}
-                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                          ticketReplyLoading || !ticketReply.trim()
-                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                            : 'bg-purple-600 text-white hover:bg-purple-700'
-                        }`}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${ticketReplyLoading || !ticketReply.trim()
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-purple-600 text-white hover:bg-purple-700'
+                          }`}
                       >
                         Відправити
                       </button>
                       <button
                         onClick={handleCloseTicket}
                         disabled={ticketReplyLoading}
-                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                          ticketReplyLoading
-                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                            : 'bg-red-600 text-white hover:bg-red-700'
-                        }`}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${ticketReplyLoading
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-red-600 text-white hover:bg-red-700'
+                          }`}
                       >
                         Закрити тікет
                       </button>
@@ -1449,9 +1488,9 @@ export default function AdminPage() {
                         {newAuctionForm.image && (
                           <div className="flex gap-4 items-start">
                             <div className="flex-shrink-0">
-                              <img 
-                                src={newAuctionForm.image} 
-                                alt="Preview" 
+                              <img
+                                src={newAuctionForm.image}
+                                alt="Preview"
                                 className="w-32 h-32 rounded-lg object-cover border border-gray-300 shadow-sm"
                               />
                             </div>
@@ -1462,8 +1501,8 @@ export default function AdminPage() {
                               </div>
                               <button
                                 onClick={() => {
-                                  setNewAuctionForm(prev => ({ 
-                                    ...prev, 
+                                  setNewAuctionForm(prev => ({
+                                    ...prev,
                                     imageFile: null,
                                     image: ''
                                   }));
@@ -1587,11 +1626,10 @@ export default function AdminPage() {
                           }
                         }}
                         disabled={actionLoading || uploadingAuctionImage}
-                        className={`flex-1 px-4 py-2 rounded-lg font-bold transition-all ${
-                          actionLoading || uploadingAuctionImage
-                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                            : 'bg-green-600 text-white hover:bg-green-700'
-                        }`}
+                        className={`flex-1 px-4 py-2 rounded-lg font-bold transition-all ${actionLoading || uploadingAuctionImage
+                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                          }`}
                       >
                         {actionLoading ? '⏳ Обробка...' : uploadingAuctionImage ? '📤 Завантаження фото...' : '✅ Створити'}
                       </button>
@@ -1621,14 +1659,13 @@ export default function AdminPage() {
                           <h3 className="font-bold text-gray-900 text-lg">{auction.name}</h3>
                           <p className="text-sm text-gray-600 mt-1">{auction.description}</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ml-4 ${
-                          auction.status === 'active' ? 'bg-green-100 text-green-800'
+                        <span className={`px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap ml-4 ${auction.status === 'active' ? 'bg-green-100 text-green-800'
                           : auction.status === 'scheduled' ? 'bg-blue-100 text-blue-800'
-                          : 'bg-gray-100 text-gray-800'
-                        }`}>
+                            : 'bg-gray-100 text-gray-800'
+                          }`}>
                           {auction.status === 'active' ? '🟢 Активний'
-                          : auction.status === 'scheduled' ? '🔵 Запланований'
-                          : '⚫ Завершений'}
+                            : auction.status === 'scheduled' ? '🔵 Запланований'
+                              : '⚫ Завершений'}
                         </span>
                       </div>
 
@@ -1683,11 +1720,10 @@ export default function AdminPage() {
                             }
                           }}
                           disabled={actionLoading}
-                          className={`flex-1 font-bold py-2 rounded-lg transition-all text-sm ${
-                            actionLoading
-                              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                              : 'bg-red-600 text-white hover:bg-red-700'
-                          }`}
+                          className={`flex-1 font-bold py-2 rounded-lg transition-all text-sm ${actionLoading
+                            ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                            : 'bg-red-600 text-white hover:bg-red-700'
+                            }`}
                         >
                           🗑️ Видалити
                         </button>
@@ -1812,15 +1848,15 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
-                
+
                 {/* Завантажені фото */}
                 {newProductForm.images && newProductForm.images.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {newProductForm.images.map((url, idx) => (
                       <div key={idx} className="relative group">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={url} 
+                        <img
+                          src={url}
                           alt={`Photo ${idx + 1}`}
                           className="w-full h-24 object-cover rounded border border-purple-200"
                         />
@@ -1835,10 +1871,10 @@ export default function AdminPage() {
                     ))}
                   </div>
                 )}
-                
+
                 {/* Кнопка завантаження */}
                 <label className={`block w-full border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingImages ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <input 
+                  <input
                     type="file"
                     accept="image/*"
                     multiple
@@ -1867,11 +1903,10 @@ export default function AdminPage() {
                 <button
                   onClick={handleSubmitNewProduct}
                   disabled={actionLoading}
-                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${
-                    actionLoading
-                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  }`}
+                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${actionLoading
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                    }`}
                 >
                   {actionLoading ? '⏳ Додавання...' : 'Додати'}
                 </button>
@@ -2029,15 +2064,15 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
-                
+
                 {/* Завантажені фото */}
                 {editForm.images && Array.isArray(editForm.images) && editForm.images.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {editForm.images.map((url, idx) => (
                       <div key={idx} className="relative group">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={url} 
+                        <img
+                          src={url}
                           alt={`Photo ${idx + 1}`}
                           className="w-full h-24 object-cover rounded border border-purple-200"
                         />
@@ -2052,10 +2087,10 @@ export default function AdminPage() {
                     ))}
                   </div>
                 )}
-                
+
                 {/* Кнопка завантаження */}
                 <label className={`block w-full border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingImages ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <input 
+                  <input
                     type="file"
                     accept="image/*"
                     multiple
@@ -2084,11 +2119,10 @@ export default function AdminPage() {
                 <button
                   onClick={handleSaveProduct}
                   disabled={actionLoading}
-                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${
-                    actionLoading
-                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  }`}
+                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${actionLoading
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                    }`}
                 >
                   {actionLoading ? '⏳ Збереження...' : 'Зберегти зміни'}
                 </button>
@@ -2253,15 +2287,15 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
-                
+
                 {/* Завантажені фото */}
                 {newProductForm.images && newProductForm.images.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {newProductForm.images.map((url, idx) => (
                       <div key={idx} className="relative group">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img 
-                          src={url} 
+                        <img
+                          src={url}
                           alt={`Photo ${idx + 1}`}
                           className="w-full h-24 object-cover rounded border border-purple-200"
                         />
@@ -2276,10 +2310,10 @@ export default function AdminPage() {
                     ))}
                   </div>
                 )}
-                
+
                 {/* Кнопка завантаження */}
                 <label className={`block w-full border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingImages ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <input 
+                  <input
                     type="file"
                     accept="image/*"
                     multiple
@@ -2308,11 +2342,10 @@ export default function AdminPage() {
                 <button
                   onClick={handleSubmitNewProduct}
                   disabled={actionLoading}
-                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${
-                    actionLoading
-                      ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  }`}
+                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${actionLoading
+                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                    }`}
                 >
                   {actionLoading ? '⏳ Створення...' : 'Створити товар'}
                 </button>
@@ -2386,7 +2419,7 @@ export default function AdminPage() {
                     {selectedOrder.userId ? (
                       <div>
                         <p className="font-semibold text-green-700 text-sm sm:text-base flex items-center gap-2">
-                          Авторизований 
+                          Авторизований
                           {userProfiles[selectedOrder.userId]?.displayName && (
                             <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">
                               👤 {userProfiles[selectedOrder.userId].displayName}
@@ -2400,7 +2433,7 @@ export default function AdminPage() {
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs sm:text-sm" title="Знижка">💳 Знижка: {userProfiles[selectedOrder.userId].discountPercent}%</span>
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs sm:text-sm" title="Бали">🎁 Бали: {userProfiles[selectedOrder.userId].points}</span>
                             {userProfiles[selectedOrder.userId].telegramUsername && (
-                              <a 
+                              <a
                                 href={`https://t.me/${userProfiles[selectedOrder.userId].telegramUsername}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -2469,7 +2502,7 @@ export default function AdminPage() {
                         <p className="font-semibold text-gray-900 text-sm sm:text-base break-words">{item.name}</p>
                         <p className="text-xs sm:text-sm text-gray-600">Категорія: {item.category}</p>
                         <p className="text-xs sm:text-sm text-gray-600">Кількість: {item.quantity}</p>
-                        
+
                         {/* Вміст коробки (якщо це конструктор боксу) */}
                         {(item as any).customBox && (
                           <div className="mt-2 pt-2 border-t border-gray-200">
@@ -2583,22 +2616,20 @@ export default function AdminPage() {
                     <button
                       onClick={handleConfirmPayment}
                       disabled={actionLoading}
-                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
-                        actionLoading
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                          : 'bg-green-600 text-white hover:bg-green-700'
-                      }`}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${actionLoading
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
                     >
                       {actionLoading ? '⏳ Обробка...' : '✅ Підтвердити оплату'}
                     </button>
                     <button
                       onClick={handleCancelOrder}
                       disabled={actionLoading}
-                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
-                        actionLoading
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                          : 'bg-red-600 text-white hover:bg-red-700'
-                      }`}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${actionLoading
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-red-600 text-white hover:bg-red-700'
+                        }`}
                     >
                       {actionLoading ? '⏳ Обробка...' : '❌ Скасувати'}
                     </button>
@@ -2611,33 +2642,30 @@ export default function AdminPage() {
                     <button
                       onClick={handleMarkShipped}
                       disabled={actionLoading}
-                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
-                        actionLoading
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                          : 'bg-purple-600 text-white hover:bg-purple-700'
-                      }`}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${actionLoading
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-purple-600 text-white hover:bg-purple-700'
+                        }`}
                     >
                       {actionLoading ? '⏳ Обробка...' : '📮 Відправлено (ТТН)'}
                     </button>
                     <button
                       onClick={handleMarkReadyForPickup}
                       disabled={actionLoading}
-                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
-                        actionLoading
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${actionLoading
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
                     >
                       {actionLoading ? '⏳ Обробка...' : '✅ Готове до забору'}
                     </button>
                     <button
                       onClick={handleCancelOrder}
                       disabled={actionLoading}
-                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
-                        actionLoading
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                          : 'bg-red-600 text-white hover:bg-red-700'
-                      }`}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${actionLoading
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-red-600 text-white hover:bg-red-700'
+                        }`}
                     >
                       {actionLoading ? '⏳ Обробка...' : '❌ Скасувати'}
                     </button>
@@ -2654,11 +2682,10 @@ export default function AdminPage() {
                     <button
                       onClick={handleMarkReadyForPickup}
                       disabled={actionLoading}
-                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
-                        actionLoading
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
-                      }`}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${actionLoading
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
                     >
                       {actionLoading ? '⏳ Обробка...' : '✅ Готове до забору'}
                     </button>
@@ -2671,11 +2698,10 @@ export default function AdminPage() {
                     <button
                       onClick={handleMarkCompleted}
                       disabled={actionLoading}
-                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${
-                        actionLoading
-                          ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                          : 'bg-green-600 text-white hover:bg-green-700'
-                      }`}
+                      className={`flex-1 font-bold py-2 sm:py-2.5 rounded-lg transition-all text-sm sm:text-base ${actionLoading
+                        ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                        }`}
                     >
                       {actionLoading ? '⏳ Обробка...' : '🏁 Позначити як завершене'}
                     </button>
@@ -2690,6 +2716,558 @@ export default function AdminPage() {
                   Закрити
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =============================== BOXES TAB =============================== */}
+      {activeTab === 'boxes' && (
+        <div className="container mx-auto px-4 mb-20">
+          {/* Sub-tabs */}
+          <div className="bg-white rounded-lg shadow-sm p-2 mb-6 flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={() => setBoxesSubTab('types')}
+              className={`flex-1 px-4 py-3 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${boxesSubTab === 'types' ? 'bg-purple-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              📦 Типи боксів
+            </button>
+            <button
+              onClick={() => setBoxesSubTab('items')}
+              className={`flex-1 px-4 py-3 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${boxesSubTab === 'items' ? 'bg-purple-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              🛍️ Товари для боксів
+            </button>
+          </div>
+
+          {/* ---- ТИПИ БОКСІВ ---- */}
+          {boxesSubTab === 'types' && (
+            <div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Типи боксів</h2>
+                  <p className="text-gray-500 text-sm mt-1">Тут ви визначаєте розміри боксів (S, M, L тощо), їх базову ціну та місткість</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingBoxType(null);
+                    setBoxTypeForm({ name: '', description: '', capacity: '5', basePrice: '', image: '', isActive: true, sortOrder: String(boxTypes.length), imageFile: null });
+                    setShowBoxTypeModal(true);
+                  }}
+                  className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  + Додати тип боксу
+                </button>
+              </div>
+
+              {boxTypes.length === 0 ? (
+                <div className="bg-white rounded-xl p-16 text-center border-2 border-dashed border-gray-200">
+                  <div className="text-6xl mb-4">📦</div>
+                  <h3 className="text-xl font-bold text-gray-700 mb-2">Ще немає типів боксів</h3>
+                  <p className="text-gray-500">Натисніть «Додати тип боксу», щоб почати</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {boxTypes.map((boxType) => (
+                    <div key={boxType.id} className={`bg-white rounded-xl border-2 overflow-hidden shadow-sm ${boxType.isActive ? 'border-purple-200' : 'border-gray-200 opacity-60'
+                      }`}>
+                      {/* Image */}
+                      <div className="h-40 bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center overflow-hidden">
+                        {boxType.image ? (
+                          <img src={boxType.image} alt={boxType.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-6xl">📦</span>
+                        )}
+                      </div>
+                      <div className="p-5">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-bold text-gray-900">{boxType.name}</h3>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${boxType.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                            }`}>
+                            {boxType.isActive ? 'Активний' : 'Прихований'}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">{boxType.description}</p>
+                        <div className="grid grid-cols-2 gap-3 mb-4">
+                          <div className="bg-purple-50 rounded-lg p-3 text-center">
+                            <p className="text-xs text-gray-500 mb-1">Місткість</p>
+                            <p className="text-2xl font-bold text-purple-600">{boxType.capacity}</p>
+                            <p className="text-xs text-gray-500">товарів</p>
+                          </div>
+                          <div className="bg-gray-900 rounded-lg p-3 text-center">
+                            <p className="text-xs text-gray-400 mb-1">Базова ціна</p>
+                            <p className="text-2xl font-bold text-white">{boxType.basePrice}₴</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col justify-stretch sm:justify-start sm:flex-row gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingBoxType(boxType);
+                              setBoxTypeForm({
+                                name: boxType.name,
+                                description: boxType.description,
+                                capacity: String(boxType.capacity),
+                                basePrice: String(boxType.basePrice),
+                                image: boxType.image,
+                                isActive: boxType.isActive,
+                                sortOrder: String(boxType.sortOrder ?? 0),
+                                imageFile: null,
+                              });
+                              setShowBoxTypeModal(true);
+                            }}
+                            className="w-full sm:flex-1 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-2 rounded-lg transition-colors text-sm"
+                          >
+                            ✏️ Редагувати
+                          </button>
+                          <button
+                            onClick={async () => {
+                              const confirmed = await showConfirm(`Видалити тип боксу «${boxType.name}»?`);
+                              if (!confirmed) return;
+                              const ok = await deleteBoxType(boxType.id);
+                              if (ok) showSuccess('Тип боксу видалено');
+                              else showError('Помилка видалення');
+                            }}
+                            className="w-full sm:w-auto bg-red-100 hover:bg-red-200 text-red-600 font-semibold py-2 px-3 sm:px-4 rounded-lg transition-colors text-sm"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ---- ТОВАРИ ДЛЯ БОКСІВ ---- */}
+          {boxesSubTab === 'items' && (
+            <div>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Товари для боксів</h2>
+                  <p className="text-gray-500 text-sm mt-1">Список товарів, з яких клієнт може обирати наповнення для конструктора боксів</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingBoxItem(null);
+                    setBoxItemForm({ name: '', description: '', category: '', price: '', image: '', images: [], isActive: true });
+                    setShowBoxItemModal(true);
+                  }}
+                  className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  + Додати товар
+                </button>
+              </div>
+
+              {boxItems.length === 0 ? (
+                <div className="bg-white rounded-xl p-16 text-center border-2 border-dashed border-gray-200">
+                  <div className="text-6xl mb-4">🛍️</div>
+                  <h3 className="text-xl font-bold text-gray-700 mb-2">Ще немає товарів</h3>
+                  <p className="text-gray-500">Натисніть «Додати товар», щоб почати</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5">
+                  {boxItems.map((item) => (
+                    <div key={item.id} className={`bg-white rounded-xl border-2 overflow-hidden shadow-sm ${item.isActive ? 'border-gray-200' : 'border-gray-200 opacity-50'
+                      }`}>
+                      <div className="h-36 bg-gray-50 flex items-center justify-center overflow-hidden">
+                        {item.image ? (
+                          <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
+                        ) : (
+                          <span className="text-5xl">🎁</span>
+                        )}
+                      </div>
+                      <div className="p-3 sm:p-4">
+                        <div className="flex items-start justify-between gap-1 mb-1">
+                          <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-tight line-clamp-2">{item.name}</h4>
+                          <span className={`shrink-0 text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-semibold ${item.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                            }`}>
+                            {item.isActive ? '✓' : '✗'}
+                          </span>
+                        </div>
+                        <p className="text-[10px] sm:text-xs text-gray-500 mb-1">{item.category}</p>
+                        <p className="font-bold text-purple-700 text-sm sm:text-base mb-3">{item.price}₴</p>
+                        <div className="flex flex-col xl:flex-row gap-1.5">
+                          <button
+                            onClick={() => {
+                              setEditingBoxItem(item);
+                              setBoxItemForm({
+                                name: item.name,
+                                description: item.description,
+                                category: item.category,
+                                price: String(item.price),
+                                image: item.image,
+                                images: item.images || [],
+                                isActive: item.isActive,
+                              });
+                              setShowBoxItemModal(true);
+                            }}
+                            className="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-1.5 rounded-lg transition-colors text-xs"
+                          >
+                            ✏️ Ред.
+                          </button>
+                          <button
+                            onClick={async () => {
+                              const confirmed = await showConfirm(`Видалити «${item.name}»?`);
+                              if (!confirmed) return;
+                              const ok = await deleteBoxItem(item.id);
+                              if (ok) showSuccess('Товар видалено');
+                              else showError('Помилка видалення');
+                            }}
+                            className="bg-red-100 hover:bg-red-200 text-red-600 font-semibold py-1.5 px-2 rounded-lg transition-colors text-xs xl:w-auto w-full"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ======= MODAL: BoxType ======= */}
+      {showBoxTypeModal && (
+        <div className="fixed inset-0 bg-black/60 z-500 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100">
+              <h3 className="text-xl font-bold text-gray-900">
+                {editingBoxType ? '✏️ Редагувати тип боксу' : '+ Новий тип боксу'}
+              </h3>
+            </div>
+            <div className="p-6 space-y-5">
+              {/* Назва */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Назва <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  value={boxTypeForm.name}
+                  onChange={e => setBoxTypeForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="наприклад: S, M, L або Маленький"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none text-black"
+                />
+              </div>
+              {/* Опис */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Опис</label>
+                <textarea
+                  value={boxTypeForm.description}
+                  onChange={e => setBoxTypeForm(f => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  placeholder="Короткий опис боксу"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none resize-none text-black"
+                />
+              </div>
+              {/* Місткість + Базова ціна */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Місткість (к-сть товарів) <span className="text-red-500">*</span></label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={boxTypeForm.capacity}
+                    onChange={e => setBoxTypeForm(f => ({ ...f, capacity: e.target.value }))}
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Базова ціна (₴) <span className="text-red-500">*</span></label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={boxTypeForm.basePrice}
+                    onChange={e => setBoxTypeForm(f => ({ ...f, basePrice: e.target.value }))}
+                    placeholder="249"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+              </div>
+              {/* Порядок сортування */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Порядок відображення (менше = вище)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={boxTypeForm.sortOrder}
+                  onChange={e => setBoxTypeForm(f => ({ ...f, sortOrder: e.target.value }))}
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none text-black"
+                />
+              </div>
+              {/* Зображення */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Зображення боксу</label>
+                {boxTypeForm.image && (
+                  <div className="relative w-full h-40 mb-3 rounded-xl overflow-hidden border-2 border-purple-200">
+                    <img src={boxTypeForm.image} alt="preview" className="w-full h-full object-cover" />
+                    <button
+                      onClick={() => setBoxTypeForm(f => ({ ...f, image: '', imageFile: null }))}
+                      className="absolute top-2 right-2 bg-red-500 text-white w-7 h-7 rounded-full text-sm flex items-center justify-center"
+                    >✕</button>
+                  </div>
+                )}
+                <label className={`flex flex-col items-center justify-center w-full h-28 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${uploadingBoxTypeImage ? 'border-purple-300 bg-purple-50' : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                  }`}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setUploadingBoxTypeImage(true);
+                      const url = await uploadImage(file, 'box_types');
+                      setUploadingBoxTypeImage(false);
+                      if (url) setBoxTypeForm(f => ({ ...f, image: url, imageFile: null }));
+                      else showError('Помилка завантаження фото');
+                    }}
+                  />
+                  {uploadingBoxTypeImage ? (
+                    <><div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mb-2" /><span className="text-sm text-purple-600">Завантаження...</span></>
+                  ) : (
+                    <><span className="text-3xl mb-1">🖼️</span><span className="text-sm text-gray-500">Натисніть для завантаження фото</span></>
+                  )}
+                </label>
+              </div>
+              {/* Статус */}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div
+                  onClick={() => setBoxTypeForm(f => ({ ...f, isActive: !f.isActive }))}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${boxTypeForm.isActive ? 'bg-purple-600' : 'bg-gray-300'
+                    }`}
+                >
+                  <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${boxTypeForm.isActive ? 'translate-x-6' : 'translate-x-0.5'
+                    }`} />
+                </div>
+                <span className="text-sm font-semibold text-gray-700">Активний (показувати клієнтам)</span>
+              </label>
+            </div>
+            <div className="p-6 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={() => setShowBoxTypeModal(false)}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors"
+              >
+                Скасувати
+              </button>
+              <button
+                disabled={actionLoading || uploadingBoxTypeImage}
+                onClick={async () => {
+                  if (!boxTypeForm.name || !boxTypeForm.basePrice || !boxTypeForm.capacity) {
+                    showError('Заповніть обов\'язкові поля: назва, ціна, місткість');
+                    return;
+                  }
+                  setActionLoading(true);
+                  const payload = {
+                    name: boxTypeForm.name,
+                    description: boxTypeForm.description,
+                    capacity: Number(boxTypeForm.capacity),
+                    basePrice: Number(boxTypeForm.basePrice),
+                    image: boxTypeForm.image,
+                    isActive: boxTypeForm.isActive,
+                    sortOrder: Number(boxTypeForm.sortOrder) || 0,
+                  };
+                  let ok: boolean | string | null;
+                  if (editingBoxType) {
+                    ok = await updateBoxType(editingBoxType.id, payload);
+                  } else {
+                    ok = await createBoxType(payload);
+                  }
+                  setActionLoading(false);
+                  if (ok) {
+                    showSuccess(editingBoxType ? 'Тип боксу оновлено!' : 'Тип боксу створено!');
+                    setShowBoxTypeModal(false);
+                  } else {
+                    showError('Помилка збереження');
+                  }
+                }}
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-60"
+              >
+                {actionLoading ? 'Збереження...' : editingBoxType ? 'Зберегти зміни' : 'Створити'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======= MODAL: BoxItem ======= */}
+      {showBoxItemModal && (
+        <div className="fixed inset-0 bg-black/60 z-500 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100">
+              <h3 className="text-xl font-bold text-gray-900">
+                {editingBoxItem ? '✏️ Редагувати товар' : '+ Новий товар для боксу'}
+              </h3>
+            </div>
+            <div className="p-6 space-y-5">
+              {/* Назва */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Назва <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  value={boxItemForm.name}
+                  onChange={e => setBoxItemForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder="Назва товару"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none text-black"
+                />
+              </div>
+              {/* Категорія + Ціна */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Категорія</label>
+                  <input
+                    type="text"
+                    value={boxItemForm.category}
+                    onChange={e => setBoxItemForm(f => ({ ...f, category: e.target.value }))}
+                    placeholder="Картки, Аксесуари..."
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Ціна (₴) <span className="text-red-500">*</span></label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={boxItemForm.price}
+                    onChange={e => setBoxItemForm(f => ({ ...f, price: e.target.value }))}
+                    placeholder="199"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+              </div>
+              {/* Опис */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Опис</label>
+                <textarea
+                  value={boxItemForm.description}
+                  onChange={e => setBoxItemForm(f => ({ ...f, description: e.target.value }))}
+                  rows={3}
+                  placeholder="Опис товару для клієнтів"
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-purple-400 focus:outline-none resize-none text-black"
+                />
+              </div>
+              {/* Фото */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Фотографії</label>
+                {/* Галерея завантажених фото */}
+                {(boxItemForm.images.length > 0 || boxItemForm.image) && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {[boxItemForm.image, ...boxItemForm.images].filter(Boolean).map((url, idx) => (
+                      <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-purple-200">
+                        <img src={url} alt={`photo-${idx}`} className="w-full h-full object-cover" />
+                        <button
+                          onClick={() => {
+                            if (idx === 0) {
+                              // видаляємо головне фото
+                              const remaining = boxItemForm.images;
+                              setBoxItemForm(f => ({ ...f, image: remaining[0] || '', images: remaining.slice(1) }));
+                            } else {
+                              const newImages = boxItemForm.images.filter((_, i) => i !== idx - 1);
+                              setBoxItemForm(f => ({ ...f, images: newImages }));
+                            }
+                          }}
+                          className="absolute top-0.5 right-0.5 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center"
+                        >✕</button>
+                        {idx === 0 && <span className="absolute bottom-0 left-0 right-0 bg-purple-600 text-white text-xs text-center py-0.5">Головне</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <label className={`flex flex-col items-center justify-center w-full h-28 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${uploadingBoxItemImages ? 'border-purple-300 bg-purple-50' : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                  }`}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={async (e) => {
+                      const files = e.target.files;
+                      if (!files || files.length === 0) return;
+                      setUploadingBoxItemImages(true);
+                      const urls: string[] = [];
+                      for (let i = 0; i < files.length; i++) {
+                        const url = await uploadImage(files[i], 'box_items');
+                        if (url) urls.push(url);
+                      }
+                      setUploadingBoxItemImages(false);
+                      if (urls.length > 0) {
+                        setBoxItemForm(f => ({
+                          ...f,
+                          image: f.image || urls[0],
+                          images: [...f.images, ...urls.slice(f.image ? 0 : 1)],
+                        }));
+                        showSuccess(`Завантажено ${urls.length} фото`);
+                      } else {
+                        showError('Помилка завантаження фото');
+                      }
+                    }}
+                  />
+                  {uploadingBoxItemImages ? (
+                    <><div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mb-2" /><span className="text-sm text-purple-600">Завантаження...</span></>
+                  ) : (
+                    <><span className="text-3xl mb-1">📸</span><span className="text-sm text-gray-500">Завантажити фото — перше буде головним</span></>
+                  )}
+                </label>
+              </div>
+              {/* Статус */}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div
+                  onClick={() => setBoxItemForm(f => ({ ...f, isActive: !f.isActive }))}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${boxItemForm.isActive ? 'bg-purple-600' : 'bg-gray-300'
+                    }`}
+                >
+                  <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${boxItemForm.isActive ? 'translate-x-6' : 'translate-x-0.5'
+                    }`} />
+                </div>
+                <span className="text-sm font-semibold text-gray-700">Активний (показувати в конструкторі)</span>
+              </label>
+            </div>
+            <div className="p-6 border-t border-gray-100 flex gap-3">
+              <button
+                onClick={() => setShowBoxItemModal(false)}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors"
+              >
+                Скасувати
+              </button>
+              <button
+                disabled={actionLoading || uploadingBoxItemImages}
+                onClick={async () => {
+                  if (!boxItemForm.name || !boxItemForm.price) {
+                    showError('Заповніть назву та ціну');
+                    return;
+                  }
+                  setActionLoading(true);
+                  const payload = {
+                    name: boxItemForm.name,
+                    description: boxItemForm.description,
+                    category: boxItemForm.category,
+                    price: Number(boxItemForm.price),
+                    image: boxItemForm.image,
+                    images: boxItemForm.images,
+                    isActive: boxItemForm.isActive,
+                  };
+                  let ok: boolean | string | null;
+                  if (editingBoxItem) {
+                    ok = await updateBoxItem(editingBoxItem.id, payload);
+                  } else {
+                    ok = await createBoxItem(payload);
+                  }
+                  setActionLoading(false);
+                  if (ok) {
+                    showSuccess(editingBoxItem ? 'Товар оновлено!' : 'Товар створено!');
+                    setShowBoxItemModal(false);
+                  } else {
+                    showError('Помилка збереження');
+                  }
+                }}
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-60"
+              >
+                {actionLoading ? 'Збереження...' : editingBoxItem ? 'Зберегти зміни' : 'Створити'}
+              </button>
             </div>
           </div>
         </div>

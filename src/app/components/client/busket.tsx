@@ -64,7 +64,7 @@ export default function Basket() {
     window.addEventListener('cart-updated', handleCartUpdate);
     window.addEventListener('open-basket', handleOpenBasket);
     window.addEventListener('storage', handleStorageChange);
-    
+
     return () => {
       window.removeEventListener('cart-updated', handleCartUpdate);
       window.removeEventListener('open-basket', handleOpenBasket);
@@ -82,18 +82,18 @@ export default function Basket() {
   const addToCart = (item: Omit<CartItem, 'quantity'>) => {
     setCartItems(prevItems => {
       const existingItem = prevItems.find(i => i.id === item.id);
-      
+
       if (existingItem) {
-          // Перевіряємо максимальну кількість
-          const maxQty = existingItem.maxQuantity || Infinity;
-          const newQuantity = Math.min(existingItem.quantity + 1, maxQty);
+        // Перевіряємо максимальну кількість
+        const maxQty = existingItem.maxQuantity || Infinity;
+        const newQuantity = Math.min(existingItem.quantity + 1, maxQty);
         return prevItems.map(i =>
           i.id === item.id
-              ? { ...i, quantity: newQuantity }
+            ? { ...i, quantity: newQuantity }
             : i
         );
       }
-      
+
       return [...prevItems, { ...item, quantity: 1 }];
     });
   };
@@ -108,17 +108,17 @@ export default function Basket() {
       return;
     }
 
-      setCartItems(prevItems =>
-        prevItems.map(item => {
-          if (item.id === id) {
-            // Перевіряємо максимальну кількість на складі
-            const maxQty = item.maxQuantity || Infinity;
-            const newQuantity = Math.min(quantity, maxQty);
-            return { ...item, quantity: newQuantity };
-          }
-          return item;
-        })
-      );
+    setCartItems(prevItems =>
+      prevItems.map(item => {
+        if (item.id === id) {
+          // Перевіряємо максимальну кількість на складі
+          const maxQty = item.maxQuantity || Infinity;
+          const newQuantity = Math.min(quantity, maxQty);
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      })
+    );
   };
 
   // Розрахунки
@@ -203,8 +203,8 @@ export default function Basket() {
                       <div className="flex gap-3 mb-3">
                         {(item as any).images && (item as any).images.length > 0 ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img 
-                            src={(item as any).images[0]} 
+                          <img
+                            src={(item as any).images[0]}
                             alt={item.name}
                             className="w-16 h-16 object-cover rounded-lg border border-gray-300 flex-shrink-0"
                           />
@@ -278,11 +278,10 @@ export default function Basket() {
                             onClick={() =>
                               updateQuantity(item.id, item.quantity + 1)
                             }
-                              disabled={item.maxQuantity !== undefined && item.quantity >= item.maxQuantity}
-                              className={`px-2.5 py-1.5 text-base font-bold rounded transition-colors ${
-                                item.maxQuantity !== undefined && item.quantity >= item.maxQuantity
-                                  ? 'text-gray-400 cursor-not-allowed opacity-50'
-                                  : 'text-gray-700 hover:bg-white'
+                            disabled={item.maxQuantity !== undefined && item.quantity >= item.maxQuantity}
+                            className={`px-2.5 py-1.5 text-base font-bold rounded transition-colors ${item.maxQuantity !== undefined && item.quantity >= item.maxQuantity
+                                ? 'text-gray-400 cursor-not-allowed opacity-50'
+                                : 'text-gray-700 hover:bg-white'
                               }`}
                             aria-label="Збільшити кількість"
                           >
@@ -290,13 +289,13 @@ export default function Basket() {
                           </button>
                         </div>
                       </div>
-                      
-                        {/* Повідомлення про максимальну кількість */}
-                        {item.maxQuantity !== undefined && item.quantity >= item.maxQuantity && (
-                          <p className="text-xs font-bold text-orange-600 mt-2 bg-orange-50 px-2 py-1 rounded border border-orange-200">
-                            ⚠️ Макс: {item.maxQuantity}
-                          </p>
-                        )}
+
+                      {/* Повідомлення про максимальну кількість */}
+                      {item.maxQuantity !== undefined && item.quantity >= item.maxQuantity && (
+                        <p className="text-xs font-bold text-orange-600 mt-2 bg-orange-50 px-2 py-1 rounded border border-orange-200">
+                          ⚠️ Макс: {item.maxQuantity}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -316,7 +315,7 @@ export default function Basket() {
                     <span>Доставка:</span>
                     <span className="text-lg font-semibold text-blue-600">{deliveryPriceDisplay} ₴</span>
                   </div>
-                  <p className='text-sm'>Ознайомтеся з <Link href="/delivery" className="text-purple-600 underline">умовами доставки</Link></p>
+                  <p className='text-sm text-black'>Ознайомтеся з <Link href="/delivery" className="text-purple-600 underline">умовами доставки</Link></p>
                 </div>
 
                 {/* Остаток */}
@@ -339,15 +338,15 @@ export default function Basket() {
 
                 {/* Кнопки дій */}
                 <div className="space-y-2 pt-1">
-                    <button 
-                      onClick={() => {
-                        setIsOpen(false);
-                        router.push('/checkout');
-                      }}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors text-base"
-                    >
-                      💳 Оформити
-                    </button>
+                  <button
+                    onClick={() => {
+                      setIsOpen(false);
+                      router.push('/checkout');
+                    }}
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors text-base"
+                  >
+                    💳 Оформити
+                  </button>
                   <button
                     onClick={() => setIsOpen(false)}
                     className="w-full bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-bold py-3 rounded-lg transition-colors text-base"
