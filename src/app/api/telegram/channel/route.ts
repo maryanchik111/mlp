@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
             ? `💰 Ціна: <del>${product.price}₴</del> <b>${Math.round(product.price * (1 - product.discount / 100))}₴</b> (-${product.discount}%)`
             : `💰 Ціна: <b>${product.price}₴</b>`;
 
-        const abroadTag = product.isAbroad ? '🌍 <b>Товар із закордону</b>\n' : '';
+        const abroadTag = product.isAbroad ? '🌍 <b>Товар з-за кордону</b>\n' : '';
         const deliveryLine = `🚚 Термін доставки: <b>${product.deliveryDays || '1-2'} днів</b>`;
 
         const caption = `🦄 <b>Новий товар у наявності!</b>\n\n` +

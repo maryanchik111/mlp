@@ -3260,7 +3260,7 @@ export default function AdminPage() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-blue-900">🌍 Додати товар до каталогу «Іграшки із закордону»</p>
+                    <p className="text-sm font-bold text-blue-900">🌍 Додати товар до каталогу «Іграшки з-за кордону»</p>
                     <p className="text-xs text-blue-700 mt-1">
                       Товар з'явиться в каталозі з міткою «🌍 Із закордону» і буде синхронізуватись при змінах.
                       {editingBoxItem?.catalogProductId && !boxItemForm.addToCatalog && (

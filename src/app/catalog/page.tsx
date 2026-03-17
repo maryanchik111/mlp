@@ -345,7 +345,7 @@ export default function CatalogPage() {
                       : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 border border-blue-200'
                       }`}
                   >
-                    <span className="font-medium">🌍 Із закордону</span>
+                    <span className="font-medium">🌍З-за кордону</span>
                     <span className={`text-xs font-bold px-3 py-1 rounded-full ${showAbroadOnly ? 'bg-white/30' : 'bg-blue-100 text-blue-700'
                       }`}>
                       {allProducts.filter(p => (p as any).isAbroad).length}
@@ -470,7 +470,7 @@ export default function CatalogPage() {
                         ) : null}
                         {(product as any).isAbroad ? (
                           <div className="absolute top-4 left-4 bg-blue-600 text-white font-bold px-2 py-1 rounded-full text-xs shadow-md flex items-center gap-1">
-                            🌍 Із закордону
+                            🌍 З-за кордону
                           </div>
                         ) : null}
                       </div>

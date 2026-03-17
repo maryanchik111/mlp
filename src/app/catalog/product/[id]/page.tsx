@@ -216,7 +216,7 @@ export default function ProductPage() {
                       </span>
                       {(product as any).isAbroad && (
                         <span className="text-sm font-bold bg-blue-600 text-white px-3 py-1 rounded-full flex items-center gap-1">
-                          🌍 Із закордону
+                          🌍 З-за кордону
                         </span>
                       )}
                     </div>
