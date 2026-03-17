@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { respondToTicket, getSupportTicket } from '@/lib/firebase';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const API_SECRET = process.env.API_SECRET || '';
+
 
 /**
  * POST /api/support/respond
@@ -16,8 +18,17 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
  * }
  */
 export async function POST(request: NextRequest) {
+  // Auth check — admin use only
+  if (API_SECRET) {
+    const secret = request.headers.get('x-api-secret');
+    if (secret !== API_SECRET) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  }
+
   try {
     const { telegramId, adminReply = '', adminName = 'Адміністратор', status = 'responded' } = await request.json();
+
 
     if (!telegramId) {
       return NextResponse.json(

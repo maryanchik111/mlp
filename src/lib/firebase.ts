@@ -2,7 +2,7 @@
 const ADMIN_TELEGRAM_ID = "7365171162";
 
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, query, orderByChild, limitToLast, onValue, update, get, set } from 'firebase/database';
+import { getDatabase, ref, query, orderByChild, limitToLast, onValue, update, get, set, equalTo } from 'firebase/database';
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
@@ -324,12 +324,14 @@ export const updateUserProfileAdmin = async (
 export const fetchUserOrders = async (uid: string): Promise<Order[]> => {
   try {
     const ordersRef = ref(database, 'orders');
-    const snapshot = await get(ordersRef);
+    // Оптимізований запит: фільтруємо на сервері за userId
+    const userOrdersQuery = query(ordersRef, orderByChild('userId'), equalTo(uid));
+    const snapshot = await get(userOrdersQuery);
+
     if (snapshot.exists()) {
       const data = snapshot.val();
       return Object.entries(data)
         .map(([key, value]: [string, any]) => ({ id: key, ...value }))
-        .filter((o: Order) => o.userId === uid)
         .sort((a: Order, b: Order) => (b.createdAt || 0) - (a.createdAt || 0));
     }
     return [];
@@ -415,7 +417,9 @@ export const updateOrderStatus = async (
     // Відправляємо Telegram сповіщення через API endpoint
     if (order.userId && newStatus !== 'pending') {
       try {
-        await fetch('/api/orders/notify', {
+        // Must use absolute URL — relative URLs don't work in server-side fetch
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+        await fetch(`${siteUrl}/api/orders/notify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -515,21 +519,39 @@ export const fetchAllProducts = async (callback: (products: Product[]) => void) 
 
 // Функція для отримання конфігурації платежу (QR, карта, посилання)
 export const getPaymentConfig = () => {
+  const cardNumber = process.env.NEXT_PUBLIC_PAYMENT_CARD_NUMBER || '—';
+  const cardName = process.env.NEXT_PUBLIC_PAYMENT_CARD_NAME || '—';
+  const paymentLink = process.env.NEXT_PUBLIC_PAYMENT_LINK || '#';
   return {
-    cardNumber: '4441 1111 4322 2457', // Mock карта
-    cardName: 'Богдана Мусевич',
-    paymentLink: 'https://pay.example.com/invoice', // Mock посилання
-    qrCode: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://pay.example.com/invoice',
+    cardNumber,
+    cardName,
+    paymentLink,
+    qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentLink)}`,
   };
 };
 
 // Функція для генерації людського номеру замовлення (наприклад: NW4343)
-export const generateOrderNumber = (): string => {
+// Перевіряє чи немає колізій у базі даних
+export const generateOrderNumber = async (): Promise<string> => {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const randomLetter1 = letters[Math.floor(Math.random() * letters.length)];
-  const randomLetter2 = letters[Math.floor(Math.random() * letters.length)];
-  const randomNumbers = Math.floor(1000 + Math.random() * 9000); // 4-значне число від 1000 до 9999
-  return `${randomLetter1}${randomLetter2}${randomNumbers}`;
+  let isUnique = false;
+  let orderNumber = '';
+
+  while (!isUnique) {
+    const randomLetter1 = letters[Math.floor(Math.random() * letters.length)];
+    const randomLetter2 = letters[Math.floor(Math.random() * letters.length)];
+    const randomNumbers = Math.floor(1000 + Math.random() * 9000);
+    orderNumber = `${randomLetter1}${randomLetter2}${randomNumbers}`;
+
+    // Перевірка на унікальність
+    const orderRef = ref(database, `orders/${orderNumber}`);
+    const snapshot = await get(orderRef);
+    if (!snapshot.exists()) {
+      isUnique = true;
+    }
+  }
+
+  return orderNumber;
 };
 
 // Функція для оновлення товару (ціна, назва, опис, кількість)

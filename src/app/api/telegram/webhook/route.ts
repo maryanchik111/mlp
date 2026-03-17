@@ -9,17 +9,26 @@ import {
 
 // Token of your Telegram bot (from BotFather)
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+// Secret token set when registering the webhook (prevents forged updates)
+const TELEGRAM_WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || '';
 
 /**
  * POST /api/telegram/webhook
  *
  * Webhook for receiving messages from Telegram bot
- *
- * Bot should recognize /bind command and binding code
- * Example: user sends "/bind ABC123" to bot chat
  */
 export async function POST(request: NextRequest) {
+  // Validate Telegram webhook secret token
+  if (TELEGRAM_WEBHOOK_SECRET) {
+    const incomingSecret = request.headers.get('x-telegram-bot-api-secret-token');
+    if (incomingSecret !== TELEGRAM_WEBHOOK_SECRET) {
+      // silently accept — Telegram expects 200 for all requests
+      return NextResponse.json({ ok: true });
+    }
+  }
+
   try {
+
     const body = await request.json();
 
     // Check if this is an update from Telegram
@@ -46,7 +55,7 @@ export async function POST(request: NextRequest) {
         chatId,
         '👋 <b>Привіт! Я бот MLP Store 🦄</b>\n\n' +
         'Щоб прив\'язати свій акаунт в магазині до цього чату:\n\n' +
-        '1️⃣ Перейдіть на <b>mlp-gray.vercel.app</b>\n' +
+        '1️⃣ Перейдіть на <b>mlpcutiefamily.pp.ua</b>\n' +
         '2️⃣ Увійдіть в свій кабінет\n' +
         '3️⃣ Натисніть "📱 Генерувати код"\n' +
         '4️⃣ Скопіюйте код і напишіть мені:\n' +

@@ -1,0 +1,77 @@
+{
+    "rules": {
+        "users": {
+            ".read": true,
+            ".write": true
+        },
+        "telegram_users": {
+            ".read": true,
+            ".write": true
+        },
+        "support_tickets": {
+            ".read": true,
+            ".write": true
+        },
+        "orders": {
+            ".read": true,
+            ".indexOn": [
+                "userId"
+            ],
+            "$orderId": {
+                ".write": true
+            }
+        },
+        "products": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "reviews": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "screenshot_reviews": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "forum": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "auctions": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "box_types": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "box_items": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "gallery": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "settings": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "activities": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "treatments": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "food": {
+            ".read": true,
+            ".write": "auth != null"
+        },
+        "$other": {
+            ".read": false,
+            ".write": false
+        }
+    }
+}

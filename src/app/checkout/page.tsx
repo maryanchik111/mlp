@@ -131,7 +131,14 @@ export default function CheckoutPage() {
 
   // Функція для збереження замовлення у Firebase
   const handleSubmitOrder = async () => {
+    // Block check — in case blocked user bypasses UI
+    if (profile?.isBlocked) {
+      showError('Ваш акаунт заблоковано. Ви не можете оформлювати замовлення.');
+      return;
+    }
+
     if (!validateForm()) return;
+
 
     // Перевіряємо чи не перевищує кількість товарів максимальну доступну
     const invalidItems = cartItems.filter(item =>
@@ -145,8 +152,8 @@ export default function CheckoutPage() {
 
     setIsLoading(true);
     try {
-      // Генеруємо людський номер замовлення
-      const orderId = generateOrderNumber();
+      // Генеруємо людський номер замовлення (async перевірка унікальності)
+      const orderId = await generateOrderNumber();
       const ordersRef = ref(database, `orders/${orderId}`);
 
       const newOrder = {

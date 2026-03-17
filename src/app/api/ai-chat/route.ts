@@ -4,6 +4,23 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
+// Simple in-memory rate limiter — 20 requests per minute per IP
+const RATE_LIMIT = 20;
+const RATE_WINDOW_MS = 60_000;
+const ipRequestMap = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+    const now = Date.now();
+    const entry = ipRequestMap.get(ip);
+    if (!entry || now > entry.resetAt) {
+        ipRequestMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+        return false;
+    }
+    if (entry.count >= RATE_LIMIT) return true;
+    entry.count++;
+    return false;
+}
+
 const SYSTEM_PROMPT = `Ти — AI-помічник магазину «mlpcutiefamily store» — єдиного спеціалізованого магазину My Little Pony в Україні.
 
 ТВОЯ РОЛЬ:
@@ -84,7 +101,14 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
     }
 
+    // Rate limiting — 20 req/min per IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? req.headers.get('x-real-ip') ?? 'unknown';
+    if (isRateLimited(ip)) {
+        return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
+    }
+
     try {
+
         const body = await req.json();
         const { messages } = body as {
             messages: { role: 'user' | 'model'; text: string }[];

@@ -168,6 +168,11 @@ export default function AuctionsPage() {
       return;
     }
 
+    if (profile?.isBlocked) {
+      showWarning('Ваш акаунт заблоковано. Ви не можете робити ставки.');
+      return;
+    }
+
     const bid = parseInt(bidAmount[auction.id] || '0');
     const minBid = auction.currentPrice + auction.minBidStep;
 

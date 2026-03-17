@@ -743,7 +743,10 @@ export default function AdminPage() {
 
       const response = await fetch('/api/support/respond', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET || '',
+        },
         body: JSON.stringify({
           telegramId: selectedTicket.telegramId,
           adminReply: ticketReply,
@@ -776,7 +779,10 @@ export default function AdminPage() {
     try {
       const response = await fetch('/api/support/respond', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET || '',
+        },
         body: JSON.stringify({
           telegramId: selectedTicket.telegramId,
           adminReply: '', // Не обов'язково для закриття

@@ -23,32 +23,11 @@ import Link from 'next/link';
 
 export default function BoxBuilderPage() {
   const { profile } = useAuth();
+  // ALL hooks must be declared before any early return (React Rules of Hooks)
   const [currentStep, setCurrentStep] = useState(1);
   const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
   const [boxItems, setBoxItems] = useState<BoxItem[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-
-  if (profile?.isBlocked) {
-    return (
-      <main className="min-h-screen bg-white py-12 text-black">
-        <div className="container mx-auto px-4 max-w-md text-center">
-          <div className="bg-red-50 p-10 rounded-3xl border-2 border-red-200 shadow-xl">
-            <div className="text-6xl mb-6">🚫</div>
-            <h1 className="text-2xl font-black text-red-600 mb-4 uppercase">Доступ обмежено</h1>
-            <p className="text-gray-700 font-bold mb-6">Ви не можете використовувати конструктор боксів, оскільки ваш акаунт заблоковано.</p>
-            <Link
-              href="https://t.me/mlp_cutie_family_bot"
-              className="block w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg mb-4"
-            >
-              📣 Зв'язатися з підтримкою
-            </Link>
-            <Link href="/" className="text-gray-500 hover:text-gray-700 font-bold">← На головну</Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   const [selectedBoxType, setSelectedBoxType] = useState<BoxType | null>(null);
   const [selectedItems, setSelectedItems] = useState<BoxItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -74,6 +53,28 @@ export default function BoxBuilderPage() {
     });
     return () => { unsubTypes(); unsubItems(); };
   }, []);
+
+  // Blocked user guard — must be AFTER all hooks
+  if (profile?.isBlocked) {
+    return (
+      <main className="min-h-screen bg-white py-12 text-black">
+        <div className="container mx-auto px-4 max-w-md text-center">
+          <div className="bg-red-50 p-10 rounded-3xl border-2 border-red-200 shadow-xl">
+            <div className="text-6xl mb-6">🚫</div>
+            <h1 className="text-2xl font-black text-red-600 mb-4 uppercase">Доступ обмежено</h1>
+            <p className="text-gray-700 font-bold mb-6">Ви не можете використовувати конструктор боксів, оскільки ваш акаунт заблоковано.</p>
+            <Link
+              href="https://t.me/mlp_cutie_family_bot"
+              className="block w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg mb-4"
+            >
+              📣 Зв'язатися з підтримкою
+            </Link>
+            <Link href="/" className="text-gray-500 hover:text-gray-700 font-bold">← На головну</Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
 
 
