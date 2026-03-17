@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, type BoxType, type BoxItem } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, checkAdminAccess, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, syncBoxItemToCatalog, removeBoxItemFromCatalog, type BoxType, type BoxItem } from '@/lib/firebase';
 import { useAuth, useModal } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
@@ -36,7 +36,7 @@ export default function AdminPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editForm, setEditForm] = useState<Partial<Product>>({});
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
-  const [newProductForm, setNewProductForm] = useState<Omit<Product, 'id' | 'inStock'>>({
+  const [newProductForm, setNewProductForm] = useState<Omit<Product, 'id' | 'inStock' | 'createdAt' | 'updatedAt'>>({
     name: '',
     category: '',
     price: '',
@@ -109,6 +109,7 @@ export default function AdminPage() {
     image: '',
     images: [] as string[],
     isActive: true,
+    addToCatalog: false, // чи додати до каталогу «із закордону»
   });
 
   // User profiles cache for authorized orders
@@ -389,9 +390,21 @@ export default function AdminPage() {
           .filter(Boolean);
       }
 
-      const success = await addProduct(payload);
-      if (success) {
+      const createdProduct = await addProduct(payload);
+      if (createdProduct) {
         showSuccess('Товар створено успішно!');
+
+        // Відправляємо сповіщення в Telegram канал
+        try {
+          await fetch('/api/telegram/channel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product: createdProduct }),
+          });
+        } catch (tgError) {
+          console.error('Помилка відправки в Telegram канал:', tgError);
+        }
+
         setIsCreatingProduct(false);
         setNewProductForm({
           name: '',
@@ -2853,7 +2866,7 @@ export default function AdminPage() {
                 <button
                   onClick={() => {
                     setEditingBoxItem(null);
-                    setBoxItemForm({ name: '', description: '', category: '', price: '', image: '', images: [], isActive: true });
+                    setBoxItemForm({ name: '', description: '', category: '', price: '', image: '', images: [], isActive: true, addToCatalog: false });
                     setShowBoxItemModal(true);
                   }}
                   className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 sm:px-6 sm:py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
@@ -2889,7 +2902,12 @@ export default function AdminPage() {
                           </span>
                         </div>
                         <p className="text-[10px] sm:text-xs text-gray-500 mb-1">{item.category}</p>
-                        <p className="font-bold text-purple-700 text-sm sm:text-base mb-3">{item.price}₴</p>
+                        <p className="font-bold text-purple-700 text-sm sm:text-base mb-1">{item.price}₴</p>
+                        {item.catalogProductId && (
+                          <p className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-flex items-center gap-1 mb-2">
+                            🌍 В каталозі
+                          </p>
+                        )}
                         <div className="flex flex-col xl:flex-row gap-1.5">
                           <button
                             onClick={() => {
@@ -2902,6 +2920,7 @@ export default function AdminPage() {
                                 image: item.image,
                                 images: item.images || [],
                                 isActive: item.isActive,
+                                addToCatalog: !!item.catalogProductId,
                               });
                               setShowBoxItemModal(true);
                             }}
@@ -3213,6 +3232,45 @@ export default function AdminPage() {
                   )}
                 </label>
               </div>
+              {/* Додати до каталогу із закордону */}
+              <div className="p-4 bg-blue-50 rounded-xl border-2 border-blue-200">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <div className="relative mt-0.5 flex-shrink-0">
+                    <input
+                      type="checkbox"
+                      id="addToCatalog"
+                      checked={boxItemForm.addToCatalog}
+                      onChange={e => setBoxItemForm(f => ({ ...f, addToCatalog: e.target.checked }))}
+                      className="sr-only"
+                    />
+                    <div
+                      onClick={() => setBoxItemForm(f => ({ ...f, addToCatalog: !f.addToCatalog }))}
+                      className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${boxItemForm.addToCatalog
+                        ? 'bg-blue-600 border-blue-600'
+                        : 'bg-white border-gray-300 hover:border-blue-400'
+                        }`}
+                    >
+                      {boxItemForm.addToCatalog && (
+                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-blue-900">🌍 Додати товар до каталогу «Іграшки із закордону»</p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Товар з'явиться в каталозі з міткою «🌍 Із закордону» і буде синхронізуватись при змінах.
+                      {editingBoxItem?.catalogProductId && !boxItemForm.addToCatalog && (
+                        <span className="block mt-1 text-red-600 font-semibold">
+                          ⚠️ Знявши галочку, товар буде видалений з каталогу!
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </label>
+              </div>
+
               {/* Статус */}
               <label className="flex items-center gap-3 cursor-pointer">
                 <div
@@ -3241,27 +3299,84 @@ export default function AdminPage() {
                     return;
                   }
                   setActionLoading(true);
-                  const payload = {
-                    name: boxItemForm.name,
-                    description: boxItemForm.description,
-                    category: boxItemForm.category,
-                    price: Number(boxItemForm.price),
-                    image: boxItemForm.image,
-                    images: boxItemForm.images,
-                    isActive: boxItemForm.isActive,
-                  };
-                  let ok: boolean | string | null;
-                  if (editingBoxItem) {
-                    ok = await updateBoxItem(editingBoxItem.id, payload);
-                  } else {
-                    ok = await createBoxItem(payload);
-                  }
-                  setActionLoading(false);
-                  if (ok) {
-                    showSuccess(editingBoxItem ? 'Товар оновлено!' : 'Товар створено!');
-                    setShowBoxItemModal(false);
-                  } else {
+                  try {
+                    const payload = {
+                      name: boxItemForm.name,
+                      description: boxItemForm.description,
+                      category: boxItemForm.category,
+                      price: Number(boxItemForm.price),
+                      image: boxItemForm.image,
+                      images: boxItemForm.images,
+                      isActive: boxItemForm.isActive,
+                    };
+
+                    let savedBoxItemId: string | null = null;
+                    let catalogProductId: string | undefined = editingBoxItem?.catalogProductId;
+
+                    if (editingBoxItem) {
+                      // 1. Оновлюємо BoxItem
+                      const boxItemForSync: BoxItem = {
+                        ...editingBoxItem,
+                        ...payload,
+                        catalogProductId,
+                      };
+
+                      if (boxItemForm.addToCatalog) {
+                        // Синхронізуємо з каталогом
+                        const newCatalogId = await syncBoxItemToCatalog(boxItemForSync);
+                        if (newCatalogId) {
+                          catalogProductId = newCatalogId;
+                        } else {
+                          showError('Помилка синхронізації з каталогом');
+                        }
+                      } else if (catalogProductId) {
+                        // Знімаємо галочку — видаляємо з каталогу
+                        await removeBoxItemFromCatalog(catalogProductId);
+                        catalogProductId = undefined;
+                      }
+
+                      const ok = await updateBoxItem(editingBoxItem.id, { ...payload, catalogProductId });
+                      if (ok) {
+                        showSuccess('Товар оновлено!');
+                        setShowBoxItemModal(false);
+                      } else {
+                        showError('Помилка збереження');
+                      }
+                    } else {
+                      // 1. Створюємо BoxItem
+                      savedBoxItemId = await createBoxItem({ ...payload, catalogProductId: undefined });
+                      if (!savedBoxItemId) {
+                        showError('Помилка створення товару');
+                        setActionLoading(false);
+                        return;
+                      }
+
+                      if (boxItemForm.addToCatalog) {
+                        // 2. Синхронізуємо з каталогом
+                        const tempBoxItem: BoxItem = {
+                          id: savedBoxItemId,
+                          ...payload,
+                          createdAt: Date.now(),
+                          updatedAt: Date.now(),
+                        };
+                        const newCatalogId = await syncBoxItemToCatalog(tempBoxItem);
+                        if (newCatalogId) {
+                          // 3. Оновлюємо BoxItem з catalogProductId
+                          await updateBoxItem(savedBoxItemId, { catalogProductId: newCatalogId });
+                          showSuccess('Товар створено і додано до каталогу 🌍');
+                        } else {
+                          showSuccess('Товар створено, але помилка додавання до каталогу');
+                        }
+                      } else {
+                        showSuccess('Товар створено!');
+                      }
+                      setShowBoxItemModal(false);
+                    }
+                  } catch (err) {
+                    console.error(err);
                     showError('Помилка збереження');
+                  } finally {
+                    setActionLoading(false);
                   }
                 }}
                 className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-60"

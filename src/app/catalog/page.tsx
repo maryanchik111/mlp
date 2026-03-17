@@ -27,6 +27,7 @@ export default function CatalogPage() {
   const [cartItems, setCartItems] = useState<string[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAbroadOnly, setShowAbroadOnly] = useState(false);
 
   // Категорії з підрахунком кількості товарів (динамічно з товарів)
   const derivedCategories = useMemo(() => {
@@ -93,6 +94,11 @@ export default function CatalogPage() {
   const sortedProducts = useMemo(() => {
     let filtered = [...allProducts];
 
+    // Фільтр «Із закордону»
+    if (showAbroadOnly) {
+      filtered = filtered.filter(p => (p as any).isAbroad === true);
+    }
+
     // Фільтр по категоріям
     if (selectedCategory) {
       filtered = filtered.filter(p => p.category === selectedCategory);
@@ -125,7 +131,7 @@ export default function CatalogPage() {
         // За популярністю = нові товари спочатку (за часом створення)
         return filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     }
-  }, [allProducts, sortBy, selectedCategory, priceRange]);
+  }, [allProducts, sortBy, selectedCategory, priceRange, showAbroadOnly]);
 
   // Пагінація
   const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
@@ -294,11 +300,12 @@ export default function CatalogPage() {
                   <button
                     onClick={() => {
                       setSelectedCategory(null);
+                      setShowAbroadOnly(false);
                       setCurrentPage(1);
                     }}
-                    className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-200 ${selectedCategory === null
-                        ? "bg-indigo-600 text-white shadow-md"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600 hover:translate-x-1"
+                    className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-200 ${selectedCategory === null && !showAbroadOnly
+                      ? "bg-indigo-600 text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600 hover:translate-x-1"
                       }`}
                   >
                     Всі категорії
@@ -308,22 +315,42 @@ export default function CatalogPage() {
                       key={category.name}
                       onClick={() => {
                         setSelectedCategory(category.name);
+                        setShowAbroadOnly(false);
                         setCurrentPage(1);
                       }}
                       className={`w-full text-left flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${selectedCategory === category.name
-                          ? "bg-indigo-600 text-white shadow-md"
-                          : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600 hover:translate-x-1"
+                        ? "bg-indigo-600 text-white shadow-md"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-indigo-600 hover:translate-x-1"
                         }`}
                     >
                       <span className="font-medium">{category.name}</span>
                       <span className={`text-xs font-bold px-3 py-1 rounded-full ${selectedCategory === category.name
-                          ? "bg-white/30"
-                          : "bg-gray-200 text-gray-700"
+                        ? "bg-white/30"
+                        : "bg-gray-200 text-gray-700"
                         }`}>
                         {category.count}
                       </span>
                     </button>
                   ))}
+
+                  {/* Кнопка «Іграшки із закордону» */}
+                  <button
+                    onClick={() => {
+                      setShowAbroadOnly(prev => !prev);
+                      setSelectedCategory(null);
+                      setCurrentPage(1);
+                    }}
+                    className={`w-full text-left flex items-center justify-between p-3 rounded-lg transition-all duration-200 mt-2 ${showAbroadOnly
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 border border-blue-200'
+                      }`}
+                  >
+                    <span className="font-medium">🌍 Із закордону</span>
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${showAbroadOnly ? 'bg-white/30' : 'bg-blue-100 text-blue-700'
+                      }`}>
+                      {allProducts.filter(p => (p as any).isAbroad).length}
+                    </span>
+                  </button>
                 </nav>
 
                 {/* Фільтри ціни */}
@@ -421,6 +448,13 @@ export default function CatalogPage() {
                             alt={product.name}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
+                        ) : product.image && product.image.startsWith('http') ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                          />
                         ) : (
                           <div className="text-7xl group-hover:scale-125 transition-transform duration-300">{product.image || '📦'}</div>
                         )}
@@ -432,6 +466,11 @@ export default function CatalogPage() {
                         {(Number(product.discount) || 0) > 0 ? (
                           <div className="absolute top-4 right-4 bg-red-500 text-white font-bold px-3 py-2 rounded-full shadow-md">
                             −{product.discount}%
+                          </div>
+                        ) : null}
+                        {(product as any).isAbroad ? (
+                          <div className="absolute top-4 left-4 bg-blue-600 text-white font-bold px-2 py-1 rounded-full text-xs shadow-md flex items-center gap-1">
+                            🌍 Із закордону
                           </div>
                         ) : null}
                       </div>
@@ -484,14 +523,14 @@ export default function CatalogPage() {
                       <button
                         onClick={() => handleToggleCart(product)}
                         className={`w-full px-4 py-3 rounded-lg font-bold transition-all duration-200 ${addedItems[product.id] === 'removed'
-                            ? "bg-red-500 text-white shadow-lg"
-                            : addedItems[product.id] === true
-                              ? "bg-green-500 text-white shadow-lg"
-                              : cartItems.includes(product.id)
-                                ? "bg-blue-600 text-white hover:bg-red-600 shadow-md"
-                                : product.quantity > 0
-                                  ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md"
-                                  : "bg-gray-300 text-gray-600 cursor-not-allowed opacity-60"
+                          ? "bg-red-500 text-white shadow-lg"
+                          : addedItems[product.id] === true
+                            ? "bg-green-500 text-white shadow-lg"
+                            : cartItems.includes(product.id)
+                              ? "bg-blue-600 text-white hover:bg-red-600 shadow-md"
+                              : product.quantity > 0
+                                ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md"
+                                : "bg-gray-300 text-gray-600 cursor-not-allowed opacity-60"
                           }`}
                         disabled={product.quantity === 0}
                         title={cartItems.includes(product.id) ? "Видалити з кошика" : "Додати в кошик"}
@@ -518,8 +557,8 @@ export default function CatalogPage() {
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
                   className={`px-5 py-3 border-2 rounded-lg font-bold transition-all duration-200 ${currentPage === 1
-                      ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50 opacity-50"
-                      : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50 opacity-50"
+                    : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
                     }`}
                 >
                   ← Назад
@@ -534,8 +573,8 @@ export default function CatalogPage() {
                       <button
                         onClick={() => handlePageChange(page)}
                         className={`px-4 py-3 rounded-lg font-bold transition-all duration-200 ${currentPage === page
-                            ? "bg-indigo-600 text-white shadow-md"
-                            : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
+                          ? "bg-indigo-600 text-white shadow-md"
+                          : "border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-indigo-600"
                           }`}
                       >
                         {page}
@@ -549,8 +588,8 @@ export default function CatalogPage() {
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className={`px-5 py-3 border-2 rounded-lg font-bold transition-all duration-200 ${currentPage === totalPages
-                      ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50 opacity-50"
-                      : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
+                    ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50 opacity-50"
+                    : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
                     }`}
                 >
                   Далі →

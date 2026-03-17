@@ -414,6 +414,8 @@ export interface Product {
   discount?: number; // знижка на товар у %
   deliveryPrice?: string; // ціна доставки (наприклад "120" для України, "150" для закордону)
   deliveryDays?: string; // термін доставки (наприклад "1-2" для України, "7-14" для закордону)
+  isAbroad?: boolean;   // чи є товар «із закордону» (доданий через конструктор боксів)
+  boxItemId?: string;   // ID пов'язаного BoxItem (якщо товар синхронізовано з box_items)
   createdAt: number;
   updatedAt: number;
 }
@@ -587,7 +589,7 @@ export const fetchProductById = async (id: string): Promise<Product | null> => {
 };
 
 // Функція для додавання нового товару
-export const addProduct = async (newProduct: Omit<Product, 'id' | 'inStock' | 'createdAt' | 'updatedAt'>): Promise<boolean> => {
+export const addProduct = async (newProduct: Omit<Product, 'id' | 'inStock' | 'createdAt' | 'updatedAt'>): Promise<Product | null> => {
   try {
     const productsRef = ref(database, 'products');
     const snapshot = await get(productsRef);
@@ -623,15 +625,15 @@ export const addProduct = async (newProduct: Omit<Product, 'id' | 'inStock' | 'c
 
       const productToAdd = buildProduct(finalId);
       await set(productsRef, [...list, productToAdd]);
-      return true;
+      return productToAdd;
     } else {
       const productToAdd = buildProduct(slugId);
       await set(productsRef, [productToAdd]);
-      return true;
+      return productToAdd;
     }
   } catch (error) {
     console.error('Помилка при додаванні товару:', error);
-    return false;
+    return null;
   }
 };
 
@@ -1944,6 +1946,7 @@ export interface BoxItem {
   image: string;        // головне фото (URL)
   images: string[];     // галерея фото
   isActive: boolean;    // чи показувати клієнтам
+  catalogProductId?: string; // ID пов'язаного Product у каталозі (якщо доданий до каталогу)
   createdAt: number;
   updatedAt: number;
 }
@@ -2040,6 +2043,15 @@ export async function deleteBoxType(id: string): Promise<boolean> {
 // ---------- BoxItem CRUD ----------
 
 /**
+ * Учищає обʼєкт від undefined полів (Сховище Firebase відкидає undefined при set())
+ */
+function cleanForFirebase<T extends object>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined)
+  ) as T;
+}
+
+/**
  * Слухати зміни товарів боксів у реальному часі
  */
 export function listenToBoxItems(callback: (items: BoxItem[]) => void): () => void {
@@ -2083,12 +2095,12 @@ export async function createBoxItem(
     const id = Date.now().toString();
     const boxItemRef = ref(database, `box_items/${id}`);
     const now = Date.now();
-    await set(boxItemRef, {
+    await set(boxItemRef, cleanForFirebase({
       ...data,
       id,
       createdAt: now,
       updatedAt: now,
-    });
+    }));
     return id;
   } catch (e) {
     console.error('Помилка створення товару для боксу:', e);
@@ -2105,7 +2117,7 @@ export async function updateBoxItem(
 ): Promise<boolean> {
   try {
     const boxItemRef = ref(database, `box_items/${id}`);
-    await update(boxItemRef, { ...updates, updatedAt: Date.now() });
+    await update(boxItemRef, cleanForFirebase({ ...updates, updatedAt: Date.now() }));
     return true;
   } catch (e) {
     console.error('Помилка оновлення товару боксу:', e);
@@ -2140,4 +2152,103 @@ export async function deleteBoxItem(id: string): Promise<boolean> {
     console.error('Помилка видалення товару боксу:', e);
     return false;
   }
+}
+
+// =====================
+// СИНХРОНІЗАЦІЯ BoxItem → КАТАЛОГ (іграшки із закордону)
+// =====================
+
+/**
+ * Синхронізує BoxItem з каталогом товарів.
+ * Якщо catalogProductId відсутній — створює новий Product з isAbroad:true.
+ * Якщо catalogProductId є — оновлює існуючий Product.
+ * Повертає catalogProductId (id товару в каталозі) або null при помилці.
+ */
+export async function syncBoxItemToCatalog(
+  boxItem: BoxItem
+): Promise<string | null> {
+  try {
+    const now = Date.now();
+    // Поля, які синхронізуються із BoxItem → Product
+    // Збираємо всі фото: головне фото + галерея (без дублів)
+    const allImages = [boxItem.image, ...(boxItem.images || [])]
+      .filter((url): url is string => !!url && url.startsWith('http'));
+
+    const productData = {
+      name: boxItem.name,
+      category: boxItem.category,
+      price: String(boxItem.price),
+      // Якщо є фото → emoji-заглушка (фото покажуться через images[])
+      // Якщо фото немає → глобус
+      image: allImages.length === 0 ? '🌍' : allImages[0],
+      description: boxItem.description,
+      images: allImages,
+      isAbroad: true,
+      boxItemId: boxItem.id,
+      deliveryPrice: '200',
+      deliveryDays: '14-21',
+      discount: 0,
+    };
+
+    if (boxItem.catalogProductId) {
+      // Оновлення існуючого товару в каталозі
+      const ok = await updateProduct(boxItem.catalogProductId, {
+        ...productData,
+        updatedAt: now,
+      });
+      if (ok) return boxItem.catalogProductId;
+      return null;
+    } else {
+      // Створення нового товару в каталозі
+      const productsRef = ref(database, 'products');
+      const snapshot = await get(productsRef);
+      const slugBase = slugify(boxItem.name) || `abroad-${boxItem.id}`;
+      const now2 = Date.now();
+
+      const newProduct: Product = {
+        id: '', // буде встановлено нижче
+        ...productData,
+        inStock: boxItem.isActive,
+        quantity: 999, // Для «із закордону» — необмежена кількість
+        createdAt: now2,
+        updatedAt: now2,
+      };
+
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        let list: Product[];
+        if (Array.isArray(data)) {
+          list = data as Product[];
+        } else {
+          list = Object.values(data as Record<string, Product>) as Product[];
+        }
+        // Унікальний ID
+        let finalId = slugBase;
+        let counter = 1;
+        while (list.some((p) => p.id === finalId)) {
+          finalId = `${slugBase}-${counter}`;
+          counter++;
+        }
+        newProduct.id = finalId;
+        await set(productsRef, [...list, newProduct]);
+        return finalId;
+      } else {
+        newProduct.id = slugBase;
+        await set(productsRef, [newProduct]);
+        return slugBase;
+      }
+    }
+  } catch (e) {
+    console.error('Помилка синхронізації BoxItem → каталог:', e);
+    return null;
+  }
+}
+
+/**
+ * Видаляє пов'язаний товар із каталогу (коли знімається галочка «Додати до каталогу»).
+ */
+export async function removeBoxItemFromCatalog(
+  catalogProductId: string
+): Promise<boolean> {
+  return deleteProduct(catalogProductId);
 }

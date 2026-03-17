@@ -179,14 +179,13 @@ export default function Home() {
       </div>
 
       {/* Футер */}
-      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10 pb-32">
+      <footer className="bg-gray-50 border-t-2 border-gray-200 py-8 md:py-10 pb-48">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Основна інформація */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
             {/* Про магазин */}
             <div className="text-center md:text-left">
-              <SparklesIcon className="w-8 h-8 mb-2 text-purple-400 mx-auto" />
-              <h3 className="text-base font-bold text-purple-600 mb-2">mlpcutiefamily store</h3>
+              <h3 className="text-base font-bold text-purple-600 mb-2 flex items-center gap-2">mlpcutiefamily store <SparklesIcon className="w-8 h-8 text-purple-400" /></h3>
               <p className="text-sm text-gray-600">
                 <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду 🦄✨
               </p>
@@ -214,11 +213,11 @@ export default function Home() {
           </div>
 
           {/* Нижня частина */}
-          <div className="border-t border-gray-200 pt-4">
+          <div className="border-t border-gray-200 pt-4 pb-12">
             <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
               <div className="text-center md:text-left">
                 <p>© mlpcutiefamily</p>
-                <p className="text-[10px] mt-1">Версія 0.4.1 • 07.02.2026</p>
+                <p className="text-[10px] mt-1">Версія 0.7 • 17.03.2026</p>
               </div>
 
               <div className="flex flex-wrap justify-center md:justify-end gap-3">

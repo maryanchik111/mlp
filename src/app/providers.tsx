@@ -24,7 +24,7 @@ interface ModalContextValue {
   showError: (message: string) => void;
   showWarning: (message: string) => void;
   showInfo: (message: string) => void;
-  showConfirm: (title: string, message: string, onConfirm: () => void, onCancel?: () => void) => void;
+  showConfirm: (title: string, message?: string, onConfirm?: () => void, onCancel?: () => void) => Promise<boolean>;
   showPrompt: (title: string, message: string, onConfirm: (value: string) => void, onCancel?: () => void, placeholder?: string) => void;
 }
 

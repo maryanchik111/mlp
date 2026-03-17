@@ -209,11 +209,16 @@ export default function ProductPage() {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium text-purple-600 bg-purple-50 px-2 py-1">{product.category || ''}</span>
                       <span className={`text-sm px-3 py-1 whitespace-nowrap ${isOut ? 'bg-red-100 text-red-800 font-semibold' : 'bg-green-100 text-green-800 font-semibold'}`}>
                         {isOut ? 'Немає' : `В наявності ${product.quantity} шт`}
                       </span>
+                      {(product as any).isAbroad && (
+                        <span className="text-sm font-bold bg-blue-600 text-white px-3 py-1 rounded-full flex items-center gap-1">
+                          🌍 Із закордону
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -296,12 +301,12 @@ export default function ProductPage() {
                 onClick={handleAddToCart}
                 disabled={isOut || qty <= 0}
                 className={`w-full py-4 rounded-lg font-bold text-lg transition-all shadow-md hover:shadow-lg active:scale-95 ${isOut
-                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                    : isInCart
-                      ? 'bg-red-500 text-white hover:bg-red-600'
-                      : added === 'added'
-                        ? 'bg-green-500 text-white'
-                        : 'bg-purple-600 text-white hover:bg-purple-700'
+                  ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                  : isInCart
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : added === 'added'
+                      ? 'bg-green-500 text-white'
+                      : 'bg-purple-600 text-white hover:bg-purple-700'
                   }`}
               >
                 {isInCart ? '🗑️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик!' : '🛒 Додати в кошик')}

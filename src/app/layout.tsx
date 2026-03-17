@@ -5,6 +5,7 @@ import "./globals.css";
 import Providers from "./providers";
 import MobileNav from "./components/client/mobile-nav";
 import PWAInstaller from "./components/client/pwa-installer";
+import AiChatBubble from "./components/client/ai-chat-bubble";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -73,6 +74,7 @@ export default function RootLayout({
           <PWAInstaller />
           {children}
           <MobileNav />
+          <AiChatBubble />
         </Providers>
       </body>
     </html>
