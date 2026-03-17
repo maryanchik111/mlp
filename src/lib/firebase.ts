@@ -577,10 +577,10 @@ export const fetchProductById = async (id: string): Promise<Product | null> => {
     const data = snapshot.val();
     if (Array.isArray(data)) {
       const products = data as Product[];
-      return products.find((p) => p.id === id) || null;
+      return products.find((p) => String(p.id) === String(id)) || null;
     }
     const obj: Record<string, Product> = data as any;
-    const key = Object.keys(obj).find((k) => obj[k]?.id === id);
+    const key = Object.keys(obj).find((k) => String(obj[k]?.id) === String(id));
     return key ? (obj[key] as Product) : null;
   } catch (error) {
     console.error('Помилка отримання товару:', error);
