@@ -49,9 +49,9 @@ export default function PhoneLogin({ onSuccess, onCancel }: PhoneLoginProps) {
                 setError('Не вдалося відправити SMS. Перевірте номер.');
             }
             // Reset recaptcha on error to allow retry
-            if (window.grecaptcha && recaptchaVerifierRef.current) {
+            if ((window as any).grecaptcha && recaptchaVerifierRef.current) {
                 recaptchaVerifierRef.current.render().then((widgetId: any) => {
-                    window.grecaptcha.reset(widgetId);
+                    (window as any).grecaptcha.reset(widgetId);
                 });
             }
         } finally {
