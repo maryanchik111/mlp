@@ -108,7 +108,7 @@ export default function ForumPage() {
       await createForumThread(
         user.uid,
         profile?.displayName || user.displayName || 'Анонім',
-        user.photoURL,
+        profile?.photoURL || user.photoURL,
         newThread.title,
         newThread.content,
         newThread.category,
@@ -252,15 +252,16 @@ export default function ForumPage() {
                     <div className="flex-shrink-0">
                       {thread.authorPhoto ? (
                         <Image
-                          src={thread.authorPhoto}
-                          alt={thread.authorName}
+                          src={thread.authorId === user?.uid ? (profile?.photoURL || thread.authorPhoto) : thread.authorPhoto}
+                          alt={thread.authorId === user?.uid ? (profile?.displayName || thread.authorName) : thread.authorName}
                           width={40}
                           height={40}
-                          className="rounded-full w-10 h-10 md:w-12 md:h-12"
+                          unoptimized={true}
+                          className="rounded-full w-10 h-10 md:w-12 md:h-12 object-cover"
                         />
                       ) : (
                         <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-lg md:text-xl font-bold">
-                          {thread.authorName[0]?.toUpperCase()}
+                          {(thread.authorId === user?.uid ? (profile?.displayName || thread.authorName) : thread.authorName)[0]?.toUpperCase()}
                         </div>
                       )}
                     </div>
@@ -286,7 +287,7 @@ export default function ForumPage() {
 
                       <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm text-gray-500">
                         <div className="flex items-center gap-1.5 md:gap-2">
-                          <span className="font-medium text-purple-600">{thread.authorName}</span>
+                          <span className="font-medium text-purple-600">{thread.authorId === user?.uid ? (profile?.displayName || thread.authorName) : thread.authorName}</span>
                           {thread.isAdmin && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">
                               👑 Адмін

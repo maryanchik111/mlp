@@ -119,7 +119,7 @@ export default function ThreadPage() {
         threadId,
         user.uid,
         profile?.displayName || user.displayName || 'Анонім',
-        user.photoURL,
+        profile?.photoURL || user.photoURL,
         newComment,
         checkIsAdmin(user.email),
         profile?.rating || 1,
@@ -314,22 +314,23 @@ export default function ThreadPage() {
           <div className="flex items-start gap-3 md:gap-4">
             {comment.authorPhoto ? (
               <Image
-                src={comment.authorPhoto}
-                alt={comment.authorName}
+                src={comment.authorId === user?.uid ? (profile?.photoURL || comment.authorPhoto) : comment.authorPhoto}
+                alt={comment.authorId === user?.uid ? (profile?.displayName || comment.authorName) : comment.authorName}
                 width={40}
                 height={40}
-                className="rounded-full w-10 h-10 md:w-12 md:h-12 flex-shrink-0"
+                unoptimized={true}
+                className="rounded-full w-10 h-10 md:w-12 md:h-12 flex-shrink-0 object-cover"
               />
             ) : (
               <div className="w-10 h-10 md:w-12 md:h-12 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-lg md:text-xl font-bold">
-                {comment.authorName[0]?.toUpperCase()}
+                {(comment.authorId === user?.uid ? (profile?.displayName || comment.authorName) : comment.authorName)[0]?.toUpperCase()}
               </div>
             )}
 
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
                 <span className="font-semibold text-purple-600 text-sm md:text-base">
-                  {comment.authorName} {isAdmin && <span className="text-[10px] text-gray-400 font-normal">({comment.authorId})</span>}
+                  {comment.authorId === user?.uid ? (profile?.displayName || comment.authorName) : comment.authorName} {isAdmin && <span className="text-[10px] text-gray-400 font-normal">({comment.authorId})</span>}
                 </span>
                 {comment.isAdmin && (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">
@@ -487,22 +488,23 @@ export default function ThreadPage() {
           <div className="flex items-start gap-3 md:gap-4 mb-4">
             {thread.authorPhoto ? (
               <Image
-                src={thread.authorPhoto}
-                alt={thread.authorName}
+                src={thread.authorId === user?.uid ? (profile?.photoURL || thread.authorPhoto) : thread.authorPhoto}
+                alt={thread.authorId === user?.uid ? (profile?.displayName || thread.authorName) : thread.authorName}
                 width={48}
                 height={48}
-                className="rounded-full w-10 h-10 md:w-14 md:h-14 flex-shrink-0"
+                unoptimized={true}
+                className="rounded-full w-10 h-10 md:w-14 md:h-14 flex-shrink-0 object-cover"
               />
             ) : (
               <div className="w-10 h-10 md:w-14 md:h-14 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-lg md:text-2xl font-bold">
-                {thread.authorName[0]?.toUpperCase()}
+                {(thread.authorId === user?.uid ? (profile?.displayName || thread.authorName) : thread.authorName)[0]?.toUpperCase()}
               </div>
             )}
 
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
                 <span className="font-semibold text-purple-600 text-sm md:text-base">
-                  {thread.authorName} {isAdmin && <span className="text-[10px] text-gray-400 font-normal">({thread.authorId})</span>}
+                  {thread.authorId === user?.uid ? (profile?.displayName || thread.authorName) : thread.authorName} {isAdmin && <span className="text-[10px] text-gray-400 font-normal">({thread.authorId})</span>}
                 </span>
                 {thread.isAdmin && (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">

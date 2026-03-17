@@ -1,7 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { subscribeAuth, fetchUserProfile, signInWithGoogle, logout, type UserProfile } from '@/lib/firebase';
+import { subscribeAuth, fetchUserProfile, signInWithGoogle, logout, type UserProfile, database } from '@/lib/firebase';
+import { ref, onValue } from 'firebase/database';
 import type { User } from 'firebase/auth';
 import { Modal, type ModalState } from './components/client/modal';
 import { ToastContainer, type Toast } from './components/client/toast';
@@ -44,20 +45,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   useEffect(() => {
-    const unsub = subscribeAuth(async (u) => {
+    let unsubProfile: (() => void) | null = null;
+
+    const unsubAuth = subscribeAuth(async (u) => {
       setUser(u);
+
+      if (unsubProfile) {
+        unsubProfile();
+        unsubProfile = null;
+      }
+
       if (u) {
-        const p = await fetchUserProfile(u.uid);
-        setProfile(p);
+        const profileRef = ref(database, `users/${u.uid}`);
+        unsubProfile = onValue(profileRef, (snapshot) => {
+          if (snapshot.exists()) {
+            setProfile(snapshot.val() as UserProfile);
+          } else {
+            setProfile(null);
+          }
+          setLoading(false);
+        });
       } else {
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
-    return () => unsub();
+
+    return () => {
+      unsubAuth();
+      if (unsubProfile) unsubProfile();
+    };
   }, []);
 
   const refreshProfile = async () => {
+    // b/c we have real-time subscription, we don't strictly need this,
+    // but we can keep it for backward compatibility if other components use it
     if (!user) return;
     const p = await fetchUserProfile(user.uid);
     setProfile(p);
