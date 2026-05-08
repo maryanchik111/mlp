@@ -1385,36 +1385,34 @@ export default function AdminPage() {
                         ) : (
                           <img src={sr.imageUrl} alt="Review screenshot" className="w-full h-40 object-cover" />
                         )}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 pointer-events-none">
+                        <div className="flex justify-center gap-2 p-2 bg-gray-100">
                           <button
                             onClick={() => handleDeleteScreenshotReview(sr.id, sr.imageUrl)}
-                            className="bg-red-600 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-700 pointer-events-auto"
+                            className="bg-red-100 text-red-600 px-2 py-1 text-xs rounded hover:bg-red-200 font-medium"
                             disabled={actionLoading}
                           >
                             Видалити
                           </button>
-                          <div className="flex gap-2 pointer-events-auto">
-                            {index > 0 && (
-                              <button
-                                onClick={() => handleMoveScreenshot(index, 'forward')}
-                                className="bg-white/20 text-white hover:bg-white/40 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm"
-                                disabled={actionLoading}
-                                title="Перемістити лівіше"
-                              >
-                                ←
-                              </button>
-                            )}
-                            {index < screenshotReviews.length - 1 && (
-                              <button
-                                onClick={() => handleMoveScreenshot(index, 'backward')}
-                                className="bg-white/20 text-white hover:bg-white/40 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm"
-                                disabled={actionLoading}
-                                title="Перемістити правіше"
-                              >
-                                →
-                              </button>
-                            )}
-                          </div>
+                          {index > 0 && (
+                            <button
+                              onClick={() => handleMoveScreenshot(index, 'forward')}
+                              className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-2 py-1 text-xs rounded"
+                              disabled={actionLoading}
+                              title="Перемістити лівіше"
+                            >
+                              ←
+                            </button>
+                          )}
+                          {index < screenshotReviews.length - 1 && (
+                            <button
+                              onClick={() => handleMoveScreenshot(index, 'backward')}
+                              className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-2 py-1 text-xs rounded"
+                              disabled={actionLoading}
+                              title="Перемістити правіше"
+                            >
+                              →
+                            </button>
+                          )}
                         </div>
                         <div className="text-[10px] text-gray-400 p-1 text-center bg-white border-t border-gray-100">
                           {new Date(sr.createdAt).toLocaleDateString('uk-UA')}

@@ -64,7 +64,7 @@ export const fetchAllScreenshotReviews = async (): Promise<ScreenshotReview[]> =
     return reviews.sort((a, b) => {
       const orderA = a.sortOrder ?? a.createdAt;
       const orderB = b.sortOrder ?? b.createdAt;
-      return orderB - orderA;
+      return orderA - orderB;
     });
   } catch (error) {
     console.error('Помилка отримання скріншотів відгуків:', error);

@@ -8,6 +8,7 @@ export default function RecentReviews() {
   const [activeTab, setActiveTab] = useState<'text' | 'screenshots'>('text');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedMedia, setSelectedMedia] = useState<ScreenshotReview | null>(null);
   const reviewsPerPage = 5;
   const screenshotsPerPage = 9;
 
@@ -187,9 +188,9 @@ export default function RecentReviews() {
                     playsInline 
                   />
                 ) : (
-                  <a href={sr.imageUrl} target="_blank" rel="noopener noreferrer">
+                  <button onClick={() => setSelectedMedia(sr)} className="w-full text-left focus:outline-none">
                     <img src={sr.imageUrl} alt="Відгук" className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300" />
-                  </a>
+                  </button>
                 )}
               </div>
             ))}
@@ -216,6 +217,39 @@ export default function RecentReviews() {
               {page}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Lightbox Modal */}
+      {selectedMedia && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+          onClick={() => setSelectedMedia(null)}
+        >
+          <div className="relative max-w-4xl w-full max-h-[90vh] flex items-center justify-center">
+            <button 
+              className="absolute -top-10 right-0 text-white hover:text-gray-300 text-3xl font-bold p-2 z-50"
+              onClick={() => setSelectedMedia(null)}
+            >
+              ✕
+            </button>
+            {selectedMedia.type === 'video' ? (
+              <video 
+                src={selectedMedia.imageUrl} 
+                className="max-w-full max-h-[85vh] object-contain rounded-lg" 
+                controls 
+                autoPlay
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <img 
+                src={selectedMedia.imageUrl} 
+                alt="Відгук збільшено" 
+                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+          </div>
         </div>
       )}
     </div>
