@@ -248,7 +248,7 @@ export default function AdminPage() {
         const isImage = file.type.startsWith('image/');
         const isVideo = file.type.startsWith('video/');
         if (!isImage && !isVideo) continue;
-        
+
         const fileUrl = await uploadImage(file, 'reviews');
         if (fileUrl) {
           await addScreenshotReview(fileUrl, isVideo ? 'video' : 'image');
@@ -300,7 +300,7 @@ export default function AdminPage() {
     try {
       const reviewA = screenshotReviews[index];
       const reviewB = screenshotReviews[newIndex];
-      
+
       const orderA = reviewA.sortOrder ?? reviewA.createdAt;
       const orderB = reviewB.sortOrder ?? reviewB.createdAt;
 
@@ -1391,7 +1391,7 @@ export default function AdminPage() {
                             className="bg-red-100 text-red-600 px-2 py-1 text-xs rounded hover:bg-red-200 font-medium"
                             disabled={actionLoading}
                           >
-                            Видалити
+                            🗑️
                           </button>
                           {index > 0 && (
                             <button
