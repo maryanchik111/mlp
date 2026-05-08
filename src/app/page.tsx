@@ -52,9 +52,9 @@ export default function Home() {
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4 h-32 md:h-48 relative w-full">
               {randomImage && (
-                <Image 
-                  src={randomImage} 
-                  alt="MLP random hero image" 
+                <Image
+                  src={randomImage}
+                  alt="MLP random hero image"
                   width={300}
                   height={200}
                   className="object-contain rounded-xl"
@@ -231,7 +231,7 @@ export default function Home() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
               <div className="text-center md:text-left">
                 <p>© mlpcutiefamily</p>
-                <p className="text-[10px] mt-1">Версія 0.7 • 17.03.2026</p>
+                <p className="text-[10px] mt-1">Версія 0.8 (beta) • 08.05.2026</p>
               </div>
 
               <div className="flex flex-wrap justify-center md:justify-end gap-3">
