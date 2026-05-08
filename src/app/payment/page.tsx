@@ -337,7 +337,7 @@ function PaymentPageContent() {
                       <p className="text-gray-600 text-sm">
                         Це найшвидший та найзручніший спосіб оплати через додаток Monobank або Apple/Google Pay.
                       </p>
-                      <p className='text-red-500 text-sm mb-4'>Вкажіть ваш номер замовлення!</p>
+                      <p className='text-red-500 text-sm mb-4'>Введіть суму та вкажіть ваш номер замовлення в полі "Коментар"!</p>
                       <a
                         href={paymentConfig.monobankJar}
                         target="_blank"

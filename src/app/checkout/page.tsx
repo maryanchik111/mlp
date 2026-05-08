@@ -28,7 +28,7 @@ interface CartItem {
 interface FormData {
   firstName: string;
   lastName: string;
-  email: string;
+  telegram: string;
   phone: string;
   address: string;
   city: string;
@@ -48,7 +48,7 @@ export default function CheckoutPage() {
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
-    email: '',
+    telegram: '',
     phone: '',
     address: '',
     city: '',
@@ -116,8 +116,7 @@ export default function CheckoutPage() {
 
     if (!formData.firstName.trim()) newErrors.firstName = 'Введіть ім\'я';
     if (!formData.lastName.trim()) newErrors.lastName = 'Введіть прізвище';
-    if (!formData.email.trim()) newErrors.email = 'Введіть email';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Невірний формат email';
+    if (!formData.telegram.trim()) newErrors.telegram = 'Введіть Telegram нікнейм';
     if (!formData.phone.trim()) newErrors.phone = 'Введіть номер телефону';
     if (!formData.address.trim()) newErrors.address = 'Введіть адресу';
     if (!formData.city.trim()) newErrors.city = 'Введіть місто';
@@ -162,7 +161,7 @@ export default function CheckoutPage() {
         id: orderId,
         firstName: formData.firstName,
         lastName: formData.lastName,
-        email: formData.email,
+        telegram: formData.telegram,
         phone: formData.phone,
         address: formData.address,
         city: formData.city,
@@ -381,17 +380,25 @@ export default function CheckoutPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-3 mt-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Telegram Nickname *</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                        }`}
-                      placeholder="@mlpcutiefamily"
-                    />
-                    {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Telegram Нікнейм *</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium select-none">@</span>
+                      <input
+                        type="text"
+                        name="telegram"
+                        value={formData.telegram}
+                        onChange={(e) => {
+                          // Прибираємо @ якщо юзер сам його ввів
+                          const val = e.target.value.replace(/^@/, '');
+                          setFormData(prev => ({ ...prev, telegram: val }));
+                          if (errors.telegram) setErrors(prev => ({ ...prev, telegram: '' }));
+                        }}
+                        className={`w-full pl-7 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${errors.telegram ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                          }`}
+                        placeholder="mlpcutiefamily"
+                      />
+                    </div>
+                    {errors.telegram && <p className="text-red-500 text-xs mt-1">{errors.telegram}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Телефон *</label>
