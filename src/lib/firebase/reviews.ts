@@ -18,6 +18,8 @@ export interface ScreenshotReview {
   id: string;
   imageUrl: string;
   createdAt: number;
+  type?: 'image' | 'video';
+  sortOrder?: number;
 }
 
 export function subscribeToRecentReviews(callback: (reviews: Review[]) => void): () => void {
@@ -59,18 +61,22 @@ export const fetchAllScreenshotReviews = async (): Promise<ScreenshotReview[]> =
     const snapshot = await get(ref(database, 'screenshot_reviews'));
     if (!snapshot.exists()) return [];
     const reviews: ScreenshotReview[] = Object.values(snapshot.val());
-    return reviews.sort((a, b) => b.createdAt - a.createdAt);
+    return reviews.sort((a, b) => {
+      const orderA = a.sortOrder ?? a.createdAt;
+      const orderB = b.sortOrder ?? b.createdAt;
+      return orderB - orderA;
+    });
   } catch (error) {
     console.error('Помилка отримання скріншотів відгуків:', error);
     return [];
   }
 };
 
-export const addScreenshotReview = async (imageUrl: string): Promise<string | null> => {
+export const addScreenshotReview = async (imageUrl: string, type: 'image' | 'video' = 'image'): Promise<string | null> => {
   try {
     const id = Date.now().toString();
     const reviewRef = ref(database, `screenshot_reviews/${id}`);
-    await set(reviewRef, { id, imageUrl, createdAt: Date.now() });
+    await set(reviewRef, { id, imageUrl, type, createdAt: Date.now(), sortOrder: Date.now() });
     return id;
   } catch (error) {
     console.error('Помилка додавання скріншоту відгуку:', error);
@@ -84,6 +90,19 @@ export const deleteScreenshotReview = async (id: string): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Помилка видалення скріншоту відгуку:', error);
+    return false;
+  }
+};
+
+export const updateScreenshotReviewOrders = async (updates: {id: string, sortOrder: number}[]): Promise<boolean> => {
+  try {
+    const promises = updates.map(updateData => 
+      set(ref(database, `screenshot_reviews/${updateData.id}/sortOrder`), updateData.sortOrder)
+    );
+    await Promise.all(promises);
+    return true;
+  } catch (error) {
+    console.error('Помилка оновлення порядку скріншотів:', error);
     return false;
   }
 };

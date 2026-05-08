@@ -47,13 +47,16 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero секція */}
-      <section className="bg-purple-50 py-16 md:py-24">
+      <section 
+        className="bg-purple-50 py-16 md:py-24 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/background-image.JPG')" }}
+      >
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4 h-32 md:h-48 relative w-full">
               {randomImage && (
                 <Image
-                  src={randomImage}
+                  src='/hero-image.PNG'
                   alt="MLP random hero image"
                   width={300}
                   height={200}

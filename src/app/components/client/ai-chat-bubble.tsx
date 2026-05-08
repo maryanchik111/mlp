@@ -125,7 +125,7 @@ export default function AiChatBubble() {
     return (
         <>
             {/* Bubble Button */}
-            <div className="fixed bottom-24 right-4 z-50 flex flex-col items-end gap-2">
+            <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end gap-2">
 
                 <button
                     onClick={() => setIsOpen((v) => !v)}

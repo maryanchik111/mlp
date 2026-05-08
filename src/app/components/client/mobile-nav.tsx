@@ -11,7 +11,9 @@ import {
   ShoppingCartIcon,
   WrenchScrewdriverIcon,
   UserCircleIcon,
-  TrophyIcon
+  TrophyIcon,
+  Bars3Icon,
+  XMarkIcon
 } from '@heroicons/react/24/solid';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -29,6 +31,7 @@ export default function MobileNav() {
   });
   const [pendingOrdersCount, setPendingOrdersCount] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -104,117 +107,137 @@ export default function MobileNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white-80 backdrop-blur-sm border-t border-gray-200/50 shadow-lg z-50 rounded-full mx-2 mb-4">
-      <div className={`p-3 flex items-center justify-around h-16 max-w-screen-xl mx-auto ${isAdmin ? 'grid grid-cols-8' : 'grid grid-cols-7'} w-full`}>
+    <div className="fixed bottom-4 right-4 flex justify-end z-50 pointer-events-none max-w-[calc(100vw-2rem)]">
+      <motion.nav
+        initial={false}
+        animate={{ width: isExpanded ? 'calc(100vw - 2rem)' : '3.5rem' }}
+        transition={{ type: "spring", damping: 26, stiffness: 260, bounce: 1.5 }}
+        className="bg-white/40 backdrop-blur-lg shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/50 flex items-center justify-end overflow-hidden pointer-events-auto h-14 rounded-full"
+      >
+        <div
+          className={`flex items-center justify-evenly h-full pl-3 pr-0 sm:pr-1 shrink-0 gap-x-1 w-[calc(100vw-5.5rem)] transition-opacity duration-200 ${isExpanded ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        >
+          {[
+            { id: 'home', href: '/', icon: HomeIcon, label: 'Головна' },
+            { id: 'catalog', href: '/catalog', icon: ShoppingBagIcon, label: 'Каталог' },
+            { id: 'box', href: '/box-builder', icon: GiftIcon, label: 'Бокс' },
+            { id: 'forum', href: '/forum', icon: ChatBubbleLeftRightIcon, label: 'Форум' },
+          ].map((item) => (
+            <Link
+              key={item.id}
+              href={item.href}
+              onClick={() => setIsExpanded(false)}
+              className="relative flex flex-col items-center justify-center h-full w-full"
+            >
+              <motion.div
+                variants={navItemVariants}
+                whileTap="tap"
+                className={`z-10 transition-colors duration-300 ${isActive(item.href) ? 'text-purple-600' : 'text-gray-500'}`}
+              >
+                <item.icon className="w-6 h-6 sm:w-7 sm:h-7" />
+              </motion.div>
 
-        {[
-          { id: 'home', href: '/', icon: HomeIcon, label: 'Головна' },
-          { id: 'catalog', href: '/catalog', icon: ShoppingBagIcon, label: 'Каталог' },
-          { id: 'box', href: '/box-builder', icon: GiftIcon, label: 'Бокс' },
-          { id: 'forum', href: '/forum', icon: ChatBubbleLeftRightIcon, label: 'Форум' },
-        ].map((item) => (
+              {isActive(item.href) && (
+                <motion.div
+                  layoutId="activeTab"
+                  className="absolute inset-0 bg-purple-100 rounded-full -z-0 m-1"
+                  transition={{ type: "spring", bounce: 1.5, duration: 0.8 }}
+                />
+              )}
+            </Link>
+          ))}
+
           <Link
-            key={item.id}
-            href={item.href}
+            href="/auctions"
+            onClick={() => setIsExpanded(false)}
             className="relative flex flex-col items-center justify-center h-full w-full"
           >
             <motion.div
               variants={navItemVariants}
               whileTap="tap"
-              className={`z-10 transition-colors duration-300 ${isActive(item.href) ? 'text-purple-600' : 'text-gray-500'}`}
+              className={`z-10 transition-colors duration-300 ${isActive('/auctions') ? 'text-purple-600' : 'text-gray-500'}`}
             >
-              <item.icon className="w-7 h-7" />
+              <TrophyIcon className="w-6 h-6 sm:w-7 sm:h-7" />
             </motion.div>
 
-            {isActive(item.href) && (
+            {isActive('/auctions') && (
               <motion.div
-                layoutId="activeTab"
-                className="absolute inset-0 bg-purple-100 rounded-full -z-0"
+                layoutId="activeAuctionsTab"
+                className="absolute inset-0 bg-purple-100 rounded-full -z-0 m-1"
                 transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
               />
             )}
           </Link>
-        ))}
 
-        <Link
-          href="/auctions"
-          className="relative flex flex-col items-center justify-center h-full w-full"
-        >
-          <motion.div
-            variants={navItemVariants}
-            whileTap="tap"
-            className={`z-10 transition-colors duration-300 ${isActive('/auctions') ? 'text-purple-600' : 'text-gray-500'}`}
-          >
-            <TrophyIcon className="w-7 h-7" />
-          </motion.div>
+          <button onClick={() => { handleCartClick(); setIsExpanded(false); }} className="relative flex flex-col items-center justify-center h-full w-full">
+            <motion.div whileTap={{ scale: 0.9 }} className="text-gray-500 z-10 relative">
+              <ShoppingCartIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+              <AnimatePresence>
+                {cartCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    exit={{ scale: 0 }}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center border-2 border-white"
+                  >
+                    {cartCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </button>
 
-          {isActive('/auctions') && (
-            <motion.div
-              layoutId="activeAuctionsTab"
-              className="absolute inset-0 bg-purple-100 rounded-full -z-0"
-              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-            />
-          )}
-        </Link>
-
-        <button onClick={handleCartClick} className="relative flex flex-col items-center justify-center h-full w-full">
-          <motion.div whileTap={{ scale: 0.9 }} className="text-gray-500 z-10">
-            <ShoppingCartIcon className="w-7 h-7" />
-            <AnimatePresence>
-              {cartCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  exit={{ scale: 0 }}
-                  className="absolute top-0 right-1 translate-x-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white"
-                >
-                  {cartCount}
-                </motion.span>
+          {isAdmin && (
+            <Link href="/admin" onClick={() => setIsExpanded(false)} className="relative flex flex-col items-center justify-center h-full w-full">
+              <motion.div
+                whileTap={{ scale: 0.9 }}
+                className={`z-10 relative ${isActive('/admin') ? 'text-purple-600' : 'text-gray-500'}`}
+              >
+                <WrenchScrewdriverIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+                {pendingOrdersCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center border-2 border-white">
+                    {pendingOrdersCount}
+                  </span>
+                )}
+              </motion.div>
+              {isActive('/admin') && (
+                <motion.div layoutId="activeTab" className="absolute inset-0 bg-purple-100 rounded-full -z-0 m-1" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
               )}
-            </AnimatePresence>
-          </motion.div>
-        </button>
+            </Link>
+          )}
 
-        {isAdmin && (
-          <Link href="/admin" className="relative flex flex-col items-center justify-center h-full w-full">
+          <Link href="/account" onClick={() => setIsExpanded(false)} className="relative flex flex-col items-center justify-center h-full w-full">
             <motion.div
               whileTap={{ scale: 0.9 }}
-              className={`z-10 ${isActive('/admin') ? 'text-purple-600' : 'text-gray-500'}`}
+              className={`z-10 relative ${profile?.isBlocked ? 'text-red-600' : isActive('/account') ? 'text-purple-600' : 'text-gray-500'}`}
             >
-              <WrenchScrewdriverIcon className="w-7 h-7" />
-              {pendingOrdersCount > 0 && (
-                <span className="absolute top-0 right-1 translate-x-1 bg-orange-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
-                  {pendingOrdersCount}
+              <UserCircleIcon className="w-6 h-6 sm:w-7 sm:h-7" />
+              {profile?.isBlocked ? (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center border-2 border-white shadow-lg">
+                  🔒
+                </span>
+              ) : user && profile && profile.points > 0 && (
+                <span className="absolute -top-2 -right-4 bg-yellow-400 text-purple-900 text-[10px] sm:text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[16px] sm:min-w-[20px] text-center border-2 border-white">
+                  {profile.points}
                 </span>
               )}
             </motion.div>
-            {isActive('/admin') && (
-              <motion.div layoutId="activeTab" className="absolute inset-0 bg-purple-100 rounded-full -z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+            {isActive('/account') && (
+              <motion.div layoutId="activeTab" className="absolute inset-0 bg-purple-100 rounded-full -z-0 m-1" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
             )}
           </Link>
-        )}
+        </div>
 
-        <Link href="/account" className="relative flex flex-col items-center justify-center h-full w-full">
-          <motion.div
-            whileTap={{ scale: 0.9 }}
-            className={`z-10 ${profile?.isBlocked ? 'text-red-600' : isActive('/account') ? 'text-purple-600' : 'text-gray-500'}`}
-          >
-            <UserCircleIcon className="w-7 h-7" />
-            {profile?.isBlocked ? (
-              <span className="absolute top-0 right-1 translate-x-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white shadow-lg">
-                🔒
-              </span>
-            ) : user && profile && profile.points > 0 && (
-              <span className="absolute top-2 right-1/4 translate-x-2 bg-yellow-400 text-purple-900 text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[20px] text-center">
-                {profile.points}
-              </span>
-            )}
-          </motion.div>
-          {isActive('/account') && (
-            <motion.div layoutId="activeTab" className="absolute inset-0 bg-purple-100 rounded-full -z-0" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="w-14 h-14 shrink-0 flex items-center justify-center text-purple-600 hover:bg-white/50 transition-colors relative z-10 rounded-full"
+        >
+          {isExpanded ? <XMarkIcon className="w-7 h-7" /> : <Bars3Icon className="w-7 h-7" />}
+          {!isExpanded && (cartCount > 0 || pendingOrdersCount > 0) && (
+            <span className="absolute top-3 right-3 w-3 h-3 bg-red-500 rounded-full border-2 border-white"></span>
           )}
-        </Link>
-      </div>
-    </nav>
+        </button>
+      </motion.nav>
+    </div>
   );
 }

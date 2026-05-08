@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, fetchAllUsers, updateUserProfileAdmin, checkAdminAccess, isAdmin as checkIsAdmin, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, syncBoxItemToCatalog, removeBoxItemFromCatalog, type BoxType, type BoxItem, type ScreenshotReview, fetchAllScreenshotReviews, addScreenshotReview, deleteScreenshotReview } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, fetchAllUsers, updateUserProfileAdmin, checkAdminAccess, isAdmin as checkIsAdmin, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, syncBoxItemToCatalog, removeBoxItemFromCatalog, type BoxType, type BoxItem, type ScreenshotReview, fetchAllScreenshotReviews, addScreenshotReview, deleteScreenshotReview, updateScreenshotReviewOrders } from '@/lib/firebase';
 import { useAuth, useModal } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
@@ -245,10 +245,13 @@ export default function AdminPage() {
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        if (!file.type.startsWith('image/')) continue;
-        const imageUrl = await uploadImage(file, 'reviews');
-        if (imageUrl) {
-          await addScreenshotReview(imageUrl);
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type.startsWith('video/');
+        if (!isImage && !isVideo) continue;
+        
+        const fileUrl = await uploadImage(file, 'reviews');
+        if (fileUrl) {
+          await addScreenshotReview(fileUrl, isVideo ? 'video' : 'image');
           uploadedCount++;
         }
       }
@@ -284,6 +287,43 @@ export default function AdminPage() {
     } catch (error) {
       console.error('Помилка видалення скріншотів відгуків:', error);
       showError('Помилка видалення скріншоту');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleMoveScreenshot = async (index: number, direction: 'forward' | 'backward') => {
+    const newIndex = direction === 'forward' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= screenshotReviews.length) return;
+
+    setActionLoading(true);
+    try {
+      const reviewA = screenshotReviews[index];
+      const reviewB = screenshotReviews[newIndex];
+      
+      const orderA = reviewA.sortOrder ?? reviewA.createdAt;
+      const orderB = reviewB.sortOrder ?? reviewB.createdAt;
+
+      const updates = [
+        { id: reviewA.id, sortOrder: orderB },
+        { id: reviewB.id, sortOrder: orderA }
+      ];
+
+      const success = await updateScreenshotReviewOrders(updates);
+      if (success) {
+        const newReviews = [...screenshotReviews];
+        const temp = newReviews[index];
+        newReviews[index] = newReviews[newIndex];
+        newReviews[newIndex] = temp;
+        newReviews[index].sortOrder = orderA;
+        newReviews[newIndex].sortOrder = orderB;
+        setScreenshotReviews(newReviews);
+      } else {
+        showError('Не вдалося зберегти порядок');
+      }
+    } catch (error) {
+      console.error(error);
+      showError('Помилка при збереженні порядку');
     } finally {
       setActionLoading(false);
     }
@@ -1311,7 +1351,7 @@ export default function AdminPage() {
                   <label className={`block w-full sm:w-1/2 md:w-1/3 border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingScreenshot ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/*,video/*"
                       multiple
                       disabled={uploadingScreenshot || actionLoading}
                       onChange={handleUploadScreenshotReview}
@@ -1338,17 +1378,43 @@ export default function AdminPage() {
                   <div className="text-center py-8 text-gray-500">Немає скріншотів відгуків.</div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                    {screenshotReviews.map(sr => (
-                      <div key={sr.id} className="relative group border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                        <img src={sr.imageUrl} alt="Review screenshot" className="w-full h-40 object-cover" />
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    {screenshotReviews.map((sr, index) => (
+                      <div key={sr.id} className="relative group border border-gray-200 rounded-lg overflow-hidden bg-gray-50 flex flex-col">
+                        {sr.type === 'video' ? (
+                          <video src={sr.imageUrl} className="w-full h-40 object-cover bg-black" controls preload="metadata" playsInline />
+                        ) : (
+                          <img src={sr.imageUrl} alt="Review screenshot" className="w-full h-40 object-cover" />
+                        )}
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 pointer-events-none">
                           <button
                             onClick={() => handleDeleteScreenshotReview(sr.id, sr.imageUrl)}
-                            className="bg-red-600 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-700"
+                            className="bg-red-600 text-white px-3 py-1 text-sm rounded-lg hover:bg-red-700 pointer-events-auto"
                             disabled={actionLoading}
                           >
                             Видалити
                           </button>
+                          <div className="flex gap-2 pointer-events-auto">
+                            {index > 0 && (
+                              <button
+                                onClick={() => handleMoveScreenshot(index, 'forward')}
+                                className="bg-white/20 text-white hover:bg-white/40 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm"
+                                disabled={actionLoading}
+                                title="Перемістити лівіше"
+                              >
+                                ←
+                              </button>
+                            )}
+                            {index < screenshotReviews.length - 1 && (
+                              <button
+                                onClick={() => handleMoveScreenshot(index, 'backward')}
+                                className="bg-white/20 text-white hover:bg-white/40 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm"
+                                disabled={actionLoading}
+                                title="Перемістити правіше"
+                              >
+                                →
+                              </button>
+                            )}
+                          </div>
                         </div>
                         <div className="text-[10px] text-gray-400 p-1 text-center bg-white border-t border-gray-100">
                           {new Date(sr.createdAt).toLocaleDateString('uk-UA')}

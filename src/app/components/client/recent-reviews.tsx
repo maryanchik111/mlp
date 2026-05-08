@@ -177,10 +177,20 @@ export default function RecentReviews() {
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
             {currentScreenshots.map(sr => (
-              <div key={sr.id} className="rounded-xl overflow-hidden shadow-md border border-purple-100 hover:shadow-xl transition-all cursor-pointer">
-                <a href={sr.imageUrl} target="_blank" rel="noopener noreferrer">
-                  <img src={sr.imageUrl} alt="Відгук" className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300" />
-                </a>
+              <div key={sr.id} className="rounded-xl overflow-hidden shadow-md border border-purple-100 hover:shadow-xl transition-all cursor-pointer bg-gray-50">
+                {sr.type === 'video' ? (
+                  <video 
+                    src={sr.imageUrl} 
+                    className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300" 
+                    controls 
+                    preload="metadata" 
+                    playsInline 
+                  />
+                ) : (
+                  <a href={sr.imageUrl} target="_blank" rel="noopener noreferrer">
+                    <img src={sr.imageUrl} alt="Відгук" className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300" />
+                  </a>
+                )}
               </div>
             ))}
           </div>
