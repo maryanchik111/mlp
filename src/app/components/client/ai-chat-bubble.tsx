@@ -132,7 +132,7 @@ export default function AiChatBubble() {
                     aria-label="Відкрити AI-чат"
                     className="relative w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
                     style={{
-                        background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)',
+                        background: 'linear-gradient(135deg, #F0A1BF 0%, #ec4899 100%)',
                     }}
                 >
                     {/* Notification dot */}
@@ -155,7 +155,7 @@ export default function AiChatBubble() {
                 {/* Header */}
                 <div
                     className="flex items-center gap-3 px-4 py-3 flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)' }}
+                    style={{ background: 'linear-gradient(135deg, #F0A1BF 0%, #ec4899 100%)' }}
                 >
                     <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-xl flex-shrink-0">
                         <img src="/png/IMG_20260210_181913_338.PNG"></img>
@@ -260,7 +260,7 @@ export default function AiChatBubble() {
                         onClick={() => sendMessage(input)}
                         disabled={!input.trim() || loading}
                         className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
-                        style={{ background: 'linear-gradient(135deg, #9333ea 0%, #ec4899 100%)' }}
+                        style={{ background: 'linear-gradient(135deg, #F0A1BF 0%, #ec4899 100%)' }}
                         aria-label="Надіслати"
                     >
                         <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

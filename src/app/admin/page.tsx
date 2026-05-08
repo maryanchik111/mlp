@@ -48,6 +48,7 @@ export default function AdminPage() {
     quantity: 0,
     images: [],
     discount: 0,
+    isAbroad: false,
   });
   const [uploadingImages, setUploadingImages] = useState(false);
 
@@ -330,6 +331,7 @@ export default function AdminPage() {
       image: product.image,
       images: (product as any).images || [],
       discount: product.discount ?? 0,
+      isAbroad: product.isAbroad || false,
     });
   };
 
@@ -411,6 +413,7 @@ export default function AdminPage() {
       quantity: 0,
       images: [],
       discount: 0,
+      isAbroad: false,
     });
   };
 
@@ -809,11 +812,21 @@ export default function AdminPage() {
   useEffect(() => {
     if (!mounted) return;
 
+    let unsubscribe: (() => void) | undefined;
+
     if (statusFilter === 'all') {
-      fetchAllOrders(setOrders);
+      fetchAllOrders().then(data => setOrders(data));
     } else {
-      fetchOrdersByStatus(statusFilter, setOrders);
+      unsubscribe = fetchOrdersByStatus(statusFilter, (data) => {
+        setOrders(data);
+      });
     }
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [statusFilter, mounted]);
 
   // Фільтрувати замовлення при зміні списку
@@ -883,7 +896,7 @@ export default function AdminPage() {
     if (!editingUser) return;
     setActionLoading(true);
 
-    const success = await updateUserProfileAdmin(editingUser.uid, userEditForm);
+    const success = await updateUserProfileAdmin(editingUser.id || editingUser.uid || '', userEditForm);
 
     if (success) {
       showSuccess('Дані користувача оновлено');
@@ -906,7 +919,7 @@ export default function AdminPage() {
     if (!confirm) return;
 
     setActionLoading(true);
-    const success = await updateUserProfileAdmin(userProfile.uid, { isBlocked: newStatus });
+    const success = await updateUserProfileAdmin(userProfile.id || userProfile.uid || '', { isBlocked: newStatus });
 
     if (success) {
       showSuccess(`Акаунт ${newStatus ? 'заблоковано' : 'розблоковано'}`);
@@ -2084,6 +2097,19 @@ export default function AdminPage() {
                 <span className="text-xs text-gray-500">Вкажіть від 0 до 90. Знижка буде показана у каталозі та при оформленні.</span>
               </div>
 
+              <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="newIsAbroad1"
+                  checked={newProductForm.isAbroad || false}
+                  onChange={(e) => setNewProductForm({ ...newProductForm, isAbroad: e.target.checked })}
+                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="newIsAbroad1" className="font-medium text-blue-800 cursor-pointer select-none">
+                  🌍 Товар із-за кордону
+                </label>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
 
@@ -2300,6 +2326,19 @@ export default function AdminPage() {
                 <span className="text-xs text-gray-500">Вкажіть від 0 до 90. Знижка буде показана у каталозі та при оформленні.</span>
               </div>
 
+              <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                <input
+                  type="checkbox"
+                  id="editIsAbroad"
+                  checked={editForm.isAbroad || false}
+                  onChange={(e) => setEditForm({ ...editForm, isAbroad: e.target.checked })}
+                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="editIsAbroad" className="font-medium text-blue-800 cursor-pointer select-none">
+                  🌍 Товар із-за кордону
+                </label>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
 
@@ -2376,228 +2415,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Модальне вікно створення товару */}
-      {isCreatingProduct && (
-        <div className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]">
-          <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            {/* Заголовок */}
-            <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-6 sticky top-0 z-10">
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex-1">
-                  <p className="text-sm opacity-90">Новий товар</p>
-                  <p className="text-2xl font-bold">Створення товару</p>
-                </div>
-                <button
-                  onClick={() => setIsCreatingProduct(false)}
-                  className="text-white text-2xl font-bold hover:scale-110 transition-transform"
-                >
-                  ✕
-                </button>
-              </div>
-            </div>
 
-            {/* Форма створення */}
-            <div className="p-6 space-y-4 text-purple-600">
-              <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Назва *</label>
-                <input
-                  type="text"
-                  value={newProductForm.name}
-                  onChange={(e) => setNewProductForm({ ...newProductForm, name: e.target.value })}
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                  placeholder="Назва товару"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Категорія *</label>
-                <select
-                  value={newProductForm.category}
-                  onChange={(e) => setNewProductForm({ ...newProductForm, category: e.target.value })}
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                >
-                  <option value="">Оберіть категорію</option>
-                  {PRODUCT_CATEGORIES.map((cat: string) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-1 gap-2">
-                <div>
-                  <label className="block text-sm font-medium text-purple-600 mb-2">Ціна продажу (₴) *</label>
-                  <input
-                    type="text"
-                    value={newProductForm.price}
-                    onChange={(e) => setNewProductForm({ ...newProductForm, price: e.target.value })}
-                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                    placeholder="299"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-orange-600 mb-2">Ціна закупки (₴)</label>
-                  <input
-                    type="text"
-                    value={newProductForm.costPrice || ''}
-                    onChange={(e) => setNewProductForm({ ...newProductForm, costPrice: e.target.value })}
-                    className="w-full px-4 py-2 border border-orange-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-400 bg-orange-50/30 text-gray-900"
-                    placeholder="150"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-purple-600 mb-2">Кількість</label>
-                  <input
-                    type="number"
-                    value={newProductForm.quantity || ''}
-                    onChange={(e) => setNewProductForm({ ...newProductForm, quantity: e.target.value ? parseInt(e.target.value) : 0 })}
-                    className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                    placeholder="Наприклад: 10"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-green-600 mb-2">Ціна доставки (₴)</label>
-                  <input
-                    type="text"
-                    value={newProductForm.deliveryPrice || ''}
-                    onChange={(e) => setNewProductForm({ ...newProductForm, deliveryPrice: e.target.value })}
-                    className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
-                    placeholder="120"
-                  />
-                  <span className="text-xs text-gray-500">Введіть ціну доставки в гривнях</span>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-blue-600 mb-2">Термін доставки</label>
-                  <input
-                    type="text"
-                    value={newProductForm.deliveryDays || ''}
-                    onChange={(e) => setNewProductForm({ ...newProductForm, deliveryDays: e.target.value })}
-                    className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-400 bg-blue-50/30 text-gray-900"
-                    placeholder="1-2"
-                  />
-                  <span className="text-xs text-gray-500">Введіть термін доставки в днях</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Опис</label>
-                <textarea
-                  value={newProductForm.description}
-                  onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
-                  rows={3}
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                  placeholder="Опис товару..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Іконка (emoji) / Головне зображення</label>
-                <input
-                  type="text"
-                  value={newProductForm.image}
-                  onChange={(e) => setNewProductForm({ ...newProductForm, image: e.target.value })}
-                  className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                  placeholder="🎁"
-                />
-                <span className="text-xs text-gray-500">Якщо немає фотографій</span>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Знижка на товар (%)</label>
-                <input
-                  type="number"
-                  min={0}
-                  max={90}
-                  value={newProductForm.discount ?? 0}
-                  onChange={e => setNewProductForm(f => ({ ...f, discount: parseInt(e.target.value) || 0 }))}
-                  className="w-full px-4 py-2 border border-green-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-400 bg-green-50/30 text-gray-900"
-                  placeholder="0"
-                />
-                <span className="text-xs text-gray-500">Вкажіть від 0 до 90. Знижка буде показана у каталозі та при оформленні.</span>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
-
-                {/* Завантажені фото */}
-                {newProductForm.images && newProductForm.images.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2 mb-3">
-                    {newProductForm.images.map((url, idx) => (
-                      <div key={idx} className="relative group">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={url}
-                          alt={`Photo ${idx + 1}`}
-                          className="w-full h-24 object-cover rounded border border-purple-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(url, 'create')}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Кнопка завантаження */}
-                <label className={`block w-full border-2 border-dashed border-purple-300 rounded-lg p-4 text-center cursor-pointer hover:border-purple-500 hover:bg-purple-50/30 transition-colors ${uploadingImages ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    disabled={uploadingImages}
-                    onChange={(e) => handleImageUpload(e.target.files, 'create')}
-                    className="hidden"
-                  />
-                  <div className="text-purple-600">
-                    {uploadingImages ? (
-                      <>
-                        <span className="text-2xl">⏳</span>
-                        <p className="text-sm font-medium mt-2">Завантаження...</p>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-3xl">📸</span>
-                        <p className="text-sm font-medium mt-2">Завантажити фото</p>
-                        <p className="text-xs text-gray-500 mt-1">Натисніть або перетягніть (макс 5MB на фото)</p>
-                      </>
-                    )}
-                  </div>
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-gray-200 space-y-3">
-                <button
-                  onClick={handleSubmitNewProduct}
-                  disabled={actionLoading}
-                  className={`w-full font-bold py-2.5 rounded-lg transition-all ${actionLoading
-                    ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
-                >
-                  {actionLoading ? '⏳ Створення...' : 'Створити товар'}
-                </button>
-                <button
-                  onClick={() => setIsCreatingProduct(false)}
-                  className="w-full bg-gray-200 text-gray-800 font-bold py-2.5 rounded-lg hover:bg-gray-300 transition-colors"
-                >
-                  Скасувати
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Модальне вікно з деталями */}
       {selectedOrder && (
@@ -3210,7 +3028,7 @@ export default function AdminPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {allUsers.map((u) => (
-                    <tr key={u.uid} className={`hover:bg-gray-50 transition-colors ${u.isBlocked ? 'bg-red-50/50' : ''}`}>
+                    <tr key={u.id || u.uid} className={`hover:bg-gray-50 transition-colors ${u.isBlocked ? 'bg-red-50/50' : ''}`}>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold overflow-hidden shadow-inner">
@@ -3223,11 +3041,11 @@ export default function AdminPage() {
                           <div>
                             <p className="font-bold text-gray-900 leading-tight">
                               {u.displayName || 'Без імені'}
-                              {checkIsAdmin(u.email) && <span className="ml-2 text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded uppercase font-bold">Admin</span>}
+                              {checkIsAdmin(u.email || null) && <span className="ml-2 text-[10px] bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded uppercase font-bold">Admin</span>}
                               {u.isBlocked && <span className="ml-2 text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded uppercase font-bold">Blocked</span>}
                             </p>
                             <p className="text-xs text-gray-500 mt-1">{u.email}</p>
-                            <p className="text-[10px] text-gray-400 mt-0.5 font-mono select-all">ID: {u.uid}</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5 font-mono select-all">ID: {u.id || u.uid}</p>
                           </div>
                         </div>
                       </td>
@@ -3257,7 +3075,7 @@ export default function AdminPage() {
                         )}
                       </td>
                       <td className="px-6 py-4 text-gray-500 text-xs">
-                        {new Date(u.createdAt).toLocaleDateString('uk-UA')}
+                        {new Date(u.createdAt || u.registeredAt || Date.now()).toLocaleDateString('uk-UA')}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">

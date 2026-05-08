@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import Basket from '../components/client/busket';
+import Basket from '../components/client/basket';
 import AccountButton from '../components/client/account-button';
 import { fetchAllProducts, type Product } from '@/lib/firebase';
 
@@ -469,7 +469,7 @@ export default function CatalogPage() {
                           </div>
                         ) : null}
                         {(product as any).isAbroad ? (
-                          <div className="absolute top-4 left-4 bg-blue-600 text-white font-bold px-2 py-1 rounded-full text-xs shadow-md flex items-center gap-1">
+                          <div className="absolute top-4 left-4 bg-[#F0A1BF] text-white font-bold px-2 py-1 rounded-full text-xs shadow-md flex items-center gap-1">
                             🌍 З-за кордону
                           </div>
                         ) : null}

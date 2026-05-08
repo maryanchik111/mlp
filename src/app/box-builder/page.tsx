@@ -14,7 +14,7 @@ import {
   CurrencyDollarIcon,
   DocumentTextIcon
 } from '@heroicons/react/24/solid';
-import Basket from '../components/client/busket';
+import Basket from '../components/client/basket';
 import AccountButton from '../components/client/account-button';
 import { listenToBoxTypes, listenToBoxItems, type BoxType, type BoxItem } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';

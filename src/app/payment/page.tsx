@@ -64,13 +64,13 @@ function PaymentPageContent() {
 
   const handleCheckPayment = async () => {
     if (!paymentDetails?.orderId) return;
-    
+
     setIsChecking(true);
-    
+
     // Polling функція - перевіряємо статус кожні 3 секунди
     const checkStatus = async () => {
       const status = await fetchOrderStatus(paymentDetails.orderId);
-      
+
       if (status === 'processing' || status === 'completed') {
         setPaymentConfirmed(true);
         setIsChecking(false);
@@ -78,11 +78,11 @@ function PaymentPageContent() {
       }
       return false;
     };
-    
+
     // Перша перевірка одразу
     const confirmed = await checkStatus();
     if (confirmed) return;
-    
+
     // Запускаємо polling кожні 3 секунди
     const intervalId = setInterval(async () => {
       const confirmed = await checkStatus();
@@ -90,7 +90,7 @@ function PaymentPageContent() {
         clearInterval(intervalId);
       }
     }, 3000);
-    
+
     // Зупиняємо polling через 5 хвилин (100 спроб)
     setTimeout(() => {
       clearInterval(intervalId);
@@ -116,7 +116,13 @@ function PaymentPageContent() {
   const handleSubmitReview = async () => {
     if (!user || !paymentDetails) return;
     if (reviewSaved) return;
-    const ok = await createReview(paymentDetails.orderId, user, reviewRating, reviewText.trim());
+    const ok = await createReview(paymentDetails.orderId, {
+      orderId: paymentDetails.orderId,
+      userName: user.displayName || user.email || 'Гість',
+      userPhoto: user.photoURL || undefined,
+      rating: reviewRating,
+      text: reviewText.trim()
+    });
     if (ok) {
       setReviewSaved(true);
       setHasReview(true);
@@ -216,7 +222,7 @@ function PaymentPageContent() {
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">Рейтинг:</label>
                   <div className="flex items-center gap-2">
-                    {[1,2,3,4,5].map(star => (
+                    {[1, 2, 3, 4, 5].map(star => (
                       <button
                         key={star}
                         type="button"
@@ -297,7 +303,7 @@ function PaymentPageContent() {
   // Сторінка оплати (до підтвердження)
   return (
     <main className="min-h-screen bg-white py-12">
-      <div className="container mx-auto px-4 max-w-4xl">
+      <div className="container mx-auto px-4 max-w-6xl">
         {/* Заголовок */}
         <div className="mb-8">
           <Link href="/catalog" className="text-indigo-600 hover:text-indigo-700 mb-4 inline-block text-sm sm:text-base font-semibold transition-colors">
@@ -312,20 +318,36 @@ function PaymentPageContent() {
           {/* Ліва колона - способи оплати */}
           <div className="lg:col-span-2">
             <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 space-y-6">
-              {/* QR код */}
+              {/* Банка Monobank */}
               <section>
-                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
-                  📱 Оплата через QR-код
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300 flex items-center gap-2">
+                  <span className="text-2xl">🐱</span> Банка Monobank
                 </h2>
-                <div className="flex flex-col items-center p-8 bg-gray-50 rounded-lg border border-gray-300">
-                  <img
-                    src={paymentConfig.qrCode}
-                    alt="QR код для оплати"
-                    className="w-48 h-48 sm:w-56 sm:h-56 rounded-lg shadow-sm"
-                  />
-                  <p className="text-center text-gray-600 mt-4 text-sm sm:text-base">
-                    Відскануйте QR-код камерою вашого смартфона
-                  </p>
+                <div className="bg-gradient-to-br from-pink-50 to-purple-50 border border-purple-200 rounded-xl p-6 shadow-sm">
+                  <div className="flex flex-col sm:flex-row items-center gap-6">
+                    <div className="flex-shrink-0 bg-white p-2 rounded-lg border border-purple-100 shadow-sm">
+                      <img
+                        src={paymentConfig.jarQrCode}
+                        alt="QR код для банки Monobank"
+                        className="w-32 h-32 sm:w-40 sm:h-40"
+                      />
+                    </div>
+                    <div className="flex-1 text-center sm:text-left">
+                      <p className="text-gray-900 font-bold text-lg mb-2">Оплата на банку Monobank</p>
+                      <p className="text-gray-600 text-sm">
+                        Це найшвидший та найзручніший спосіб оплати через додаток Monobank або Apple/Google Pay.
+                      </p>
+                      <p className='text-red-500 text-sm mb-4'>Вкажіть ваш номер замовлення!</p>
+                      <a
+                        href={paymentConfig.monobankJar}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block w-full sm:w-auto px-8 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-all shadow-md"
+                      >
+                        🚀 Оплатити в 1 клік
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </section>
 
@@ -343,11 +365,10 @@ function PaymentPageContent() {
 
                   <button
                     onClick={handleCopyCardNumber}
-                    className={`w-full py-2 rounded-lg font-bold transition-all text-sm sm:text-base ${
-                      copied
-                        ? 'bg-green-600 text-white shadow-sm'
-                        : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                    }`}
+                    className={`w-full py-2 rounded-lg font-bold transition-all text-sm sm:text-base ${copied
+                      ? 'bg-green-600 text-white shadow-sm'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                      }`}
                   >
                     {copied ? '✅ Скопійовано!' : '📋 Скопіювати номер картки'}
                   </button>
@@ -363,6 +384,7 @@ function PaymentPageContent() {
                   </div>
                 </div>
               </section>
+
 
               {/* Посилання для оплати */}
               <section>
@@ -420,11 +442,10 @@ function PaymentPageContent() {
                   <button
                     onClick={handleCheckPayment}
                     disabled={isChecking}
-                    className={`block w-full text-center font-bold py-3 rounded-lg transition-all text-sm sm:text-base ${
-                      isChecking
-                        ? 'bg-blue-400 text-white cursor-wait shadow-sm'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
+                    className={`block w-full text-center font-bold py-3 rounded-lg transition-all text-sm sm:text-base ${isChecking
+                      ? 'bg-blue-400 text-white cursor-wait shadow-sm'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      }`}
                   >
                     {isChecking ? (
                       <>
@@ -459,7 +480,7 @@ function PaymentPageContent() {
         </div>
 
         {/* Нижня інформація */}
-        <div className="mt-8 bg-white border border-gray-300 rounded-lg shadow-md p-6 text-center mb-8">
+        <div className="mt-8 bg-white border border-gray-300 rounded-lg shadow-md p-6 text-center mb-12">
           <p className="text-gray-600 text-sm sm:text-base">
             Дякуємо за вашу покупку! 🦄 Після оплати ви отримаєте підтвердження на email або телеграм-бот (якщо у вас прив'язаний телеграм)
           </p>

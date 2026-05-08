@@ -32,6 +32,7 @@ interface FormData {
   phone: string;
   address: string;
   city: string;
+  cityRef: string;
   postalCode: string;
   deliveryMethod: 'nova' | 'ukr';
   paymentMethod: 'card';
@@ -51,6 +52,7 @@ export default function CheckoutPage() {
     phone: '',
     address: '',
     city: '',
+    cityRef: '',
     postalCode: '',
     deliveryMethod: 'nova',
     paymentMethod: 'card',
@@ -379,7 +381,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-3 mt-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Telegram Nickname *</label>
                     <input
                       type="email"
                       name="email"
@@ -387,7 +389,7 @@ export default function CheckoutPage() {
                       onChange={handleInputChange}
                       className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900 ${errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
                         }`}
-                      placeholder="example@mail.com"
+                      placeholder="@mlpcutiefamily"
                     />
                     {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                   </div>
@@ -412,62 +414,78 @@ export default function CheckoutPage() {
                 <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
                   🏠 Адреса доставки
                 </h2>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Адреса *</label>
+
+                {/* 1. Вибір міста */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Місто *</label>
                   <AddressAutocomplete
-                    value={formData.address}
-                    onChange={(value) => setFormData(prev => ({ ...prev, address: value }))}
+                    value={formData.city}
+                    onChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
                     onSelect={(suggestion) => {
-                      // Автоматично заповнюємо місто якщо воно є в адресі
-                      if (suggestion.address?.city && !formData.city) {
-                        setFormData(prev => ({
-                          ...prev,
-                          city: suggestion.address?.city || '',
-                          postalCode: suggestion.address?.postcode || prev.postalCode
-                        }));
-                      }
+                      setFormData(prev => ({
+                        ...prev,
+                        city: suggestion.MainDescription || suggestion.Description,
+                        cityRef: suggestion.DeliveryCity,
+                        address: '', // Скидаємо відділення при зміні міста
+                      }));
                     }}
-                    placeholder="Введіть вулицю, будинок..."
-                    name="address"
-                    type="address"
-                    error={!!errors.address}
+                    placeholder="Почніть вводити назву міста..."
+                    name="city"
+                    type="city"
+                    error={!!errors.city}
                   />
-                  {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+                  {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                 </div>
-                <div className="grid grid-cols-2 gap-3 mt-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Місто *</label>
-                    <AddressAutocomplete
-                      value={formData.city}
-                      onChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
-                      onSelect={(suggestion) => {
-                        // Автоматично заповнюємо поштовий індекс
-                        if (suggestion.address?.postcode) {
+
+                {/* 2. Вибір відділення (з'являється лише після вибору міста) */}
+                {formData.cityRef ? (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {formData.deliveryMethod === 'nova' ? 'Відділення або поштомат Нової Пошти *' : 'Адреса доставки *'}
+                      </label>
+                      <AddressAutocomplete
+                        value={formData.address}
+                        onChange={(value) => setFormData(prev => ({ ...prev, address: value }))}
+                        onSelect={(suggestion) => {
                           setFormData(prev => ({
                             ...prev,
-                            postalCode: suggestion.address?.postcode || prev.postalCode
+                            address: suggestion.Description,
+                            postalCode: suggestion.PostalCode || prev.postalCode
                           }));
-                        }
-                      }}
-                      placeholder="Введіть назву міста..."
-                      name="city"
-                      type="city"
-                      error={!!errors.city}
-                    />
-                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                        }}
+                        placeholder="Виберіть відділення або введіть номер..."
+                        name="address"
+                        type="address"
+                        cityRef={formData.cityRef}
+                        error={!!errors.address}
+                      />
+                      {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Поштовий індекс (необов'язково)</label>
+                      <input
+                        type="text"
+                        name="postalCode"
+                        value={formData.postalCode}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        placeholder="00000"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Поштовий індекс</label>
-                    <input
-                      type="text"
-                      name="postalCode"
-                      value={formData.postalCode}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-sm text-gray-900"
-                      placeholder="XX XXX"
-                    />
+                ) : (
+                  <div className="p-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl text-center">
+                    <div className="text-3xl mb-2">📍</div>
+                    <p className="text-sm text-gray-500 font-medium">
+                      Будь ласка, спочатку виберіть місто
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Після цього ви зможете обрати зручне відділення
+                    </p>
                   </div>
-                </div>
+                )}
               </section>
 
               {/* Способ доставки */}

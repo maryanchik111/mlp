@@ -186,7 +186,7 @@ export default function ThreadPage() {
     if (!user || !thread) return;
 
     try {
-      await editForumThread(threadId, user.uid, editTitle, editContent);
+      await editForumThread(threadId, editTitle, editContent);
       setEditingThreadId(null);
       showSuccess('Тему оновлено');
     } catch (error: any) {
@@ -199,7 +199,7 @@ export default function ThreadPage() {
     if (!user) return;
 
     try {
-      await editForumComment(threadId, commentId, user.uid, editContent);
+      await editForumComment(threadId, commentId, editContent);
       setEditingCommentId(null);
       showSuccess('Коментар оновлено');
     } catch (error: any) {

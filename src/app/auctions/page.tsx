@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import Basket from '../components/client/busket';
+import Basket from '../components/client/basket';
 import AccountButton from '../components/client/account-button';
 import { fetchAllAuctions, fetchAuction, placeBid, updateAuction, type Auction } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';

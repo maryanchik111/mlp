@@ -12,6 +12,10 @@
             ".read": true,
             ".write": true
         },
+        "telegram_binding_codes": {
+            ".read": true,
+            ".write": true
+        },
         "orders": {
             ".read": true,
             ".indexOn": [

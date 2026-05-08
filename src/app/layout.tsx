@@ -16,12 +16,12 @@ export const metadata: Metadata = {
   title: "My Little Pony Store - Офіційні іграшки та колекційні фігурки",
   description: "Купіть оригінальні іграшки My Little Pony та колекційні фігурки. Великий вибір персонажів, доступні ціни та швидка доставка.",
   keywords: ["My Little Pony", "MLP", "іграшки", "фігурки", "колекція", "поні"],
-  authors: [{ name: "MLP Store" }],
+  authors: [{ name: "mlpcutiefamily" }],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "MLP Store",
+    title: "mlpcutiefamily",
   },
   openGraph: {
     title: "My Little Pony Store - Офіційні іграшки та колекційні фігурки",
@@ -40,10 +40,8 @@ export const metadata: Metadata = {
   viewport: {
     width: "device-width",
     initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
   },
-  themeColor: "#9333ea",
+  themeColor: "#F0A1BF",
   alternates: {
     canonical: "https://www.mlpcutiefamily.pp.ua",
     languages: {
@@ -67,7 +65,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="MLP Store" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="theme-color" content="#9333ea" />
+        <meta name="theme-color" content="#F0A1BF" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>

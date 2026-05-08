@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { fetchProductById, type Product } from '@/lib/firebase';
-import Basket from '@/app/components/client/busket';
+import Basket from '@/app/components/client/basket';
 import AccountButton from '@/app/components/client/account-button';
 
 export default function ProductPage() {

@@ -1,6 +1,8 @@
 
 
 
+"use client";
+
 import Link from "next/link";
 import {
   SparklesIcon,
@@ -22,8 +24,9 @@ import {
 } from '@heroicons/react/24/solid';
 import TopBuyers from "./components/client/top-buyers";
 import RecentReviews from "@/app/components/client/recent-reviews";
-import Basket from "./components/client/busket";
-import { useMemo } from "react";
+import Basket from "./components/client/basket";
+import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 
 export default function Home() {
   // Список PNG-файлів у публічній папці
@@ -33,9 +36,12 @@ export default function Home() {
     ],
     []
   );
-  // Вибір випадкового зображення при кожному рендері
-  const randomImage = useMemo(() => {
-    return pngImages[Math.floor(Math.random() * pngImages.length)];
+
+  // Вибір випадкового зображення після монтування для уникнення гідрації
+  const [randomImage, setRandomImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRandomImage(pngImages[Math.floor(Math.random() * pngImages.length)]);
   }, [pngImages]);
 
   return (
@@ -44,9 +50,17 @@ export default function Home() {
       <section className="bg-purple-50 py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={randomImage} alt="MLP random" className="h-32 md:h-48 object-contain rounded-xl" />
+            <div className="flex justify-center mb-4 h-32 md:h-48 relative w-full">
+              {randomImage && (
+                <Image 
+                  src={randomImage} 
+                  alt="MLP random hero image" 
+                  width={300}
+                  height={200}
+                  className="object-contain rounded-xl"
+                  priority
+                />
+              )}
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-purple-600 mb-4">
               mlpcutiefamily store
