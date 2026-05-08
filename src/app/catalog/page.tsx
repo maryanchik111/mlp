@@ -83,13 +83,6 @@ export default function CatalogPage() {
   }, []);
 
   // Програвання пісні при завантаженні каталогу
-  useEffect(() => {
-    const audio = new Audio('/catalogsong.mp3');
-    audio.play().catch((error) => {
-      console.log('Автовідтворення пісні заблоковано браузером:', error);
-    });
-  }, []);
-
   // Фільтрація та сортування товарів
   const sortedProducts = useMemo(() => {
     let filtered = [...allProducts];
