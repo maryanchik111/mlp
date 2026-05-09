@@ -5,8 +5,21 @@ import RecentReviews from "../client/recent-reviews";
 
 export default function Hero() {
   return (
-    <section className="w-full bg-gradient-to-br from-purple-600 via-pink-500 to-purple-700 py-20 md:py-32">
-      <div className="container mx-auto px-4 max-w-6xl">
+    <section className="relative w-full py-20 md:py-32 overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+      >
+        <source src="/mlp.mp4" type="video/mp4" />
+      </video>
+      {/* Overlay to ensure text readability */}
+      <div className="absolute inset-0 bg-purple-900/60 z-0"></div>
+
+      <div className="container mx-auto px-4 max-w-6xl relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           {/* Текстова частина */}
           <div className="space-y-6">

@@ -47,29 +47,39 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero секція */}
-      <section 
-        className="bg-purple-50 py-16 md:py-24 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/background-image.JPG')" }}
-      >
-        <div className="container mx-auto px-4 max-w-6xl">
+      <section className="relative py-16 md:py-24 overflow-hidden">
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+        >
+          <source src="/mlp.mp4" type="video/mp4" />
+        </video>
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-0"></div>
+
+        <div className="container mx-auto px-4 max-w-6xl relative z-10">
           <div className="text-center mb-12">
-            <div className="flex justify-center mb-4 h-32 md:h-48 relative w-full">
+            <div className="flex justify-center mb-4 relative w-full">
               {randomImage && (
                 <Image
                   src='/hero-image.PNG'
                   alt="MLP random hero image"
-                  width={300}
-                  height={200}
-                  className="object-contain rounded-xl"
+                  width={400}
+                  height={300}
+                  className="object-contain rounded-xl drop-shadow-lg"
                   priority
                 />
               )}
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-purple-600 mb-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-purple-800 mb-4 drop-shadow-sm">
               mlpcutiefamily store
             </h1>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду. <SparklesIcon className="inline w-6 h-6 text-purple-400 ml-1" />
+            <p className="text-lg md:text-xl text-gray-900 mb-8 max-w-2xl mx-auto font-medium drop-shadow-sm">
+              <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду. <SparklesIcon className="inline w-6 h-6 text-purple-500 ml-1" />
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
