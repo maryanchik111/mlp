@@ -1,6 +1,6 @@
 {
   "name": "mlpcutiefamily store",
-  "short_name": "MLP Family",
+  "short_name": "mlpcutiefamily",
   "description": "Офіційні іграшки та колекційні фігурки My Little Pony",
   "start_url": "/",
   "display": "standalone",
@@ -21,28 +21,49 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["shopping", "lifestyle"],
+  "categories": [
+    "shopping",
+    "lifestyle"
+  ],
   "shortcuts": [
     {
       "name": "Каталог",
       "short_name": "Каталог",
       "description": "Переглянути всі товари",
       "url": "/catalog",
-      "icons": [{ "src": "/pwa-icon.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "/pwa-icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Кошик",
       "short_name": "Кошик",
       "description": "Перейти до кошика",
       "url": "/checkout",
-      "icons": [{ "src": "/pwa-icon.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "/pwa-icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Мій акаунт",
       "short_name": "Акаунт",
       "description": "Особистий кабінет",
       "url": "/account",
-      "icons": [{ "src": "/pwa-icon.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [
+        {
+          "src": "/pwa-icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
