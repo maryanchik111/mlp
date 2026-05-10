@@ -54,6 +54,8 @@ export default function AdminPage() {
     isAbroad: false,
   });
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [productSearch, setProductSearch] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -170,6 +172,20 @@ export default function AdminPage() {
       setProducts(loadedProducts);
     });
   }, [mounted]);
+
+  // Фільтрація та сортування товарів
+  useEffect(() => {
+    let filtered = products.filter(p =>
+      p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+      p.category.toLowerCase().includes(productSearch.toLowerCase()) ||
+      (p.description && p.description.toLowerCase().includes(productSearch.toLowerCase()))
+    );
+
+    // Сортування: найновіші зверху
+    filtered.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    setFilteredProducts(filtered);
+  }, [products, productSearch]);
 
   // Функція для завантаження аукціонів
   useEffect(() => {
@@ -543,7 +559,7 @@ export default function AdminPage() {
         try {
           await fetch('/api/telegram/channel', {
             method: 'POST',
-            headers: { 
+            headers: {
               'Content-Type': 'application/json',
               'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET || ''
             },
@@ -774,9 +790,9 @@ export default function AdminPage() {
           'Content-Type': 'application/json',
           'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET || '',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           status: 'shipped',
-          trackingNumber: trackingNumber 
+          trackingNumber: trackingNumber
         }),
       });
       const success = response.ok;
@@ -1397,18 +1413,60 @@ export default function AdminPage() {
         {/* Products Tab Content */}
         {activeTab === 'products' && (
           <div className="space-y-4 mb-16">
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-4 flex justify-between items-center">
-              <h2 className="text-lg font-bold text-gray-900">Всього товарів: {products.length}</h2>
-              <button
-                onClick={handleCreateProduct}
-                className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
-              >
-                Додати
-              </button>
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-4">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex-1 w-full">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2 md:mb-0">Всього товарів: {products.length}</h2>
+                  {productSearch && (
+                    <p className="text-sm text-gray-500">Знайдено за запитом: {filteredProducts.length}</p>
+                  )}
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                  <div className="relative flex-1 sm:min-w-[300px]">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                    <input
+                      type="text"
+                      placeholder="Пошук товарів за назвою, категорією..."
+                      value={productSearch}
+                      onChange={(e) => setProductSearch(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 text-gray-900"
+                    />
+                    {productSearch && (
+                      <button
+                        onClick={() => setProductSearch('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={handleCreateProduct}
+                    className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium whitespace-nowrap"
+                  >
+                    Додати товар
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="gap-2 flex flex-col md:grid md:grid-cols-2">
-              {products.map((product) => (
+              {filteredProducts.length === 0 ? (
+                <div className="col-span-2 bg-white rounded-lg shadow-sm p-12 text-center">
+                  <p className="text-gray-600 text-lg">Товарів не знайдено</p>
+                  {productSearch && (
+                    <button 
+                      onClick={() => setProductSearch('')}
+                      className="mt-2 text-purple-600 hover:underline"
+                    >
+                      Очистити пошук
+                    </button>
+                  )}
+                </div>
+              ) : (
+                filteredProducts.map((product) => (
                 <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-4">
@@ -1469,7 +1527,8 @@ export default function AdminPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+            )}
             </div>
           </div>
         )}
@@ -3630,7 +3689,7 @@ export default function AdminPage() {
               )}
             </div>
             <div className="p-4 bg-gray-50 border-t border-gray-100 text-center">
-              <button 
+              <button
                 onClick={() => setShowParticipantsModal(false)}
                 className="w-full bg-white border border-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-100 transition-all"
               >

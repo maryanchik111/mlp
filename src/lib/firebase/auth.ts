@@ -79,10 +79,10 @@ export const ensureUserProfile = async (user: User) => {
   if (!snapshot.exists()) {
     const initialProfile: UserProfile = {
       id: user.uid,
-      email: user.email || undefined,
-      phone: user.phoneNumber || undefined,
+      email: user.email || null as any,
+      phone: user.phoneNumber || null as any,
       displayName,
-      photoURL: user.photoURL || undefined,
+      photoURL: user.photoURL || null as any,
       totalOrders: 0,
       totalSpent: 0,
       rating: 0,

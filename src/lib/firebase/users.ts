@@ -58,8 +58,17 @@ export const fetchAllUsers = async (): Promise<UserProfile[]> => {
 export const updateUserProfileAdmin = async (uid: string, updates: Partial<UserProfile>): Promise<boolean> => {
   try {
     const userRef = ref(database, `users/${uid}`);
+    
+    // Фільтруємо undefined значення
+    const cleanUpdates = Object.entries(updates).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as any);
+
     await update(userRef, {
-      ...updates,
+      ...cleanUpdates,
       updatedAt: Date.now(),
     });
     return true;
