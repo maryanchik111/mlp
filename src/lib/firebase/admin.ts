@@ -1,6 +1,8 @@
 import { User } from 'firebase/auth';
 
-export const ADMIN_TELEGRAM_ID = "7365171162";
+// Читаємо ID адмінів з env
+const rawAdminIds = process.env.ADMIN_TELEGRAM_IDS || "";
+export const ADMIN_TELEGRAM_IDS = rawAdminIds ? rawAdminIds.split(',').map(id => id.trim()) : [];
 
 export const ADMIN_EMAILS = [
   'maryanlikesyou@gmail.com',

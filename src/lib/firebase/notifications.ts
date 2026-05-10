@@ -1,7 +1,7 @@
 import { ref, get, set, update } from 'firebase/database';
 import { database } from './config';
 import { Order, UserProfile } from './types';
-import { ADMIN_TELEGRAM_ID } from './admin';
+import { ADMIN_TELEGRAM_IDS } from './admin';
 
 /**
  * Зв'язати Telegram ID з обліком користувача
@@ -127,15 +127,18 @@ export async function sendOrderNotificationToTelegram(
         `Сума: <b>${order.finalPrice}₴</b>\n` +
         `User: <code>${uid}</code>`;
       
-      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: ADMIN_TELEGRAM_ID,
-          text: adminMsg,
-          parse_mode: 'HTML',
-        }),
-      });
+      for (const adminId of ADMIN_TELEGRAM_IDS) {
+        if (!adminId || adminId.includes('ID_')) continue;
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: adminId,
+            text: adminMsg,
+            parse_mode: 'HTML',
+          }),
+        });
+      }
     }
 
     // Notify User
