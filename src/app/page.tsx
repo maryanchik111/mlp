@@ -75,7 +75,7 @@ export default function Home() {
                 />
               )}
             </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold text-purple-800 mb-4 drop-shadow-sm">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-purple-500 mb-4 drop-shadow-sm">
               mlpcutiefamily store
             </h1>
             <p className="text-lg md:text-xl text-gray-900 mb-8 max-w-2xl mx-auto font-medium drop-shadow-sm">
