@@ -224,6 +224,7 @@ export default function Home() {
               <ul className="space-y-2 text-sm text-gray-600">
                 <li><Link href="/catalog" className="hover:text-purple-600 transition-colors">Каталог</Link></li>
                 <li><Link href="/box-builder" className="hover:text-purple-600 transition-colors">Конструктор боксів</Link></li>
+                <li><Link href="/giveaways" className="hover:text-purple-600 transition-colors">Розіграші</Link></li>
                 <li><Link href="/forum" className="hover:text-purple-600 transition-colors">Форум</Link></li>
                 <li><Link href="/account" className="hover:text-purple-600 transition-colors">Особистий кабінет</Link></li>
               </ul>

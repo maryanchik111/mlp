@@ -13,4 +13,5 @@ export * from './forum';
 export * from './support';
 export * from './reviews';
 export * from './users';
+export * from './giveaways';
 // More to come...

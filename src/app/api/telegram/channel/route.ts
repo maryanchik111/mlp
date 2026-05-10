@@ -4,6 +4,11 @@ const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const TELEGRAM_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || '';
 
 export async function POST(request: NextRequest) {
+    const API_SECRET = process.env.API_SECRET || '';
+    const secret = request.headers.get('x-api-secret');
+    if (!API_SECRET || secret !== API_SECRET) {
+        return NextResponse.json({ error: 'Forbidden or missing API_SECRET' }, { status: 403 });
+    }
     try {
         const { product } = await request.json();
 

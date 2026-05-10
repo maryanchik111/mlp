@@ -20,6 +20,12 @@ export async function PATCH(
     const { orderId } = await params;
     const { status, trackingNumber } = await request.json();
 
+    const API_SECRET = process.env.API_SECRET || '';
+    const secret = request.headers.get('x-api-secret');
+    if (!API_SECRET || secret !== API_SECRET) {
+      return NextResponse.json({ error: 'Forbidden or missing API_SECRET' }, { status: 403 });
+    }
+
     // Перевіряємо статус
     if (!['processing', 'shipped', 'ready_for_pickup', 'completed', 'cancelled'].includes(status)) {
       return NextResponse.json(

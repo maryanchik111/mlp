@@ -19,11 +19,9 @@ const API_SECRET = process.env.API_SECRET || '';
  */
 export async function POST(request: NextRequest) {
   // Auth check — admin use only
-  if (API_SECRET) {
-    const secret = request.headers.get('x-api-secret');
-    if (secret !== API_SECRET) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
+  const secret = request.headers.get('x-api-secret');
+  if (!API_SECRET || secret !== API_SECRET) {
+    return NextResponse.json({ error: 'Forbidden or missing API_SECRET' }, { status: 403 });
   }
 
   try {

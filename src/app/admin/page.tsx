@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, fetchAllUsers, updateUserProfileAdmin, checkAdminAccess, isAdmin as checkIsAdmin, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, syncBoxItemToCatalog, removeBoxItemFromCatalog, type BoxType, type BoxItem, type ScreenshotReview, fetchAllScreenshotReviews, addScreenshotReview, deleteScreenshotReview, updateScreenshotReviewOrders } from '@/lib/firebase';
+import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, fetchAllUsers, updateUserProfileAdmin, checkAdminAccess, isAdmin as checkIsAdmin, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, syncBoxItemToCatalog, removeBoxItemFromCatalog, type BoxType, type BoxItem, type ScreenshotReview, fetchAllScreenshotReviews, addScreenshotReview, deleteScreenshotReview, updateScreenshotReviewOrders, createGiveaway, fetchGiveaways, pickWinners, deleteGiveaway, fetchGiveawayParticipants, type Giveaway, type GiveawayParticipant } from '@/lib/firebase';
 import { useAuth, useModal } from '@/app/providers';
 import { AdminStats } from './admin-stats';
 
-type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support' | 'auctions' | 'boxes' | 'users';
+type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support' | 'auctions' | 'boxes' | 'users' | 'giveaways';
 
 // Список доступних категорій товарів
 const PRODUCT_CATEGORIES = [
@@ -130,6 +130,24 @@ export default function AdminPage() {
     isBlocked: false,
   });
 
+  // Giveaways state
+  const [giveaways, setGiveaways] = useState<Giveaway[]>([]);
+  const [showGiveawayModal, setShowGiveawayModal] = useState(false);
+  const [newGiveawayForm, setNewGiveawayForm] = useState({
+    title: '',
+    description: '',
+    prize: '',
+    winnersCount: '1',
+    startDate: '',
+    endDate: '',
+    image: '',
+  });
+  const [uploadingGiveawayImage, setUploadingGiveawayImage] = useState(false);
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [selectedGiveawayForParticipants, setSelectedGiveawayForParticipants] = useState<Giveaway | null>(null);
+  const [giveawayParticipants, setGiveawayParticipants] = useState<GiveawayParticipant[]>([]);
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
+
   // User profiles cache for authorized orders
   const [userProfiles, setUserProfiles] = useState<Record<string, UserProfile>>({});
 
@@ -195,6 +213,15 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [mounted, selectedTicket]);
 
+  // Слухати зміни розіграшів в реальному часі
+  useEffect(() => {
+    if (!mounted) return;
+    const unsubscribe = fetchGiveaways((loadedGiveaways) => {
+      setGiveaways(loadedGiveaways);
+    });
+    return () => unsubscribe();
+  }, [mounted]);
+
   // Real-time listeners для боксів
   useEffect(() => {
     if (!mounted) return;
@@ -215,6 +242,7 @@ export default function AdminPage() {
     };
     loadUsersCount();
   }, [mounted]);
+
 
   // Функція для видалення відгуку
   const handleDeleteReview = async (orderId: string) => {
@@ -515,7 +543,10 @@ export default function AdminPage() {
         try {
           await fetch('/api/telegram/channel', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET || ''
+            },
             body: JSON.stringify({ product: createdProduct }),
           });
         } catch (tgError) {
@@ -699,7 +730,15 @@ export default function AdminPage() {
     if (!selectedOrder) return;
     setActionLoading(true);
     try {
-      const success = await updateOrderStatus(selectedOrder.id, 'completed');
+      const response = await fetch(`/api/orders/${selectedOrder.id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET || '',
+        },
+        body: JSON.stringify({ status: 'completed' }),
+      });
+      const success = response.ok;
       if (success) {
         showSuccess('Замовлення позначено як виконане');
         // Оновлюємо локальний стан, щоб показати статус "completed"
@@ -729,7 +768,18 @@ export default function AdminPage() {
 
     setActionLoading(true);
     try {
-      const success = await updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber);
+      const response = await fetch(`/api/orders/${selectedOrder.id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET || '',
+        },
+        body: JSON.stringify({ 
+          status: 'shipped',
+          trackingNumber: trackingNumber 
+        }),
+      });
+      const success = response.ok;
       if (success) {
         showSuccess('Замовлення позначено як відправлене!\n📦 ТТН відправлено користувачу');
         setSelectedOrder({
@@ -756,7 +806,15 @@ export default function AdminPage() {
 
     setActionLoading(true);
     try {
-      const success = await updateOrderStatus(selectedOrder.id, 'ready_for_pickup');
+      const response = await fetch(`/api/orders/${selectedOrder.id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET || '',
+        },
+        body: JSON.stringify({ status: 'ready_for_pickup' }),
+      });
+      const success = response.ok;
       if (success) {
         showSuccess('Замовлення позначено як готове до забору!\n📮 Сповіщення відправлено користувачу');
         setSelectedOrder({
@@ -974,6 +1032,88 @@ export default function AdminPage() {
     setActionLoading(false);
   };
 
+  // Функції для розіграшів
+  const handleSaveGiveaway = async () => {
+    if (!newGiveawayForm.title || !newGiveawayForm.prize || !newGiveawayForm.startDate || !newGiveawayForm.endDate) {
+      showError('Заповніть усі обов’язкові поля');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await createGiveaway({
+        title: newGiveawayForm.title,
+        description: newGiveawayForm.description,
+        prize: newGiveawayForm.prize,
+        winnersCount: parseInt(newGiveawayForm.winnersCount) || 1,
+        startDate: new Date(newGiveawayForm.startDate).getTime(),
+        endDate: new Date(newGiveawayForm.endDate).getTime(),
+        image: newGiveawayForm.image,
+      });
+      showSuccess('Розіграш створено!');
+      setShowGiveawayModal(false);
+      setNewGiveawayForm({
+        title: '',
+        description: '',
+        prize: '',
+        winnersCount: '1',
+        startDate: '',
+        endDate: '',
+        image: '',
+      });
+    } catch (error) {
+      console.error(error);
+      showError('Помилка при створенні розіграшу');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handlePickWinnersAction = async (giveawayId: string) => {
+    const confirmed = await showConfirm('Завершення розіграшу', 'Ви впевнені, що хочете завершити розіграш та вибрати переможців?');
+    if (!confirmed) return;
+    setActionLoading(true);
+    try {
+      await pickWinners(giveawayId);
+      showSuccess('Переможців обрано!');
+    } catch (error: any) {
+      console.error(error);
+      showError(error.message || 'Помилка при виборі переможців');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteGiveawayAction = async (giveawayId: string) => {
+    const confirmed = await showConfirm('Видалення', 'Видалити цей розіграш?');
+    if (!confirmed) return;
+    setActionLoading(true);
+    try {
+      await deleteGiveaway(giveawayId);
+      showSuccess('Розіграш видалено');
+    } catch (error) {
+      console.error(error);
+      showError('Помилка при видаленні');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleShowParticipants = async (giveaway: Giveaway) => {
+    setSelectedGiveawayForParticipants(giveaway);
+    setShowParticipantsModal(true);
+    setLoadingParticipants(true);
+    try {
+      const data = await fetchGiveawayParticipants(giveaway.id);
+      setGiveawayParticipants(data);
+    } catch (error) {
+      console.error(error);
+      showError('Помилка завантаження учасників');
+    } finally {
+      setLoadingParticipants(false);
+    }
+  };
+
   // Показуємо екран завантаження під час перевірки доступу
   if (authLoading || !mounted) {
     return (
@@ -1121,6 +1261,15 @@ export default function AdminPage() {
                 }`}
             >
               👥 Користувачі
+            </button>
+            <button
+              onClick={() => setActiveTab('giveaways')}
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'giveaways'
+                ? 'bg-purple-600 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              🎉 Розіграші
             </button>
           </div>
         </div>
@@ -3177,6 +3326,317 @@ export default function AdminPage() {
                 </tbody>
               </table>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Giveaways Tab Content */}
+      {activeTab === 'giveaways' && (
+        <div className="container mx-auto px-4 mb-20">
+          <div className="bg-white rounded-xl shadow-sm p-6 mb-8 flex justify-between items-center">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Управління розіграшами</h2>
+              <p className="text-gray-500 text-sm mt-1">Створюйте розіграші та обирайте переможців</p>
+            </div>
+            <button
+              onClick={() => setShowGiveawayModal(true)}
+              className="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg hover:shadow-purple-200 flex items-center gap-2"
+            >
+              + Створити розіграш
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {giveaways.length === 0 ? (
+              <div className="col-span-full py-20 text-center bg-white rounded-xl border-2 border-dashed border-gray-200">
+                <div className="text-6xl mb-4">🎉</div>
+                <h3 className="text-xl font-bold text-gray-700">Розіграшів ще немає</h3>
+                <p className="text-gray-500">Натисніть кнопку вище, щоб створити свій перший розіграш</p>
+              </div>
+            ) : (
+              giveaways.map((giveaway) => (
+                <div key={giveaway.id} className={`bg-white rounded-2xl shadow-sm border-2 overflow-hidden transition-all hover:shadow-md ${giveaway.status === 'completed' ? 'border-green-100 opacity-90' : 'border-gray-100'}`}>
+                  {giveaway.image && (
+                    <div className="h-48 overflow-hidden">
+                      <img src={giveaway.image} alt={giveaway.title} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${giveaway.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {giveaway.status === 'active' ? '● Активний' : 'Завершено'}
+                      </span>
+                      <span className="text-xs text-gray-400">{formatDate(giveaway.createdAt)}</span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{giveaway.title}</h3>
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2">{giveaway.description}</p>
+
+                    <div className="space-y-3 bg-gray-50 p-4 rounded-xl mb-6">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Приз:</span>
+                        <span className="font-bold text-purple-700">{giveaway.prize}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Переможців:</span>
+                        <span className="font-bold text-gray-900">{giveaway.winnersCount}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Учасників:</span>
+                        <span className="font-bold text-blue-600">{giveaway.participantsCount || 0}</span>
+                      </div>
+                      <div className="border-t border-gray-200 pt-2 text-[10px] uppercase font-bold text-gray-400">
+                        Період: {new Date(giveaway.startDate).toLocaleString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })} — {new Date(giveaway.endDate).toLocaleString('uk-UA', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+
+                    {giveaway.status === 'completed' && giveaway.winners && (
+                      <div className="mb-6">
+                        <h4 className="text-xs font-bold text-green-600 uppercase mb-2">Переможці:</h4>
+                        <div className="space-y-1">
+                          {giveaway.winners.map((winner, idx) => (
+                            <div key={idx} className="flex items-center gap-2 text-sm bg-green-50 p-2 rounded-lg text-green-800 font-medium">
+                              <span>🏆</span>
+                              <div className="truncate">
+                                {winner.userName}
+                                {winner.userPhone && <span className="text-[10px] ml-2 opacity-70">({winner.userPhone})</span>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleShowParticipants(giveaway)}
+                        className="flex-1 bg-blue-50 text-blue-600 font-bold py-2 rounded-lg hover:bg-blue-100 transition-colors text-xs flex items-center justify-center gap-1"
+                      >
+                        👥 Учасники
+                      </button>
+                      {giveaway.status === 'active' && (
+                        <button
+                          onClick={() => handlePickWinnersAction(giveaway.id)}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition-colors text-xs"
+                        >
+                          🏆 Обрати
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleDeleteGiveawayAction(giveaway.id)}
+                        className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                        title="Видалити"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Giveaway Modal */}
+      {showGiveawayModal && (
+        <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white flex justify-between items-center">
+              <h3 className="text-2xl font-bold">🎉 Новий розіграш</h3>
+              <button onClick={() => setShowGiveawayModal(false)} className="hover:rotate-90 transition-transform">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-8 space-y-5 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2 text-left">Назва розіграшу *</label>
+                <input
+                  type="text"
+                  value={newGiveawayForm.title}
+                  onChange={e => setNewGiveawayForm({ ...newGiveawayForm, title: e.target.value })}
+                  placeholder="наприклад: Великодній розіграш 🐣"
+                  className="w-full border-2 border-gray-100 rounded-2xl px-5 py-3 focus:border-purple-400 focus:outline-none text-black transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2 text-left">Головний приз *</label>
+                <input
+                  type="text"
+                  value={newGiveawayForm.prize}
+                  onChange={e => setNewGiveawayForm({ ...newGiveawayForm, prize: e.target.value })}
+                  placeholder="наприклад: Великий Mystery Box"
+                  className="w-full border-2 border-gray-100 rounded-2xl px-5 py-3 focus:border-purple-400 focus:outline-none text-black transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2 text-left">Опис (необов'язково)</label>
+                <textarea
+                  value={newGiveawayForm.description}
+                  onChange={e => setNewGiveawayForm({ ...newGiveawayForm, description: e.target.value })}
+                  rows={3}
+                  placeholder="Розкажіть про умови та приз..."
+                  className="w-full border-2 border-gray-100 rounded-2xl px-5 py-3 focus:border-purple-400 focus:outline-none text-black resize-none transition-all"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2 text-left">К-сть переможців</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={newGiveawayForm.winnersCount}
+                    onChange={e => setNewGiveawayForm({ ...newGiveawayForm, winnersCount: e.target.value })}
+                    className="w-full border-2 border-gray-100 rounded-2xl px-5 py-3 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2 text-left">Зображення розіграшу</label>
+                  <div className="flex items-center gap-3">
+                    {newGiveawayForm.image && (
+                      <div className="w-12 h-12 rounded-lg overflow-hidden border">
+                        <img src={newGiveawayForm.image} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <label className={`flex-1 flex items-center justify-center border-2 border-dashed rounded-xl py-3 cursor-pointer transition-colors ${uploadingGiveawayImage ? 'bg-purple-50 border-purple-300' : 'hover:bg-gray-50 border-gray-200'}`}>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          setUploadingGiveawayImage(true);
+                          try {
+                            const url = await uploadImage(file, 'giveaways');
+                            setNewGiveawayForm({ ...newGiveawayForm, image: url });
+                            showSuccess('Фото завантажено');
+                          } catch (err) {
+                            showError('Помилка завантаження');
+                          } finally {
+                            setUploadingGiveawayImage(false);
+                          }
+                        }}
+                      />
+                      <span className="text-xs font-bold text-gray-500">
+                        {uploadingGiveawayImage ? '⏳ Завантаження...' : '📁 Вибрати файл'}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2 text-left">Початок (дата та час) *</label>
+                  <input
+                    type="datetime-local"
+                    value={newGiveawayForm.startDate}
+                    onChange={e => setNewGiveawayForm({ ...newGiveawayForm, startDate: e.target.value })}
+                    className="w-full border-2 border-gray-100 rounded-2xl px-5 py-3 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2 text-left">Кінець (дата та час) *</label>
+                  <input
+                    type="datetime-local"
+                    value={newGiveawayForm.endDate}
+                    onChange={e => setNewGiveawayForm({ ...newGiveawayForm, endDate: e.target.value })}
+                    className="w-full border-2 border-gray-100 rounded-2xl px-5 py-3 focus:border-purple-400 focus:outline-none text-black"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-8 border-t border-gray-50 flex gap-4 bg-gray-50/50">
+              <button
+                onClick={() => setShowGiveawayModal(false)}
+                className="flex-1 bg-white border-2 border-gray-200 text-gray-600 font-bold py-4 rounded-2xl hover:bg-gray-100 transition-all"
+              >
+                Скасувати
+              </button>
+              <button
+                disabled={actionLoading}
+                onClick={handleSaveGiveaway}
+                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-purple-200 disabled:opacity-50"
+              >
+                {actionLoading ? 'Створення...' : 'Створити розіграш'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Participants Modal */}
+      {showParticipantsModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden shadow-2xl flex flex-col">
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-purple-50">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Учасники розіграшу</h2>
+                <p className="text-xs text-purple-600 font-medium">{selectedGiveawayForParticipants?.title}</p>
+              </div>
+              <button onClick={() => setShowParticipantsModal(false)} className="p-2 hover:bg-white rounded-full transition-colors text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1">
+              {loadingParticipants ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600 mb-4"></div>
+                  <p className="text-gray-500 text-sm">Завантаження списку...</p>
+                </div>
+              ) : giveawayParticipants.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-5xl mb-4">😶</div>
+                  <p className="text-gray-500 font-medium">Учасників ще немає</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase px-4">
+                    <span>Учасник (всього {giveawayParticipants.length})</span>
+                    <span>Шанси</span>
+                  </div>
+                  {giveawayParticipants.sort((a, b) => (b.hasCompletedOrder ? 1 : 0) - (a.hasCompletedOrder ? 1 : 0)).map((p, idx) => (
+                    <div key={idx} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${p.hasCompletedOrder ? 'bg-purple-50 border-purple-100 shadow-sm' : 'bg-gray-50 border-gray-100'}`}>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm ${p.hasCompletedOrder ? 'bg-gradient-to-br from-purple-500 to-pink-500' : 'bg-gray-300'}`}>
+                          {p.userName[0].toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900 text-sm">
+                            {p.userName}
+                            {p.hasCompletedOrder && <span className="ml-2 text-[10px] bg-purple-200 text-purple-700 px-1.5 py-0.5 rounded uppercase font-black">Покупець</span>}
+                          </p>
+                          <p className="text-xs text-gray-500">{p.userPhone || 'Без телефону'}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-sm font-black ${p.hasCompletedOrder ? 'text-purple-600' : 'text-gray-500'}`}>
+                          {p.hasCompletedOrder ? '+10% Шанс' : 'Базовий'}
+                        </p>
+                        <p className="text-[10px] text-gray-400">{new Date(p.joinedAt).toLocaleString('uk-UA', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-100 text-center">
+              <button 
+                onClick={() => setShowParticipantsModal(false)}
+                className="w-full bg-white border border-gray-200 text-gray-700 font-bold py-3 rounded-xl hover:bg-gray-100 transition-all"
+              >
+                Закрити
+              </button>
+            </div>
           </div>
         </div>
       )}

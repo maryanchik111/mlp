@@ -131,3 +131,33 @@ export interface BoxItem {
   createdAt: number;
   updatedAt: number;
 }
+
+export interface Giveaway {
+  id: string;
+  title: string;
+  description: string;
+  prize: string;
+  image?: string;
+  startDate: number;
+  endDate: number;
+  winnersCount: number;
+  status: 'active' | 'completed' | 'cancelled';
+  winners?: {
+    userId: string;
+    userName: string;
+    userPhone?: string;
+  }[];
+  participantsCount: number;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface GiveawayParticipant {
+  id: string; // giveawayId_userId
+  giveawayId: string;
+  userId: string;
+  userName: string;
+  userPhone?: string;
+  hasCompletedOrder: boolean;
+  joinedAt: number;
+}

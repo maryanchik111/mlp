@@ -1,81 +1,100 @@
 {
-    "rules": {
-        "users": {
-            ".read": true,
-            ".write": true
-        },
-        "telegram_users": {
-            ".read": true,
-            ".write": true
-        },
-        "support_tickets": {
-            ".read": true,
-            ".write": true
-        },
-        "telegram_binding_codes": {
-            ".read": true,
-            ".write": true
-        },
-        "orders": {
-            ".read": true,
-            ".indexOn": [
-                "userId"
-            ],
-            "$orderId": {
-                ".write": true
-            }
-        },
-        "products": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "reviews": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "screenshot_reviews": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "forum": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "auctions": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "box_types": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "box_items": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "gallery": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "settings": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "activities": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "treatments": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "food": {
-            ".read": true,
-            ".write": "auth != null"
-        },
-        "$other": {
-            ".read": false,
-            ".write": false
+  "rules": {
+    "users": {
+      ".read": true,
+      "$uid": {
+        ".write": "$uid === auth.uid || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+      }
+    },
+    "telegram_users": {
+      ".read": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "support_tickets": {
+      ".read": "auth != null",
+      "$ticketId": {
+        ".write": "auth != null"
+      }
+    },
+    "telegram_binding_codes": {
+      ".read": "auth != null",
+      "$code": {
+        ".write": "auth != null"
+      }
+    },
+    "orders": {
+      ".read": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
+      ".indexOn": ["userId"],
+      "$orderId": {
+        ".read": "data.child('userId').val() === auth.uid || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
+        ".write": "(!data.exists() && (newData.child('userId').val() === auth.uid || !newData.child('userId').exists())) || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+      }
+    },
+    "products": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "reviews": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "screenshot_reviews": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "forum": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "auctions": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "box_types": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "box_items": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "gallery": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "settings": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "activities": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "treatments": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "food": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "giveaways": {
+      ".read": true,
+      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+    },
+    "giveaway_participants": {
+      ".read": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
+      "$giveawayId": {
+        ".read": true,
+        ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
+        "$uid": {
+          ".write": "auth != null && auth.uid === $uid"
         }
+      }
+    },
+    "$other": {
+      ".read": false,
+      ".write": false
     }
+  }
 }
