@@ -123,7 +123,6 @@ export default function MobileNav() {
             { id: 'home', href: '/', icon: HomeIcon, label: 'Головна' },
             { id: 'catalog', href: '/catalog', icon: ShoppingBagIcon, label: 'Каталог' },
             { id: 'box', href: '/box-builder', icon: GiftIcon, label: 'Бокс' },
-            { id: 'giveaways', href: '/giveaways', icon: SparklesIcon, label: 'Розіграші' },
             { id: 'forum', href: '/forum', icon: ChatBubbleLeftRightIcon, label: 'Форум' },
           ].map((item) => (
             <Link

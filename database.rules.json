@@ -80,7 +80,12 @@
     },
     "giveaways": {
       ".read": true,
-      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+      "$giveawayId": {
+        ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
+        "participantsCount": {
+          ".write": "auth != null"
+        }
+      }
     },
     "giveaway_participants": {
       ".read": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",

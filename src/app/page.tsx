@@ -27,6 +27,8 @@ import RecentReviews from "@/app/components/client/recent-reviews";
 import Basket from "./components/client/basket";
 import { useState, useEffect, useMemo } from "react";
 
+import GiveawayBanner from "./components/client/giveaway-banner";
+
 export default function Home() {
   // Список PNG-файлів у публічній папці
   const pngImages = useMemo(
@@ -117,6 +119,11 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Розіграші (якщо є активні) */}
+      <div className="relative z-20 -mt-8">
+        <GiveawayBanner />
+      </div>
 
       {/* Статистика */}
       <section className="bg-white py-16">

@@ -5,6 +5,8 @@ import { useAuth, useModal } from '@/app/providers';
 import { fetchGiveaways, joinGiveaway, checkIfJoined, type Giveaway } from '@/lib/firebase';
 import { SparklesIcon, GiftIcon, TrophyIcon, UserGroupIcon, CalendarIcon, LockClosedIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
+import { ref, get } from 'firebase/database';
+import { database } from '@/lib/firebase/config';
 
 export default function GiveawaysPage() {
   const { user, loading: authLoading } = useAuth();
@@ -13,10 +15,23 @@ export default function GiveawaysPage() {
   const [loading, setLoading] = useState(true);
   const [joinedStatus, setJoinedStatus] = useState<Record<string, boolean>>({});
   const [joiningId, setJoiningId] = useState<string | null>(null);
+  const [realCounts, setRealCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const unsub = fetchGiveaways((loadedGiveaways) => {
+    const unsub = fetchGiveaways(async (loadedGiveaways) => {
       setGiveaways(loadedGiveaways);
+      
+      // Fetch real counts
+      const counts: Record<string, number> = {};
+      for (const g of loadedGiveaways) {
+        try {
+          const snapshot = await get(ref(database, `giveaway_participants/${g.id}`));
+          counts[g.id] = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+        } catch (e) {
+          counts[g.id] = g.participantsCount || 0;
+        }
+      }
+      setRealCounts(counts);
       setLoading(false);
     });
     return () => unsub();
@@ -126,7 +141,7 @@ export default function GiveawaysPage() {
                       </div>
                       <div className="bg-blue-50 rounded-2xl p-4">
                         <p className="text-xs text-blue-600 font-bold uppercase mb-1 text-left">Учасників</p>
-                        <p className="text-lg font-bold text-gray-900 text-left">{giveaway.participantsCount || 0}</p>
+                        <p className="text-lg font-bold text-gray-900 text-left">{realCounts[giveaway.id] ?? giveaway.participantsCount ?? 0}</p>
                       </div>
                     </div>
 
