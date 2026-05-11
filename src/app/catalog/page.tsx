@@ -5,23 +5,20 @@ import Link from 'next/link';
 import Basket from '../components/client/basket';
 import AccountButton from '../components/client/account-button';
 import { fetchAllProducts, type Product } from '@/lib/firebase';
-<<<<<<< HEAD
-import { 
-  SparklesIcon, 
-  RocketLaunchIcon, 
-  CheckCircleIcon, 
-  PaintBrushIcon, 
-  GlobeAltIcon, 
-  BanknotesIcon, 
-  XCircleIcon, 
-  TruckIcon, 
-  ArrowLeftIcon, 
-  ArrowRightIcon, 
-  ClockIcon, 
+import {
+  SparklesIcon,
+  RocketLaunchIcon,
+  CheckCircleIcon,
+  PaintBrushIcon,
+  GlobeAltIcon,
+  BanknotesIcon,
+  XCircleIcon,
+  TruckIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ClockIcon,
   ArrowUturnLeftIcon
 } from '@heroicons/react/24/solid';
-=======
->>>>>>> parent of 9195b60 (?)
 
 const ITEMS_PER_PAGE = 6;
 
@@ -499,7 +496,7 @@ export default function CatalogPage() {
                           {product.name}
                         </h3>
                       </Link>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2 whitespace-pre-wrap">
                         {product.description}
                       </p>
 

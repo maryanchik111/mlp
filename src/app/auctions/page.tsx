@@ -215,7 +215,7 @@ export default function AuctionsPage() {
       <div className="p-4">
         <h3 className="font-bold text-lg text-gray-900 mb-2">{auction.name}</h3>
         {auction.description && (
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{auction.description}</p>
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2 whitespace-pre-wrap">{auction.description}</p>
         )}
 
         {/* Ставки */}

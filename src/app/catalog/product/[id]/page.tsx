@@ -222,7 +222,7 @@ export default function ProductPage() {
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-700 leading-relaxed">{product.description}</p>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{product.description}</p>
               </div>
 
               {/* Ціна й основна інформація */}

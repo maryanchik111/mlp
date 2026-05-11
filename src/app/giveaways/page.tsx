@@ -132,7 +132,7 @@ export default function GiveawaysPage() {
 
                   <div className="p-8">
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">{giveaway.title}</h3>
-                    <p className="text-gray-600 mb-6 leading-relaxed">{giveaway.description}</p>
+                    <p className="text-gray-600 mb-6 leading-relaxed whitespace-pre-wrap">{giveaway.description}</p>
 
                     <div className="grid grid-cols-2 gap-4 mb-8">
                       <div className="bg-purple-50 rounded-2xl p-4">
