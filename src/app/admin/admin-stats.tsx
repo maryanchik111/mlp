@@ -193,7 +193,7 @@ export const AdminStats: React.FC<AdminStatsProps> = ({ orders, products, usersC
           className="bg-indigo-50 p-4 rounded-lg cursor-pointer hover:bg-indigo-100 transition-colors border-2 border-transparent hover:border-indigo-200"
         >
           <p className="text-sm text-gray-500 mb-1">Зареєстровані акаунти</p>
-          <p className="text-2xl font-bold text-indigo-700">{usersCount} icons</p>
+          <p className="text-2xl font-bold text-indigo-700">{usersCount} 👥</p>
         </div>
         <div className="bg-purple-50 p-4 rounded-lg">
           <p className="text-sm text-gray-500 mb-1">Всього продано товарів</p>

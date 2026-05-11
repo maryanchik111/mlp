@@ -38,10 +38,10 @@ const REACTIONS = {
 };
 
 const CATEGORIES = {
-  general: { name: 'Загальне', icon: '🌐' },
+  general: { name: 'Загальне', icon: '💬' },
   help: { name: 'Допомога', icon: '❓' },
-  showcase: { name: 'Моя колекція', icon: '📸' },
-  news: { name: 'Новини', icon: '📢' },
+  showcase: { name: 'Моя колекція', icon: '🎨' },
+  news: { name: 'Новини', icon: '📰' },
 };
 
 export default function ThreadPage() {
@@ -334,7 +334,7 @@ export default function ThreadPage() {
                 </span>
                 {comment.isAdmin && (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">
-                    🛡️ Адмін
+                    👑 Адмін
                   </span>
                 )}
                 {comment.authorRank && !comment.isAdmin && (
@@ -508,7 +508,7 @@ export default function ThreadPage() {
                 </span>
                 {thread.isAdmin && (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">
-                    🛡️ Адмін
+                    👑 Адмін
                   </span>
                 )}
                 {thread.authorRank && !thread.isAdmin && (

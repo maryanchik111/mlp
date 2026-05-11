@@ -27,19 +27,19 @@ const productsData = JSON.parse(fs.readFileSync(productsPath, 'utf8'));
 
 async function uploadProducts() {
   try {
-    console.log('icons Завантаження товарів у Firebase...');
+    console.log('📦 Завантаження товарів у Firebase...');
     
     const productsRef = ref(database, 'products');
     
     // Upload products array to Firebase
     await set(productsRef, productsData.products);
     
-    console.log('icons Товари успішно завантажено!');
-    console.log(`icons Завантажено ${productsData.products.length} товарів`);
+    console.log('✅ Товари успішно завантажено!');
+    console.log(`📊 Завантажено ${productsData.products.length} товарів`);
     
     process.exit(0);
   } catch (error) {
-    console.error('icons Помилка при завантаженні:', error);
+    console.error('❌ Помилка при завантаженні:', error);
     process.exit(1);
   }
 }

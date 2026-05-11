@@ -21,21 +21,21 @@ export async function POST(request: NextRequest) {
 
         // Форматуємо повідомлення
         const priceLine = product.discount && product.discount > 0
-            ? `icons Ціна: <del>${product.price}₴</del> <b>${Math.round(product.price * (1 - product.discount / 100))}₴</b> (-${product.discount}%)`
-            : `icons Ціна: <b>${product.price}₴</b>`;
+            ? `💰 Ціна: <del>${product.price}₴</del> <b>${Math.round(product.price * (1 - product.discount / 100))}₴</b> (-${product.discount}%)`
+            : `💰 Ціна: <b>${product.price}₴</b>`;
 
-        const abroadTag = product.isAbroad ? 'icons <b>Товар з-за кордону</b>\n' : '';
-        const deliveryLine = `icons Термін доставки: <b>${product.deliveryDays || '1-2'} днів</b>`;
+        const abroadTag = product.isAbroad ? '🌍 <b>Товар з-за кордону</b>\n' : '';
+        const deliveryLine = `🚚 Термін доставки: <b>${product.deliveryDays || '1-2'} днів</b>`;
 
-        const caption = `icons <b>Новий товар у наявності!</b>\n\n` +
+        const caption = `🦄 <b>Новий товар у наявності!</b>\n\n` +
             `<b>${product.name}</b>\n` +
-            `icons Категорія: <i>${product.category || 'Різне'}</i>\n\n` +
+            `📦 Категорія: <i>${product.category || 'Різне'}</i>\n\n` +
             `${priceLine}\n` +
             `${abroadTag}` +
             `${deliveryLine}\n\n` +
-            `icons <i>${product.description || 'Немає опису'}</i>\n` +
+            `📝 <i>${product.description || 'Немає опису'}</i>\n` +
             `\n` +
-            `icons <a href="https://mlpcutiefamily.pp.ua/catalog/product/${product.id}">Купити на сайті</a>`;
+            `👉 <a href="https://mlpcutiefamily.pp.ua/catalog/product/${product.id}">Купити на сайті</a>`;
 
         // Знаходимо перше фото (якщо є)
         let mainImageUrl = null;

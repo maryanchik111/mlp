@@ -1,16 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { 
-  SparklesIcon, 
-  ArrowPathIcon, 
-  XMarkIcon,
-  PaperAirplaneIcon,
-  ArchiveBoxIcon,
-  TruckIcon,
-  CreditCardIcon,
-  GiftIcon
-} from '@heroicons/react/24/outline';
 
 interface Message {
     role: 'user' | 'model';
@@ -19,14 +9,14 @@ interface Message {
 
 const WELCOME_MESSAGE: Message = {
     role: 'model',
-    text: 'Привіт! Я AI-помічник магазину mlpcutiefamily store. Можу відповісти на питання про наші товари, доставку, оплату та замовлення. Чим можу допомогти?',
+    text: 'Привіт! 🦄✨ Я AI-помічник магазину mlpcutiefamily store. Можу відповісти на питання про наші товари, доставку, оплату та замовлення. Чим можу допомогти?',
 };
 
 const QUICK_QUESTIONS = [
-    { text: 'Як зробити замовлення?', icon: ArchiveBoxIcon },
-    { text: 'Варіанти доставки?', icon: TruckIcon },
-    { text: 'Як оплатити?', icon: CreditCardIcon },
-    { text: 'Що таке конструктор боксів?', icon: GiftIcon },
+    '📦 Як зробити замовлення?',
+    '🚚 Варіанти доставки?',
+    '💳 Як оплатити?',
+    '🎁 Що таке конструктор боксів?',
 ];
 
 export default function AiChatBubble() {
@@ -80,7 +70,7 @@ export default function AiChatBubble() {
                     ...prev,
                     {
                         role: 'model',
-                        text: 'Вибачте, зараз сталася помилка. Спробуйте трохи пізніше або напишіть нам в Telegram [@mlpcutiefamily](https://t.me/mlpcutiefamily) ✨',
+                        text: 'Вибачте, зараз сталася помилка. Спробуйте трохи пізніше або напишіть нам в Telegram [@mlpcutiefamily](https://t.me/mlpcutiefamily) 🙏',
                     },
                 ]);
             } else {
@@ -92,7 +82,7 @@ export default function AiChatBubble() {
                 ...prev,
                 {
                     role: 'model',
-                    text: `Вибачте, не вдалося зв'язатися з AI. Напишіть нам в Telegram [@mlpcutiefamily](https://t.me/mlpcutiefamily) ✨`,
+                    text: `Вибачте, не вдалося зв'язатися з AI. Напишіть нам в Telegram [@mlpcutiefamily](https://t.me/mlpcutiefamily) 🙏`,
                 },
             ]);
         } finally {
@@ -151,7 +141,7 @@ export default function AiChatBubble() {
                     )}
 
                     <span className="text-2xl transition-transform duration-300" style={{ transform: isOpen ? 'rotate(45deg)' : 'none' }}>
-                        {isOpen ? <XMarkIcon className="w-8 h-8 text-white" /> : <img src="/png/IMG_20260210_181913_338.PNG" alt="Menu" className="w-12 h-12" />}
+                        {isOpen ? '✕' : <img src="/png/IMG_20260210_181913_338.PNG" alt="Menu" className="w-12 h-12" />}
                     </span>
                 </button>
             </div>
@@ -168,7 +158,7 @@ export default function AiChatBubble() {
                     style={{ background: 'linear-gradient(135deg, #F0A1BF 0%, #ec4899 100%)' }}
                 >
                     <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-xl flex-shrink-0">
-                    <img src="/png/IMG_20260210_181913_338.PNG" alt="mlpcutiefamily" className="w-9 h-9 rounded-full object-cover" />
+                        <img src="/png/IMG_20260210_181913_338.PNG"></img>
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-white font-bold text-sm leading-tight">AI-помічник</p>
@@ -179,16 +169,16 @@ export default function AiChatBubble() {
                         <button
                             onClick={handleReset}
                             title="Почати нову розмову"
-                            className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors"
+                            className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-xs transition-colors"
                         >
-                            <ArrowPathIcon className="w-4 h-4" />
+                            ↺
                         </button>
                         {/* Close button */}
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors"
+                            className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-sm transition-colors"
                         >
-                            <XMarkIcon className="w-4 h-4" />
+                            ✕
                         </button>
                     </div>
                 </div>
@@ -203,7 +193,7 @@ export default function AiChatBubble() {
                             {/* Avatar */}
                             {msg.role === 'model' && (
                                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm flex-shrink-0 mt-0.5">
-                                <img src="/png/IMG_20260210_181913_338.PNG" alt="mlpcutiefamily" className="w-7 h-7 rounded-full object-cover" />
+                                    <img src="/png/IMG_20260210_181913_338.PNG"></img>
                                 </div>
                             )}
 
@@ -222,8 +212,8 @@ export default function AiChatBubble() {
                     {/* Loading indicator */}
                     {loading && (
                         <div className="flex gap-2 flex-row">
-                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
-                                <SparklesIcon className="w-4 h-4" />
+                            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-sm flex-shrink-0 mt-0.5">
+                                🦄
                             </div>
                             <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-3">
                                 <div className="flex gap-1 items-center">
@@ -244,11 +234,10 @@ export default function AiChatBubble() {
                         {QUICK_QUESTIONS.map((q, i) => (
                             <button
                                 key={i}
-                                onClick={() => sendMessage(q.text)}
-                                className="text-left text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl px-3 py-2 transition-colors flex items-center gap-2"
+                                onClick={() => sendMessage(q)}
+                                className="text-left text-xs text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-xl px-3 py-2 transition-colors"
                             >
-                                <q.icon className="w-3 h-3 flex-shrink-0" />
-                                <span>{q.text}</span>
+                                {q}
                             </button>
                         ))}
                     </div>

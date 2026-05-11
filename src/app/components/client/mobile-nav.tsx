@@ -14,8 +14,7 @@ import {
   TrophyIcon,
   Bars3Icon,
   XMarkIcon,
-  SparklesIcon,
-  LockClosedIcon
+  SparklesIcon
 } from '@heroicons/react/24/solid';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -216,7 +215,7 @@ export default function MobileNav() {
               <UserCircleIcon className="w-6 h-6 sm:w-7 sm:h-7" />
               {profile?.isBlocked ? (
                 <span className="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center border-2 border-white shadow-lg">
-                  <LockClosedIcon className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  🔒
                 </span>
               ) : user && profile && profile.points > 0 && (
                 <span className="absolute -top-2 -right-4 bg-yellow-400 text-purple-900 text-[10px] sm:text-xs font-bold rounded-full px-1.5 py-0.5 min-w-[16px] sm:min-w-[20px] text-center border-2 border-white">

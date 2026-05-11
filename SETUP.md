@@ -102,7 +102,7 @@ npm run dev
     name: "Twilight Sparkle"
     category: "Основні персонажі"
     price: "299"
-    image: "icons"
+    image: "🦄"
     description: "..."
     inStock: true
     quantity: 15

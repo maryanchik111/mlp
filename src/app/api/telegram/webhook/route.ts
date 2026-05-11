@@ -53,14 +53,14 @@ export async function POST(request: NextRequest) {
       // The parameter comes concatenated with /start in some cases
       await sendTelegramMessage(
         chatId,
-        'icons <b>Привіт! Я бот MLP Store icons</b>\n\n' +
+        '👋 <b>Привіт! Я бот MLP Store 🦄</b>\n\n' +
         'Щоб прив\'язати свій акаунт в магазині до цього чату:\n\n' +
         '1️⃣ Перейдіть на <b>mlpcutiefamily.pp.ua</b>\n' +
         '2️⃣ Увійдіть в свій кабінет\n' +
-        '3️⃣ Натисніть "icons Генерувати код"\n' +
+        '3️⃣ Натисніть "📱 Генерувати код"\n' +
         '4️⃣ Скопіюйте код і напишіть мені:\n' +
         '<code>/bind ABC123</code>\n\n' +
-        'icons Після прив\'язки ви матимете сповіщення про замовлення, спеціальні пропозиції та новини сезону!'
+        '✨ Після прив\'язки ви матимете сповіщення про замовлення, спеціальні пропозиції та новини сезону!'
       );
       return NextResponse.json({ ok: true });
     }
@@ -92,12 +92,12 @@ export async function POST(request: NextRequest) {
       if (user) {
         await sendTelegramMessage(
           chatId,
-          `icons <b>Ваш акаунт прив'язаний!</b>\n\nicons Ім'я: <b>${user.profile.displayName || 'Користувач'}</b>\nicons Email: <code>${user.profile.email}</code>\nicons Бали: <b>${user.profile.points}</b>`
+          `✅ <b>Ваш акаунт прив'язаний!</b>\n\n👤 Ім'я: <b>${user.profile.displayName || 'Користувач'}</b>\n📧 Email: <code>${user.profile.email}</code>\n⭐ Бали: <b>${user.profile.points}</b>`
         );
       } else {
         await sendTelegramMessage(
           chatId,
-          'icons Ваш акаунт не прив\'язаний. Напишіть /start для інструкцій.'
+          '❌ Ваш акаунт не прив\'язаний. Напишіть /start для інструкцій.'
         );
       }
 
@@ -111,12 +111,12 @@ export async function POST(request: NextRequest) {
       if (user) {
         await sendTelegramMessage(
           chatId,
-          'icons️ Функція розв\'язування буде доступна в особистому кабінеті на сайті.'
+          '⚠️ Функція розв\'язування буде доступна в особистому кабінеті на сайті.'
         );
       } else {
         await sendTelegramMessage(
           chatId,
-          'icons Ваш акаунт не прив\'язаний.'
+          '❌ Ваш акаунт не прив\'язаний.'
         );
       }
 
@@ -136,15 +136,15 @@ export async function POST(request: NextRequest) {
       if (ticketId) {
         await sendTelegramMessage(
           chatId,
-          `icons <b>Ваше повідомлення отримано!</b>\n\n` +
-          `icons Номер тікета: <code>${ticketId}</code>\n` +
-          `icons Наша команда відповість найближчим часом\n\n` +
-          `icons Дякуємо за звернення! icons`
+          `✅ <b>Ваше повідомлення отримано!</b>\n\n` +
+          `🎫 Номер тікета: <code>${ticketId}</code>\n` +
+          `⏳ Наша команда відповість найближчим часом\n\n` +
+          `🦄 Дякуємо за звернення! 💜`
         );
       } else {
         await sendTelegramMessage(
           chatId,
-          'icons Помилка при створенні тікета. Спробуйте ще раз.'
+          '❌ Помилка при створенні тікета. Спробуйте ще раз.'
         );
       }
 
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     // Default
     await sendTelegramMessage(
       chatId,
-      'icons Я розумію тільки команди. Напишіть /start для інструкцій.\n\n' +
+      '🦄 Я розумію тільки команди. Напишіть /start для інструкцій.\n\n' +
       'Або просто напишіть своє питання, і я створю тікет підтримки!'
     );
 
@@ -172,7 +172,7 @@ async function processBindingCode(chatId: number | string, telegramId: string, u
   if (!code || code.length < 6) {
     await sendTelegramMessage(
       chatId,
-      'icons Невірний формат. Використовуйте: <code>/bind ABCDEF</code>'
+      '❌ Невірний формат. Використовуйте: <code>/bind ABCDEF</code>'
     );
     return;
   }
@@ -183,7 +183,7 @@ async function processBindingCode(chatId: number | string, telegramId: string, u
   if (!uid) {
     await sendTelegramMessage(
       chatId,
-      'icons Код прив\'язки невірний або закінчився. Спробуйте ще раз.'
+      '❌ Код прив\'язки невірний або закінчився. Спробуйте ще раз.'
     );
     return;
   }
@@ -199,17 +199,17 @@ async function processBindingCode(chatId: number | string, telegramId: string, u
 
     await sendTelegramMessage(
       chatId,
-      'icons <b>Ура! Ваш акаунт успішно прив\'язаний!</b> icons\n\n' +
-      'icons Тепер ви матимете:\n' +
-      'icons Сповіщення про нові замовлення\n' +
-      'icons Спеціальні пропозиції та знижки\n' +
-      'icons Новини з MLP світу\n\n' +
-      'Дякуємо, що ви з нами! icons'
+      '✨ <b>Ура! Ваш акаунт успішно прив\'язаний!</b> 🎉\n\n' +
+      '🦄 Тепер ви матимете:\n' +
+      '📦 Сповіщення про нові замовлення\n' +
+      '🎁 Спеціальні пропозиції та знижки\n' +
+      '⭐ Новини з MLP світу\n\n' +
+      'Дякуємо, що ви з нами! 💜'
     );
   } else {
     await sendTelegramMessage(
       chatId,
-      'icons Помилка при прив\'язці. Спробуйте ще раз.'
+      '❌ Помилка при прив\'язці. Спробуйте ще раз.'
     );
   }
 }

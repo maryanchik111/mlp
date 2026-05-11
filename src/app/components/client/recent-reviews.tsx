@@ -65,7 +65,7 @@ export default function RecentReviews() {
   if (!reviews.length && !screenshotReviews.length) {
     return (
       <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-purple-200">
-        <h2 className="text-2xl font-bold mb-3 text-purple-700 text-center">icons Відгуки покупців</h2>
+        <h2 className="text-2xl font-bold mb-3 text-purple-700 text-center">💬 Відгуки покупців</h2>
         <p className="text-gray-700 text-sm text-center">Поки що немає відгуків. Будьте першим!</p>
       </div>
     );
@@ -76,7 +76,7 @@ export default function RecentReviews() {
       {/* Заголовок з середнім рейтингом */}
       <div className="mb-6 text-center">
         <h2 className="text-2xl font-bold text-purple-700 mb-4 flex items-center justify-center gap-3">
-          icons Відгуки покупців
+          💬 Відгуки покупців
         </h2>
         {reviews.length > 0 && (
           <div className="flex items-center justify-center gap-3 mb-6">
@@ -141,7 +141,7 @@ export default function RecentReviews() {
                     <div className="text-xs text-purple-400 font-medium opacity-60">#{r.orderId}</div>
                   </div>
                   <p className="text-sm text-gray-800 leading-relaxed">
-                    {r.text?.length ? `"${r.text}"` : 'icons Чудова покупка!'}
+                    {r.text?.length ? `"${r.text}"` : '⭐ Чудова покупка!'}
                   </p>
 
                   {/* Відповідь адміна якщо є */}

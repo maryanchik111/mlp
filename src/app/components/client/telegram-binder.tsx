@@ -108,7 +108,7 @@ export default function TelegramBinder({
             disabled={loading}
             className="w-full py-2 px-4 rounded-lg bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'icons Завантаження...' : 'Розв\'язати Telegram'}
+            {loading ? '⏳ Завантаження...' : 'Розв\'язати Telegram'}
           </button>
         </div>
       ) : (
@@ -116,7 +116,7 @@ export default function TelegramBinder({
           {bindingCode ? (
             <div className="space-y-3">
               <div className="bg-green-50 rounded-lg p-4 border-2 border-green-300">
-                <p className="text-sm text-gray-600 mb-2">icons Код згенерований:</p>
+                <p className="text-sm text-gray-600 mb-2">✅ Код згенерований:</p>
                 <div className="flex items-center gap-2">
                   <code className="text-2xl font-bold text-green-600 bg-white px-3 py-2 rounded border-2 border-green-300 flex-1 text-center">
                     {bindingCode}
@@ -129,7 +129,7 @@ export default function TelegramBinder({
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    {copied ? '✓' : 'icons'}
+                    {copied ? '✓' : '📋'}
                   </button>
                 </div>
               </div>
@@ -138,21 +138,21 @@ export default function TelegramBinder({
                 onClick={() => openTelegramBot(bindingCode)}
                 className="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               >
-                icons Відкрити бота
+                🚀 Відкрити бота
               </button>
 
               <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 text-sm text-gray-700">
-                <p className="font-semibold mb-2">icons️ Як це працює:</p>
+                <p className="font-semibold mb-2">ℹ️ Як це працює:</p>
                 <ol className="list-decimal list-inside space-y-2 text-xs">
                   <li>Натисніть "Відкрити бота" або перейдіть на @{TELEGRAM_BOT_USERNAME}</li>
                   <li>Напишіть команду: <code className="bg-white px-1 rounded">/bind {bindingCode}</code></li>
-                  <li>Або скопіюйте код (кнопка icons) і вставте після /bind</li>
-                  <li>Бот відправить підтвердження icons</li>
+                  <li>Або скопіюйте код (кнопка 📋) і вставте після /bind</li>
+                  <li>Бот відправить підтвердження 🎉</li>
                 </ol>
               </div>
 
               <p className="text-xs text-gray-600 text-center">
-                icons️ Код дійсний 15 хвилин
+                ⏱️ Код дійсний 15 хвилин
               </p>
             </div>
           ) : (
@@ -167,7 +167,7 @@ export default function TelegramBinder({
                 disabled={loading}
                 className="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               >
-                {loading ? 'icons Генерування...' : 'icons Генерувати код'}
+                {loading ? '⏳ Генерування...' : '📱 Генерувати код'}
               </button>
             </div>
           )}

@@ -26,6 +26,7 @@ import TopBuyers from "./components/client/top-buyers";
 import RecentReviews from "@/app/components/client/recent-reviews";
 import Basket from "./components/client/basket";
 import { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 
 import GiveawayBanner from "./components/client/giveaway-banner";
 
@@ -66,13 +67,13 @@ export default function Home() {
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4 relative w-full">
               {randomImage && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src="/hero-image.PNG"
-                  alt="MLP hero image"
+                <Image
+                  src='/hero-image.PNG'
+                  alt="MLP random hero image"
                   width={400}
                   height={300}
-                  className="object-contain rounded-xl drop-shadow-lg mx-auto"
+                  className="object-contain rounded-xl drop-shadow-lg"
+                  priority
                 />
               )}
             </div>
@@ -128,8 +129,8 @@ export default function Home() {
       {/* Статистика */}
       <section className="bg-white py-16">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600 flex items-center justify-center gap-2">
-            <SparklesIcon className="w-6 h-6 text-purple-400" /> Чому нас обирають
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600">
+            🌟 Чому нас обирають
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="bg-purple-50 rounded-lg p-6 text-center">
@@ -220,7 +221,7 @@ export default function Home() {
             <div className="text-center md:text-left">
               <h3 className="text-base font-bold text-purple-600 mb-2 flex items-center gap-2">mlpcutiefamily store <SparklesIcon className="w-8 h-8 text-purple-400" /></h3>
               <p className="text-sm text-gray-600">
-                <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду <SparklesIcon className="inline w-4 h-4 text-purple-400" />
+                <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду 🦄✨
               </p>
             </div>
 

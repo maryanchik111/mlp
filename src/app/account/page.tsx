@@ -8,28 +8,6 @@ import TelegramBinder from '@/app/components/client/telegram-binder';
 import SupportButton from '@/app/components/client/support-button';
 import PhoneLogin from '@/app/components/client/PhoneLogin';
 import { useModal } from '@/app/providers';
-import { 
-  LockClosedIcon, 
-  ArrowRightOnRectangleIcon, 
-  UserIcon, 
-  StarIcon, 
-  SparklesIcon, 
-  TrophyIcon, 
-  MoonIcon,
-  CameraIcon,
-  PencilIcon,
-  CheckIcon,
-  CubeIcon,
-  ClipboardDocumentListIcon,
-  MapPinIcon,
-  TruckIcon,
-  BanknotesIcon,
-  ChatBubbleBottomCenterTextIcon,
-  CalendarIcon,
-  ArrowLeftIcon,
-  EnvelopeIcon,
-  XMarkIcon
-} from '@heroicons/react/24/solid';
 
 export default function AccountPage() {
   const { user, profile, loading, signIn, signOut, refreshProfile } = useAuth();
@@ -116,9 +94,7 @@ export default function AccountPage() {
       <main className="min-h-screen bg-gray-50 py-12 text-black">
         <div className="container mx-auto px-4 max-w-md text-center">
           <div className="bg-white p-8 rounded-lg shadow-sm">
-            <div className="flex justify-center mb-4">
-              <SparklesIcon className="w-16 h-16 text-purple-500" />
-            </div>
+            <div className="text-6xl mb-4">🦄</div>
             <h1 className="text-2xl font-bold mb-4 text-gray-900">Увійдіть в акаунт</h1>
             <p className="text-gray-600 mb-6 font-medium text-sm">Авторизуйтесь щоб бачити історію покупок, рейтинг та бали.</p>
 
@@ -127,13 +103,11 @@ export default function AccountPage() {
                 onClick={() => signIn().then(() => refreshProfile())}
                 className="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
               >
-                <LockClosedIcon className="w-5 h-5" /> Увійти через Google
+                🔐 Увійти через Google
               </button>
             </div>
 
-            <Link href="/catalog" className="flex items-center justify-center gap-2 mt-6 text-purple-600 hover:text-purple-700 font-bold transition-colors">
-              <ArrowLeftIcon className="w-4 h-4" /> До каталогу
-            </Link>
+            <Link href="/catalog" className="block mt-6 text-purple-600 hover:text-purple-700 font-bold transition-colors">← До каталогу</Link>
           </div>
         </div>
       </main>
@@ -145,9 +119,7 @@ export default function AccountPage() {
       <main className="min-h-screen bg-red-50 py-12 text-black">
         <div className="container mx-auto px-4 max-w-md text-center mb-12">
           <div className="bg-white p-8 rounded-2xl shadow-2xl border-4 border-red-500">
-            <div className="flex justify-center mb-6">
-              <LockClosedIcon className="w-20 h-20 text-red-500" />
-            </div>
+            <div className="text-7xl mb-6">🔒</div>
             <h1 className="text-3xl font-black mb-4 text-red-600 uppercase tracking-widest">Акаунт заблоковано</h1>
             <div className="bg-red-50 p-4 rounded-xl mb-6">
               <p className="text-gray-700 font-bold mb-2">На жаль, ваш доступ до особистого кабінету призупинено.</p>
@@ -156,15 +128,15 @@ export default function AccountPage() {
             <div className="space-y-3">
               <a
                 href="https://t.me/mlp_cutie_family_bot"
-                className="flex items-center justify-center gap-2 w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg"
+                className="block w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg"
               >
-                <EnvelopeIcon className="w-5 h-5" /> Написати в підтримку
+                💌 Написати в підтримку
               </a>
               <button
                 onClick={() => signOut()}
-                className="w-full bg-white border-2 border-red-500 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 transition-all flex items-center justify-center gap-2"
+                className="w-full bg-white border-2 border-red-500 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 transition-all"
               >
-                <ArrowRightOnRectangleIcon className="w-5 h-5" /> Вийти з акаунта
+                🚪 Вийти з акаунта
               </button>
             </div>
           </div>
@@ -174,12 +146,12 @@ export default function AccountPage() {
   }
 
   const ratingBadges = [
-    { level: 0, label: 'Новий друг Еквестрії', color: 'bg-gray-200 text-gray-800', icon: UserIcon },
-    { level: 1, label: 'Друг місяця', color: 'bg-blue-100 text-blue-800', icon: MoonIcon },
-    { level: 2, label: 'Істинний шанувальник', color: 'bg-purple-100 text-purple-800', icon: StarIcon },
-    { level: 3, label: 'Колекціонер MLP', color: 'bg-pink-100 text-pink-800', icon: SparklesIcon },
-    { level: 4, label: 'Королева Понів', color: 'bg-amber-100 text-amber-800', icon: TrophyIcon },
-    { level: 5, label: 'Легенда Еквестрії', color: 'bg-green-100 text-green-800', icon: SparklesIcon },
+    { level: 0, label: '🐎 Новий друг Еквестрії', color: 'bg-gray-200 text-gray-800' },
+    { level: 1, label: '🌙 Друг місяця', color: 'bg-blue-100 text-blue-800' },
+    { level: 2, label: '⭐ Істинний шанувальник', color: 'bg-purple-100 text-purple-800' },
+    { level: 3, label: '💎 Колекціонер MLP', color: 'bg-pink-100 text-pink-800' },
+    { level: 4, label: '👑 Королева Понів', color: 'bg-amber-100 text-amber-800' },
+    { level: 5, label: '✨ Легенда Еквестрії', color: 'bg-green-100 text-green-800' },
   ];
   const badge = ratingBadges.find(b => b.level === profile?.rating) || ratingBadges[0];
 
@@ -257,7 +229,7 @@ export default function AccountPage() {
                   {isUploadingPhoto ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                    <CameraIcon className="w-6 h-6 text-white" />
+                    <span className="text-white text-xs font-bold">📷</span>
                   )}
                   <input
                     type="file"
@@ -283,16 +255,16 @@ export default function AccountPage() {
                     <button
                       onClick={handleUpdateName}
                       disabled={isSavingName || !newName.trim()}
-                      className="p-1 px-2 bg-green-500 text-white rounded-lg text-xs font-bold hover:bg-green-600 disabled:opacity-50 flex items-center justify-center"
+                      className="p-1 px-2 bg-green-500 text-white rounded-lg text-xs font-bold hover:bg-green-600 disabled:opacity-50"
                     >
-                      {isSavingName ? '...' : <CheckIcon className="w-4 h-4" />}
+                      {isSavingName ? '...' : '💾'}
                     </button>
                     <button
                       onClick={() => setIsEditingName(false)}
                       disabled={isSavingName}
-                      className="p-1 px-2 bg-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-300 disabled:opacity-50 flex items-center justify-center"
+                      className="p-1 px-2 bg-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-300 disabled:opacity-50"
                     >
-                      <XMarkIcon className="w-4 h-4" />
+                      ✕
                     </button>
                   </div>
                 ) : (
@@ -305,7 +277,7 @@ export default function AccountPage() {
                       className="text-gray-400 hover:text-purple-600 transition-colors text-xs p-1"
                       title="Змінити ім'я"
                     >
-                      <PencilIcon className="w-4 h-4" />
+                      ✏️
                     </button>
                   </div>
                 )}
@@ -323,10 +295,7 @@ export default function AccountPage() {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-10">
           <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
             <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Рейтинг</p>
-            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${badge.color}`}>
-              {badge.icon && <badge.icon className="w-3 h-3" />}
-              {badge.label}
-            </span>
+            <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${badge.color}`}>{badge.label}</span>
             <p className="text-xs text-gray-500 mt-2">Рівень: {profile?.rating}</p>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
@@ -360,9 +329,7 @@ export default function AccountPage() {
         {/* Історія замовлень */}
         <section className="mb-20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-2">
-              <CubeIcon className="w-7 h-7 text-purple-600" /> Замовлення
-            </h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">📦 Замовлення</h2>
             <button
               onClick={async () => {
                 if (!user) return;
@@ -398,11 +365,7 @@ export default function AccountPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-xs">
                     {order.items.slice(0, 6).map(i => (
                       <div key={i.id} className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded border border-gray-200">
-                        {i.image && i.image.length > 2 ? (
-                          <span className="w-4 h-4 overflow-hidden rounded flex items-center justify-center">{i.image}</span>
-                        ) : (
-                          <CubeIcon className="w-4 h-4 text-purple-400" />
-                        )}
+                        <span>{i.image}</span>
                         <span className="truncate text-gray-700">{i.name}</span>
                         <span className="text-gray-500 ml-auto">x{i.quantity}</span>
                       </div>
@@ -410,9 +373,9 @@ export default function AccountPage() {
                   </div>
                   <button
                     onClick={() => setSelectedOrder(order)}
-                    className="w-full sm:w-auto bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-colors font-medium text-sm flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-colors font-medium text-sm"
                   >
-                    <ClipboardDocumentListIcon className="w-4 h-4" /> Деталі
+                    📋 Деталі
                   </button>
                 </div>
               ))}
@@ -421,9 +384,7 @@ export default function AccountPage() {
         </section>
 
         <div className="text-center pb-16">
-          <Link href="/catalog" className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold text-sm sm:text-base hover:bg-purple-700 transition-colors">
-            <ArrowLeftIcon className="w-4 h-4" /> До каталогу
-          </Link>
+          <Link href="/catalog" className="inline-block bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold text-sm sm:text-base hover:bg-purple-700 transition-colors">← До каталогу</Link>
         </div>
       </div>
 
@@ -440,10 +401,10 @@ export default function AccountPage() {
                 </div>
                 <button
                   onClick={() => setSelectedOrder(null)}
-                  className="p-1 hover:bg-white/20 rounded-full transition-colors flex-shrink-0"
+                  className="text-white text-xl font-bold hover:scale-110 transition-transform flex-shrink-0"
                   aria-label="Закрити"
                 >
-                  <XMarkIcon className="w-6 h-6 text-white" />
+                  ✕
                 </button>
               </div>
             </div>
@@ -460,8 +421,8 @@ export default function AccountPage() {
 
               {/* Контактна інформація */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200 flex items-center gap-2">
-                  <UserIcon className="w-5 h-5 text-purple-600" /> Контактна інформація
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+                  👤 Контактна інформація
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -485,8 +446,8 @@ export default function AccountPage() {
 
               {/* Адреса доставки */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200 flex items-center gap-2">
-                  <MapPinIcon className="w-5 h-5 text-purple-600" /> Адреса доставки
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200">
+                  📍 Адреса доставки
                 </h3>
                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-2 text-sm">
                   <p className="text-gray-900">
@@ -505,8 +466,8 @@ export default function AccountPage() {
 
               {/* Способ доставки та оплати */}
               <section>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300 flex items-center gap-2">
-                  <TruckIcon className="w-5 h-5 text-purple-600" /> Доставка та оплата
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                  🚚 Доставка та оплата
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -522,8 +483,8 @@ export default function AccountPage() {
 
               {/* Товари */}
               <section>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300 flex items-center gap-2">
-                  <CubeIcon className="w-5 h-5 text-purple-600" /> Товари ({selectedOrder.items.length})
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                  📦 Товари ({selectedOrder.items.length})
                 </h3>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {selectedOrder.items.map((item) => (
@@ -544,8 +505,8 @@ export default function AccountPage() {
 
               {/* Розрахунки */}
               <section>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300 flex items-center gap-2">
-                  <BanknotesIcon className="w-5 h-5 text-purple-600" /> Розрахунки
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                  💰 Розрахунки
                 </h3>
                 <div className="bg-white border border-gray-300 rounded-lg p-3 sm:p-4 space-y-2">
                   <div className="flex justify-between text-sm text-gray-900 font-semibold">
@@ -589,7 +550,7 @@ export default function AccountPage() {
                   {selectedOrder.deliveryPrice === 0 && (
                     <div className="flex justify-between text-sm text-gray-900">
                       <span>Доставка:</span>
-                      <span className="font-semibold text-green-600 flex items-center gap-1">Безкоштовна <CheckIcon className="w-4 h-4" /></span>
+                      <span className="font-semibold text-green-600">Безкоштовна ✓</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm sm:text-base font-bold text-white pt-2 border-t border-gray-400 bg-indigo-600 -mx-3 -mb-3 sm:-mx-4 sm:-mb-4 px-3 sm:px-4 py-2 sm:py-3 rounded-b-lg">
@@ -602,8 +563,8 @@ export default function AccountPage() {
               {/* Коментарі */}
               {selectedOrder.comments && (
                 <section>
-                  <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300 flex items-center gap-2">
-                    <ChatBubbleBottomCenterTextIcon className="w-5 h-5 text-purple-600" /> Коментарі
+                  <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                    📝 Коментарі
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200 whitespace-pre-wrap break-words">{selectedOrder.comments}</p>
                 </section>
@@ -611,8 +572,8 @@ export default function AccountPage() {
 
               {/* Дати */}
               <section>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300 flex items-center gap-2">
-                  <CalendarIcon className="w-5 h-5 text-purple-600" /> Дати
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
+                  📅 Дати
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
