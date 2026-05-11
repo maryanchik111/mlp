@@ -17,8 +17,7 @@ import {
   ArrowLeftIcon, 
   ArrowRightIcon, 
   ClockIcon, 
-  ArrowUturnLeftIcon,
-  XCircleIcon
+  ArrowUturnLeftIcon
 } from '@heroicons/react/24/solid';
 
 const ITEMS_PER_PAGE = 6;
