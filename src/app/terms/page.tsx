@@ -1,4 +1,10 @@
 import Link from "next/link";
+import {
+  ScaleIcon,
+  EnvelopeIcon,
+  DevicePhoneMobileIcon,
+  ClockIcon,
+} from '@heroicons/react/24/solid';
 
 export default function TermsPage() {
   return (
@@ -10,7 +16,9 @@ export default function TermsPage() {
 
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 border-4 border-purple-200">
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">📜</div>
+            <div className="flex justify-center mb-4">
+              <ScaleIcon className="w-16 h-16 text-purple-400" />
+            </div>
             <h1 className="text-3xl md:text-4xl font-black text-purple-700 mb-2">
               Умови використання
             </h1>
@@ -123,9 +131,9 @@ export default function TermsPage() {
                 Якщо у вас виникли питання щодо умов використання:
               </p>
               <ul className="list-none space-y-2">
-                <li>📧 Email: <a href="mailto:support@mlp.store" className="text-purple-600 hover:underline">support@mlp.store</a></li>
-                <li>💬 Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a></li>
-                <li>📱 Робочі години: Пн-Нд, 9:00 - 21:00</li>
+                <li className="flex items-center gap-2"><EnvelopeIcon className="w-4 h-4 text-purple-500 flex-shrink-0" /> Email: <a href="mailto:support@mlp.store" className="text-purple-600 hover:underline">support@mlp.store</a></li>
+                <li className="flex items-center gap-2"><DevicePhoneMobileIcon className="w-4 h-4 text-purple-500 flex-shrink-0" /> Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a></li>
+                <li className="flex items-center gap-2"><ClockIcon className="w-4 h-4 text-purple-500 flex-shrink-0" /> Робочі години: Пн-Нд, 9:00 - 21:00</li>
               </ul>
             </section>
           </div>

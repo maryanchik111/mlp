@@ -1,18 +1,35 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import {
-  FolderOpenIcon,
-  StarIcon,
-  UserGroupIcon,
-  PaintBrushIcon,
+import { 
+  DocumentTextIcon,
+  NoSymbolIcon,
+  ArrowLeftIcon,
+  HomeIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
+  LightBulbIcon,
+  ShoppingBagIcon,
+  CameraIcon,
+  ClipboardDocumentListIcon,
+  ClockIcon,
+  SparklesIcon,
+  ShoppingCartIcon,
+  ChevronRightIcon,
   GiftIcon,
+  StarIcon,
+  PaintBrushIcon,
   CubeIcon,
   CheckCircleIcon,
   TrophyIcon,
+  FolderOpenIcon,
+  UserGroupIcon,
+  ArchiveBoxIcon,
   TagIcon,
   CurrencyDollarIcon,
-  DocumentTextIcon
+  InformationCircleIcon,
+  TrashIcon,
+  ChevronLeftIcon
 } from '@heroicons/react/24/solid';
 import Basket from '../components/client/basket';
 import AccountButton from '../components/client/account-button';
@@ -60,16 +77,20 @@ export default function BoxBuilderPage() {
       <main className="min-h-screen bg-white py-12 text-black">
         <div className="container mx-auto px-4 max-w-md text-center">
           <div className="bg-red-50 p-10 rounded-3xl border-2 border-red-200 shadow-xl">
-            <div className="text-6xl mb-6">🚫</div>
+            <div className="flex justify-center mb-6">
+              <NoSymbolIcon className="w-16 h-16 text-red-500" />
+            </div>
             <h1 className="text-2xl font-black text-red-600 mb-4 uppercase">Доступ обмежено</h1>
             <p className="text-gray-700 font-bold mb-6">Ви не можете використовувати конструктор боксів, оскільки ваш акаунт заблоковано.</p>
             <Link
               href="https://t.me/mlp_cutie_family_bot"
-              className="block w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg mb-4"
+              className="flex items-center justify-center gap-2 w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg mb-4"
             >
-              📣 Зв'язатися з підтримкою
+              💬 Зв'язатися з підтримкою
             </Link>
-            <Link href="/" className="text-gray-500 hover:text-gray-700 font-bold">← На головну</Link>
+            <Link href="/" className="flex items-center justify-center gap-2 text-gray-500 hover:text-gray-700 font-bold">
+              <ArrowLeftIcon className="w-4 h-4" /> На головну
+            </Link>
           </div>
         </div>
       </main>
@@ -122,7 +143,7 @@ export default function BoxBuilderPage() {
       name: `MLP Бокс «${selectedBoxType.name}» (${selectedItems.length} предметів)`,
       price: calculation!.total,
       quantity: 1,
-      image: '🎁',
+      image: '', // Use icon as fallback in UI,
       category: 'Конструктор боксів',
       maxQuantity: 1,
       discount: 0,
@@ -167,7 +188,9 @@ export default function BoxBuilderPage() {
     return (
       <main className="min-h-screen bg-purple-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
-          <div className="text-6xl mb-4">🎁</div>
+          <div className="flex justify-center mb-4">
+            <GiftIcon className="w-16 h-16 text-purple-400" />
+          </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-3">Конструктор боксів</h1>
           <p className="text-gray-600">Зараз ми наповнюємо наші боксики товарами, скоро це буде доступно. Завітайте скоро!</p>
         </div>
@@ -185,13 +208,15 @@ export default function BoxBuilderPage() {
             <ol className="flex items-center gap-3 text-sm">
               <li>
                 <a href="/" className="flex items-center gap-1 text-gray-600 hover:text-purple-700 transition-colors">
-                  <span>🏠</span>
+                  <HomeIcon className="w-4 h-4" />
                   Головна
                 </a>
               </li>
-              <li className="text-gray-400">→</li>
-              <li className="text-purple-700 font-semibold flex items-center gap-1">
-                <span>🎁</span>
+              <li className="text-gray-400">
+                <ChevronRightIcon className="w-4 h-4" />
+              </li>
+              <li className="text-purple-700 font-semibold flex items-center gap-2">
+                <GiftIcon className="w-4 h-4" />
                 Конструктор боксів
               </li>
             </ol>
@@ -294,7 +319,7 @@ export default function BoxBuilderPage() {
               {/* CTA Section */}
               <div className="text-center">
                 <div className="inline-flex flex-col items-center justify-center p-8 bg-purple-50 border border-purple-200 rounded-xl max-w-md mx-auto">
-                  <div className="text-6xl mb-4">🎁</div>
+                  <GiftIcon className="w-16 h-16 text-purple-400 mb-4" />
                   <h3 className="text-xl font-bold text-gray-900 mb-2">Готові розпочати?</h3>
                   <p className="text-purple-600 font-semibold">Створимо магію разом!</p>
                 </div>
@@ -322,22 +347,22 @@ export default function BoxBuilderPage() {
                   >
                     {/* Popular badge for middle option */}
                     {index === 1 && (
-                      <div className="bg-orange-500 text-white px-3 py-2 text-xs font-bold text-center">
-                        ⭐ ПОПУЛЯРНИЙ
+                      <div className="bg-orange-500 text-white px-3 py-2 text-xs font-bold text-center flex items-center justify-center gap-2">
+                        <StarIcon className="w-4 h-4" /> ПОПУЛЯРНИЙ
                       </div>
                     )}
 
                     {/* Header */}
-                    <div className="p-8 text-center"
+                    <div className="p-8 text-center text-white"
                       style={{
                         backgroundColor: index === 0 ? '#8B5CF6' :
                           index === 1 ? '#EC4899' :
                             '#F59E0B'
                       }}>
-                      <div className="text-6xl mb-4">
-                        {index === 0 ? '📦' : index === 1 ? '🎁' : '🏆'}
+                      <div className="flex justify-center mb-4">
+                        {index === 0 ? <CubeIcon className="w-16 h-16" /> : index === 1 ? <GiftIcon className="w-16 h-16" /> : <TrophyIcon className="w-16 h-16" />}
                       </div>
-                      <h3 className="text-4xl font-bold text-white mb-2">{box.name}</h3>
+                      <h3 className="text-4xl font-bold mb-2">{box.name}</h3>
                       <p className="text-white/90 text-base font-semibold">
                         {index === 0 ? 'Компактний' : index === 1 ? 'Оптимальний' : 'Максимальний'}
                       </p>
@@ -387,9 +412,9 @@ export default function BoxBuilderPage() {
                       {/* Button */}
                       <button
                         onClick={() => handleStartBuilding(box)}
-                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-colors"
+                        className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
                       >
-                        Почати створення →
+                        Почати створення <ChevronRightIcon className="w-5 h-5" />
                       </button>
                     </div>
                   </div>
@@ -399,7 +424,7 @@ export default function BoxBuilderPage() {
               {/* Info section */}
               <div className="mt-12 text-center">
                 <div className="inline-flex items-center gap-4 bg-amber-50 border border-amber-200 rounded-xl p-6 max-w-2xl mx-auto">
-                  <div className="text-3xl">💡</div>
+                  <LightBulbIcon className="w-10 h-10 text-amber-500" />
                   <div className="text-left">
                     <p className="font-bold text-amber-900 mb-1">Порада від експертів</p>
                     <p className="text-sm text-amber-800">
@@ -501,7 +526,7 @@ export default function BoxBuilderPage() {
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 gap-4">
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 mb-3 flex items-center gap-3">
-                        <span className="text-xl">🛍️</span>
+                        <ShoppingBagIcon className="w-7 h-7 text-purple-600" />
                         Крок 2: Оберіть товари
                       </h2>
                       <div className="flex flex-col sm:flex-row gap-3 text-sm text-gray-600">
@@ -522,7 +547,7 @@ export default function BoxBuilderPage() {
                       }}
                       className="flex items-center gap-2 text-purple-600 hover:text-purple-700 text-sm font-semibold hover:bg-purple-50 px-4 py-2 rounded-lg transition-colors border border-purple-200"
                     >
-                      <span>←</span>
+                      <ArrowLeftIcon className="w-4 h-4" />
                       <span>Змінити розмір</span>
                     </button>
                   </div>
@@ -530,7 +555,7 @@ export default function BoxBuilderPage() {
                   {/* Search */}
                   <div className="relative mb-6">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <span className="text-gray-400 text-lg">🔍</span>
+                      <MagnifyingGlassIcon className="w-5 h-5 text-gray-400" />
                     </div>
                     <input
                       type="text"
@@ -544,7 +569,7 @@ export default function BoxBuilderPage() {
                         onClick={() => setSearchQuery('')}
                         className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
                       >
-                        ✕
+                        <XMarkIcon className="w-5 h-5" />
                       </button>
                     )}
                   </div>
@@ -601,8 +626,8 @@ export default function BoxBuilderPage() {
                               className="w-full h-36 object-contain p-2"
                             />
                           ) : (
-                            <div className="w-full h-36 flex items-center justify-center text-4xl bg-gray-100">
-                              🎁
+                            <div className="w-full h-36 flex items-center justify-center bg-gray-100 text-gray-400">
+                              <ArchiveBoxIcon className="w-12 h-12" />
                             </div>
                           )}
 
@@ -614,7 +639,7 @@ export default function BoxBuilderPage() {
 
                           {hasMultipleImages && (
                             <div className="absolute bottom-3 left-3 bg-black/70 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                              📷 {item.images.length}
+                              <CameraIcon className="w-3 h-3" /> {item.images.length}
                             </div>
                           )}
 
@@ -649,7 +674,7 @@ export default function BoxBuilderPage() {
                 {/* Empty State */}
                 {filteredItems.length === 0 && (
                   <div className="text-center py-20">
-                    <div className="text-6xl mb-4">🔍</div>
+                    <MagnifyingGlassIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">Товари не знайдено</h3>
                     <p className="text-gray-600 mb-6 max-w-md mx-auto">
                       Спробуйте змінити пошуковий запит або оберіть іншу категорію
@@ -676,7 +701,7 @@ export default function BoxBuilderPage() {
             <div className="bg-white rounded-xl p-8 md:p-10 border border-gray-200 mx-4 max-w-7xl mx-auto">
               <div className="flex items-center gap-4 mb-8">
                 <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-2xl">📋</span>
+                  <ClipboardDocumentListIcon className="w-7 h-7 text-white" />
                 </div>
                 <div>
                   <h3 className="text-3xl font-bold text-gray-900">Підсумок вашого Magic Box</h3>
@@ -688,14 +713,14 @@ export default function BoxBuilderPage() {
               <div className="mb-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-xl">
                 <div className="flex items-start gap-4">
                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-sm">⏱️</span>
+                    <ClockIcon className="w-5 h-5 text-white" />
                   </div>
                   <div>
                     <p className="font-bold text-blue-900 mb-2">Час виготовлення Magic Box</p>
                     <p className="text-blue-800 leading-relaxed">
                       Ваш унікальний бокс буде ретельно зібрано та запаковано протягом
                       <span className="font-bold mx-1">2-4 тижнів</span>
-                      після оформлення замовлення. Кожен Magic Box створюється індивідуально! ✨
+                      після оформлення замовлення. Кожен Magic Box створюється індивідуально! <SparklesIcon className="inline w-4 h-4 text-yellow-400 mb-1" />
                     </p>
                   </div>
                 </div>
@@ -707,8 +732,8 @@ export default function BoxBuilderPage() {
                   {/* Box details */}
                   <div className="flex items-center justify-between p-6 bg-purple-50 rounded-xl border border-purple-200">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center text-white text-2xl">
-                        📦
+                      <div className="w-16 h-16 bg-purple-500 rounded-xl flex items-center justify-center text-white">
+                        <CubeIcon className="w-10 h-10" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 font-semibold uppercase">Magic Box</p>
@@ -725,8 +750,8 @@ export default function BoxBuilderPage() {
                   {/* Items details */}
                   <div className="flex items-center justify-between p-6 bg-pink-50 rounded-xl border border-pink-200">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-pink-500 rounded-xl flex items-center justify-center text-white text-2xl">
-                        🎁
+                      <div className="w-16 h-16 bg-pink-500 rounded-xl flex items-center justify-center text-white">
+                        <GiftIcon className="w-10 h-10" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 font-semibold uppercase">Магічні товари</p>
@@ -747,7 +772,7 @@ export default function BoxBuilderPage() {
                     <div className="p-6 bg-gray-50 rounded-xl border border-gray-200">
                       <div className="flex items-center gap-3 mb-5">
                         <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm">✨</span>
+                          <SparklesIcon className="w-5 h-5 text-white" />
                         </div>
                         <p className="font-bold text-gray-900">Обрані товари ({selectedItems.length})</p>
                       </div>
@@ -774,7 +799,7 @@ export default function BoxBuilderPage() {
                   {/* Total */}
                   <div className="bg-purple-600 rounded-xl p-8 text-white">
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-2xl">💎</span>
+                      <SparklesIcon className="w-6 h-6 text-yellow-300" />
                       <p className="text-sm font-semibold uppercase">Всього до сплати</p>
                     </div>
 
@@ -794,7 +819,7 @@ export default function BoxBuilderPage() {
                         {selectedItems.length > 0 ? (
                           <>
                             <span>Додати Magic Box до кошика</span>
-                            <span className="text-2xl">🛒</span>
+                            <ShoppingCartIcon className="w-6 h-6" />
                           </>
                         ) : (
                           <>
@@ -822,7 +847,7 @@ export default function BoxBuilderPage() {
                     {selectedItems.length > 0 && selectedItems.length < selectedBoxType.capacity && (
                       <div className="p-4 bg-amber-50 border-2 border-amber-200 rounded-xl">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-amber-600">💡</span>
+                          <InformationCircleIcon className="w-5 h-5 text-amber-600" />
                           <p className="text-sm font-semibold text-amber-800">Підказка</p>
                         </div>
                         <p className="text-xs text-amber-700">
@@ -848,11 +873,11 @@ export default function BoxBuilderPage() {
                   <h2 className="text-2xl font-bold line-clamp-2 mb-1">{detailModal.name}</h2>
                   <div className="flex items-center gap-4 text-sm opacity-90">
                     <span className="flex items-center gap-1">
-                      <span>🏷️</span>
+                      <TagIcon className="w-4 h-4" />
                       {detailModal.category}
                     </span>
                     <span className="flex items-center gap-1">
-                      <span>💰</span>
+                      <CurrencyDollarIcon className="w-4 h-4" />
                       {detailModal.price} ₴
                     </span>
                   </div>
@@ -908,13 +933,13 @@ export default function BoxBuilderPage() {
                             onClick={() => setPhotoIndex(prev => (prev - 1 + detailModal.images!.length) % detailModal.images!.length)}
                             className="px-5 py-3 bg-purple-600 text-white text-base font-semibold rounded-lg hover:bg-purple-700 transition-colors w-full"
                           >
-                            ←
+                            <ChevronLeftIcon className="w-6 h-6 mx-auto" />
                           </button>
                           <button
                             onClick={() => setPhotoIndex(prev => (prev + 1) % detailModal.images!.length)}
                             className="px-5 py-3 bg-pink-600 text-white text-base font-semibold rounded-lg hover:bg-pink-700 transition-colors w-full"
                           >
-                            →
+                            <ChevronRightIcon className="w-6 h-6 mx-auto" />
                           </button>
                         </div>
 
@@ -931,7 +956,7 @@ export default function BoxBuilderPage() {
                           }}
                           className="w-full py-4 px-6 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors flex items-center justify-center gap-3 text-lg"
                         >
-                          <span className="text-2xl">🗑️</span>
+                          <TrashIcon className="w-6 h-6" />
                           <span>Видалити з Magic Box</span>
                         </button>
                       ) : (
@@ -948,9 +973,11 @@ export default function BoxBuilderPage() {
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                             } flex items-center justify-center gap-3 text-lg`}
                         >
-                          <span className="text-2xl">
-                            {selectedItems.length >= (selectedBoxType?.capacity || 0) ? '⚠️' : '✨'}
-                          </span>
+                          {selectedItems.length >= (selectedBoxType?.capacity || 0) ? (
+                            <NoSymbolIcon className="w-6 h-6" />
+                          ) : (
+                            <ShoppingBagIcon className="w-6 h-6" />
+                          )}
                           <span>
                             {selectedItems.length >= (selectedBoxType?.capacity || 0)
                               ? 'Magic Box заповнений'
@@ -964,7 +991,7 @@ export default function BoxBuilderPage() {
                         onClick={() => setDetailModal(null)}
                         className="w-full py-4 px-6 border-2 border-gray-300 text-gray-900 font-bold rounded-xl hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center gap-3"
                       >
-                        <span>←</span>
+                        <ChevronLeftIcon className="w-5 h-5" />
                         <span>Повернутися до вибору</span>
                       </button>
                     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { CheckCircleIcon, ExclamationTriangleIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/solid';
 
 interface PhoneInputProps {
   value: string;
@@ -168,9 +169,9 @@ export default function PhoneInput({
         {displayValue && (
           <div className="text-lg">
             {isValid ? (
-              <span className="text-green-600">✅</span>
+              <CheckCircleIcon className="w-5 h-5 text-green-600" />
             ) : (
-              <span className="text-yellow-600">⚠️</span>
+              <ExclamationTriangleIcon className="w-5 h-5 text-yellow-600" />
             )}
           </div>
         )}
@@ -180,7 +181,7 @@ export default function PhoneInput({
       <div className="mt-1 text-xs">
         {displayValue && !isValid && (
           <p className="text-yellow-600 flex items-center gap-1">
-            <span>⚠️</span>
+            <ExclamationTriangleIcon className="w-3.5 h-3.5" />
             {cleanNumber(displayValue).length < 10 
               ? `Введіть ще ${10 - cleanNumber(displayValue).length} цифр`
               : 'Невірний код оператора'
@@ -189,7 +190,7 @@ export default function PhoneInput({
         )}
         {isValid && (
           <p className="text-green-600 flex items-center gap-1">
-            <span>✅</span>
+            <CheckCircleIcon className="w-3.5 h-3.5" />
             {getOperatorName(cleanNumber(displayValue)) 
               ? `${getOperatorName(cleanNumber(displayValue))} • +38${cleanNumber(displayValue)}`
               : `Номер коректний • +38${cleanNumber(displayValue)}`
@@ -199,12 +200,12 @@ export default function PhoneInput({
         {!displayValue && (
           <div className="text-gray-500">
             <p className="flex items-center gap-1 mb-1">
-              <span>📱</span>
+              <DevicePhoneMobileIcon className="w-4 h-4" />
               Формат: XXX XXX-XX-XX
             </p>
             <p className="text-xs">
               🔹 Київстар: 067, 068, 096, 097, 098<br/>
-              🔸 Vodafone: 050, 066, 095, 099<br/>  
+              🔹 Vodafone: 050, 066, 095, 099<br/>  
               🔹 lifecell: 063, 073, 093
             </p>
           </div>
@@ -212,4 +213,4 @@ export default function PhoneInput({
       </div>
     </div>
   );
-}
+}

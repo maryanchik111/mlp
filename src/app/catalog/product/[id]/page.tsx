@@ -125,7 +125,7 @@ export default function ProductPage() {
       <>
         <main className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-6xl mb-4">🦄</div>
+            <div className="text-6xl mb-4">icons</div>
             <p className="text-gray-600 text-lg">Завантаження товару...</p>
           </div>
         </main>
@@ -179,7 +179,7 @@ export default function ProductPage() {
                       onClick={() => setIsFullscreen(true)}
                       className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
                       aria-label="Переглянути на весь екран"
-                    >🔍</button>
+                    >icons</button>
                   </div>
                   {images.length > 1 && (
                     <div className="flex gap-2 mt-3 overflow-x-auto">
@@ -198,7 +198,7 @@ export default function ProductPage() {
                 </div>
               ) : (
                 <div className="w-full h-80 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg shadow-sm flex items-center justify-center">
-                  <div className="text-8xl">{product.image || '📦'}</div>
+                  <div className="text-8xl">{product.image || 'icons'}</div>
                 </div>
               )}
             </div>
@@ -216,13 +216,13 @@ export default function ProductPage() {
                       </span>
                       {(product as any).isAbroad && (
                         <span className="text-sm font-bold bg-blue-600 text-white px-3 py-1 rounded-full flex items-center gap-1">
-                          🌍 З-за кордону
+                          icons З-за кордону
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
-                <p className="text-gray-700 leading-relaxed">{product.description}</p>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{product.description}</p>
               </div>
 
               {/* Ціна й основна інформація */}
@@ -256,7 +256,7 @@ export default function ProductPage() {
               {/* Доставка */}
               <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="text-2xl">🚚</span> Доставка
+                  <span className="text-2xl">icons</span> Доставка
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-blue-50 rounded-lg p-3">
@@ -272,6 +272,11 @@ export default function ProductPage() {
                   Відправка у будь-яке відділення Нової Пошти по Україні<br />
                   Оплата — тільки онлайн (накладений платіж недоступний)
                 </p>
+                {(product as any).isAbroad && (
+                  <p className="text-[10px] text-pink-600 mt-2 px-1 font-bold uppercase tracking-tight">
+                    icons️ <Link href="/refund#abroad" className="underline hover:text-pink-700 decoration-pink-300">Товар не підлягає поверненню (індивідуальне замовлення)</Link>
+                  </p>
+                )}
               </div>
 
               {/* Кількість */}
@@ -309,7 +314,7 @@ export default function ProductPage() {
                       : 'bg-purple-600 text-white hover:bg-purple-700'
                   }`}
               >
-                {isInCart ? '🗑️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик!' : '🛒 Додати в кошик')}
+                {isInCart ? 'icons️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик!' : 'icons Додати в кошик')}
               </button>
             </div>
           </div>

@@ -114,7 +114,7 @@ export default function PhoneLogin({ onSuccess, onCancel }: PhoneLoginProps) {
                         disabled={loading}
                         className="w-full py-3 bg-blue-500 text-white font-bold rounded-xl hover:bg-blue-600 transition-all disabled:opacity-50 active:scale-[0.98]"
                     >
-                        {loading ? '⏳ Відправка...' : '📲 Відправити код через SMS'}
+                        {loading ? 'icons Відправка...' : 'icons Відправити код через SMS'}
                     </button>
                 </form>
             ) : (
@@ -147,7 +147,7 @@ export default function PhoneLogin({ onSuccess, onCancel }: PhoneLoginProps) {
                             disabled={loading}
                             className="w-full py-3 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-all disabled:opacity-50 active:scale-[0.98]"
                         >
-                            {loading ? '⏳ Перевірка...' : '✅ Підтвердити код'}
+                            {loading ? 'icons Перевірка...' : 'icons Підтвердити код'}
                         </button>
                         <button
                             type="button"

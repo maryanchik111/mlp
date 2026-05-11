@@ -1,16 +1,36 @@
 import Link from "next/link";
+import { 
+  TruckIcon, 
+  CubeIcon, 
+  BuildingOfficeIcon, 
+  CheckCircleIcon, 
+  ClockIcon, 
+  MapPinIcon, 
+  CreditCardIcon, 
+  EnvelopeIcon, 
+  ListBulletIcon, 
+  MapIcon, 
+  QuestionMarkCircleIcon, 
+  PhoneIcon, 
+  ChatBubbleLeftRightIcon, 
+  RocketLaunchIcon,
+  CheckIcon,
+  ArrowLeftIcon
+} from "@heroicons/react/24/solid";
 
 export default function DeliveryPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-purple-50 to-pink-50 py-12">
       <div className="container mx-auto px-4 max-w-4xl">
-        <Link href="/" className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8">
-          ← Повернутися на головну
+        <Link href="/" className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-8 font-semibold">
+          <ArrowLeftIcon className="w-4 h-4" /> Повернутися на головну
         </Link>
 
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 border-4 border-purple-200">
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">🚚</div>
+            <div className="flex justify-center mb-4">
+              <TruckIcon className="w-16 h-16 text-purple-600" />
+            </div>
             <h1 className="text-3xl md:text-4xl font-black text-purple-700 mb-2">
               Доставка та оплата
             </h1>
@@ -19,20 +39,24 @@ export default function DeliveryPage() {
 
           <div className="prose prose-purple max-w-none space-y-6 text-gray-700">
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">📦 Способи доставки</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3 flex items-center gap-2">
+                <CubeIcon className="w-7 h-7" /> Способи доставки
+              </h2>
               
               <div className="space-y-4">
 
                 <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-l-4 border-blue-500 p-6 rounded-lg">
                   <div className="flex items-start gap-4">
-                    <div className="text-4xl">🏢</div>
+                    <div className="flex-shrink-0">
+                      <BuildingOfficeIcon className="w-10 h-10 text-blue-600" />
+                    </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-blue-700 mb-2">Нова Пошта (по всій Україні)</h3>
                       <ul className="space-y-2 text-sm">
-                        <li>✅ <strong>Вартість:</strong> 80–120₴ (згідно тарифів перевізника, залежить від ваги та розміру посилки)</li>
-                        <li>⏱️ <strong>Термін:</strong> 1-3 робочих дні</li>
-                        <li>📍 Відправка у будь-яке відділення Нової Пошти по Україні</li>
-                        <li>💳 Оплата — тільки онлайн (накладений платіж недоступний)</li>
+                        <li className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-600" /> <strong>Вартість:</strong> 80–120₴ (згідно тарифів перевізника, залежить від ваги та розміру посилки)</li>
+                        <li className="flex items-center gap-2"><ClockIcon className="w-4 h-4 text-blue-600" /> <strong>Термін:</strong> 1-3 робочих дні</li>
+                        <li className="flex items-center gap-2"><MapPinIcon className="w-4 h-4 text-red-600" /> Відправка у будь-яке відділення Нової Пошти по Україні</li>
+                        <li className="flex items-center gap-2"><CreditCardIcon className="w-4 h-4 text-purple-600" /> Оплата — тільки онлайн (накладений платіж недоступний)</li>
                         <li className="text-xs text-gray-500">Вартість доставки розраховується згідно з тарифами Нової Пошти</li>
                       </ul>
                     </div>
@@ -41,14 +65,16 @@ export default function DeliveryPage() {
 
                 <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 border-l-4 border-yellow-500 p-6 rounded-lg">
                   <div className="flex items-start gap-4">
-                    <div className="text-4xl">📮</div>
+                    <div className="flex-shrink-0">
+                      <EnvelopeIcon className="w-10 h-10 text-yellow-600" />
+                    </div>
                     <div className="flex-1">
                       <h3 className="text-xl font-bold text-yellow-700 mb-2">Укрпошта (по всій Україні)</h3>
                       <ul className="space-y-2 text-sm">
-                        <li>✅ <strong>Вартість:</strong> 45–60₴ (згідно тарифів перевізника, залежить від ваги та регіону)</li>
-                        <li>⏱️ <strong>Термін:</strong> 2-5 робочих днів</li>
-                        <li>📍 Відправка у будь-яке відділення Укрпошти по Україні</li>
-                        <li>💳 Оплата — тільки онлайн (накладений платіж недоступний)</li>
+                        <li className="flex items-center gap-2"><CheckCircleIcon className="w-4 h-4 text-green-600" /> <strong>Вартість:</strong> 45–60₴ (згідно тарифів перевізника, залежить від ваги та регіону)</li>
+                        <li className="flex items-center gap-2"><ClockIcon className="w-4 h-4 text-yellow-600" /> <strong>Термін:</strong> 2-5 робочих днів</li>
+                        <li className="flex items-center gap-2"><MapPinIcon className="w-4 h-4 text-red-600" /> Відправка у будь-яке відділення Укрпошти по Україні</li>
+                        <li className="flex items-center gap-2"><CreditCardIcon className="w-4 h-4 text-purple-600" /> Оплата — тільки онлайн (накладений платіж недоступний)</li>
                         <li className="text-xs text-gray-500">Вартість доставки розраховується згідно з тарифами Укрпошти</li>
                       </ul>
                     </div>
@@ -62,16 +88,20 @@ export default function DeliveryPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">💳 Способи оплати</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3 flex items-center gap-2">
+                <CreditCardIcon className="w-7 h-7" /> Способи оплати
+              </h2>
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-white border-2 border-purple-300 rounded-lg p-6">
-                  <div className="text-4xl mb-3">💳</div>
+                  <div className="mb-3">
+                    <CreditCardIcon className="w-10 h-10 text-purple-600" />
+                  </div>
                   <h3 className="text-lg font-bold text-purple-700 mb-2">Оплата на картку</h3>
                   <ul className="space-y-2 text-sm">
-                    <li>✓ Оплата на банківську картку (за реквізитами, посиланням або QR-кодом)</li>
-                    <li>✓ Підтвердження після оплати</li>
-                    <li>✓ Без комісії</li>
+                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 text-green-600" /> Оплата на банківську картку (за реквізитами, посиланням або QR-кодом)</li>
+                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 text-green-600" /> Підтвердження після оплати</li>
+                    <li className="flex items-center gap-2"><CheckIcon className="w-4 h-4 text-green-600" /> Без комісії</li>
                   </ul>
                   <div className="mt-4 text-xs text-gray-600 bg-gray-50 p-3 rounded">
                     Оплата можлива лише на картку. Після оформлення замовлення ви отримаєте реквізити, посилання або QR-код для оплати. Накладений платіж та WayForPay недоступні.
@@ -81,7 +111,9 @@ export default function DeliveryPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">📋 Етапи оформлення замовлення</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3 flex items-center gap-2">
+                <ListBulletIcon className="w-7 h-7" /> Етапи оформлення замовлення
+              </h2>
               
               <div className="space-y-3">
                 <div className="flex gap-4 items-start">
@@ -127,21 +159,27 @@ export default function DeliveryPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">⏰ Терміни доставки</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3 flex items-center gap-2">
+                <ClockIcon className="w-7 h-7" /> Терміни доставки
+              </h2>
               
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border-2 border-purple-200">
                 <div>
-                  <h4 className="font-bold text-purple-700 mb-2">🇺🇦 Доставка по всій Україні</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Термін доставки: 1-5 робочих днів (залежить від регіону та перевізника)</li>
-                    <li>• Відправка здійснюється в день замовлення (або наступного робочого дня, якщо замовлення після 18:00)</li>
-                  </ul>
+                  <h4 className="font-bold text-purple-700 mb-2 flex items-center gap-2">
+                    <MapIcon className="w-5 h-5" /> Доставка по всій Україні
+                  </h4>
+                <ul className="space-y-2">
+                  <li>• Термін доставки: 1-5 робочих днів (залежить від регіону та перевізника)</li>
+                  <li>• Відправка здійснюється в день замовлення (або наступного робочого дня, якщо замовлення після 18:00)</li>
+                </ul>
                 </div>
               </div>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">📍 Відстеження замовлення</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3 flex items-center gap-2">
+                <MapPinIcon className="w-7 h-7" /> Відстеження замовлення
+              </h2>
               <p>
                 Після відправки ви отримаєте:
               </p>
@@ -154,7 +192,9 @@ export default function DeliveryPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">❓ Часті питання</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3 flex items-center gap-2">
+                <QuestionMarkCircleIcon className="w-7 h-7" /> Часті питання
+              </h2>
               
               <div className="space-y-4">
                 <div className="bg-white border-l-4 border-purple-400 p-4 rounded">
@@ -180,18 +220,24 @@ export default function DeliveryPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">📞 Контакти служби доставки</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3 flex items-center gap-2">
+                <PhoneIcon className="w-7 h-7" /> Контакти служби доставки
+              </h2>
               <div className="bg-white border-2 border-purple-300 rounded-lg p-6">
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
-                    <span className="text-2xl">📧</span>
+                    <div className="flex-shrink-0">
+                      <EnvelopeIcon className="w-6 h-6 text-purple-600" />
+                    </div>
                     <div>
                       <strong>Підтримка:</strong> <a href="https://t.me/mlp_cutie_family_bot" className="text-purple-600 hover:underline">чат-бот</a>
                       <p className="text-sm text-gray-600">Відповідаємо протягом 24 годин</p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-2xl">💬</span>
+                    <div className="flex-shrink-0">
+                      <ChatBubbleLeftRightIcon className="w-6 h-6 text-purple-600" />
+                    </div>
                     <div>
                       <strong>Telegram:</strong> <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a>
                       <p className="text-sm text-gray-600">Швидкий зв'язок у месенджері</p>
@@ -202,8 +248,8 @@ export default function DeliveryPage() {
             </section>
 
             <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-lg border-2 border-purple-300 text-center mt-8">
-              <p className="text-lg font-semibold text-purple-700">
-                🚀 Швидка доставка по всій Україні!
+              <p className="text-lg font-semibold text-purple-700 flex items-center justify-center gap-2">
+                <RocketLaunchIcon className="w-6 h-6" /> Швидка доставка по всій Україні!
               </p>
               <p className="text-gray-700 mt-2">
                 Ми дбаємо про те, щоб ваше замовлення прибуло швидко та безпечно

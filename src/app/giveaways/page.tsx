@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth, useModal } from '@/app/providers';
 import { fetchGiveaways, joinGiveaway, checkIfJoined, type Giveaway } from '@/lib/firebase';
-import { SparklesIcon, GiftIcon, TrophyIcon, UserGroupIcon, CalendarIcon } from '@heroicons/react/24/solid';
+import { SparklesIcon, GiftIcon, TrophyIcon, UserGroupIcon, CalendarIcon, LockClosedIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 
 export default function GiveawaysPage() {
@@ -46,7 +46,7 @@ export default function GiveawaysPage() {
     setJoiningId(giveaway.id);
     try {
       await joinGiveaway(giveaway.id, user.uid, user.displayName || user.email || 'Користувач', (user as any).phone);
-      showSuccess('Ви успішно приєдналися до розіграшу! Бажаємо успіху! 🍀');
+      showSuccess('Ви успішно приєдналися до розіграшу! Бажаємо успіху! ');
       setJoinedStatus(prev => ({ ...prev, [giveaway.id]: true }));
     } catch (error: any) {
       showError(error.message || 'Помилка при спробі приєднатися');
@@ -75,12 +75,12 @@ export default function GiveawaysPage() {
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">Розіграші MLP Family</h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Бери участь у наших регулярних розіграшах та вигравай круті призи від MLP Cutie Family! 🦄✨
+            Бери участь у наших регулярних розіграшах та вигравай круті призи від MLP Cutie Family! <SparklesIcon className="inline w-5 h-5 text-purple-500" /> <GiftIcon className="inline w-5 h-5 text-pink-500" />
           </p>
           {!user && (
             <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl inline-block">
               <p className="text-yellow-800 font-medium">
-                🔒 Тільки зареєстровані користувачі можуть брати участь. <Link href="/account" className="underline font-bold">Увійти</Link>
+                <LockClosedIcon className="inline w-4 h-4 mr-1 text-yellow-600" /> Тільки зареєстровані користувачі можуть брати участь. <Link href="/account" className="underline font-bold">Увійти</Link>
               </p>
             </div>
           )}
@@ -111,13 +111,13 @@ export default function GiveawaysPage() {
                       </div>
                     )}
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-4 py-1 rounded-full text-xs font-bold text-purple-600 uppercase tracking-wider">
-                      🍀 У грі
+                      <SparklesIcon className="inline w-3 h-3 mr-1" /> У грі
                     </div>
                   </div>
 
                   <div className="p-8">
                     <h3 className="text-2xl font-bold text-gray-900 mb-3">{giveaway.title}</h3>
-                    <p className="text-gray-600 mb-6 leading-relaxed">{giveaway.description}</p>
+                    <p className="text-gray-600 mb-6 leading-relaxed whitespace-pre-wrap">{giveaway.description}</p>
 
                     <div className="grid grid-cols-2 gap-4 mb-8">
                       <div className="bg-purple-50 rounded-2xl p-4">
@@ -187,7 +187,7 @@ export default function GiveawaysPage() {
                     <div className="space-y-1">
                       {giveaway.winners?.map((winner, idx) => (
                         <p key={idx} className="text-xs font-bold text-gray-700 flex items-center gap-1">
-                          🏆 {winner.userName}
+                          <TrophyIcon className="w-4 h-4 text-yellow-500 inline mr-1" /> {winner.userName}
                         </p>
                       ))}
                     </div>

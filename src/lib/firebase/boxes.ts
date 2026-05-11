@@ -155,7 +155,7 @@ export async function syncBoxItemToCatalog(boxItem: BoxItem): Promise<string | n
       name: boxItem.name,
       category: boxItem.category,
       price: String(boxItem.price),
-      image: allImages.length === 0 ? '🌍' : allImages[0],
+      image: allImages.length === 0 ? '📦' : allImages[0],
       description: boxItem.description,
       images: allImages,
       isAbroad: true,

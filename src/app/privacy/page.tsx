@@ -1,4 +1,9 @@
 import Link from "next/link";
+import {
+  DocumentTextIcon,
+  EnvelopeIcon,
+  DevicePhoneMobileIcon,
+} from '@heroicons/react/24/solid';
 
 export default function PrivacyPage() {
   return (
@@ -10,7 +15,9 @@ export default function PrivacyPage() {
 
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 border-4 border-purple-200">
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">🔒</div>
+            <div className="flex justify-center mb-4">
+              <DocumentTextIcon className="w-16 h-16 text-purple-400" />
+            </div>
             <h1 className="text-3xl md:text-4xl font-black text-purple-700 mb-2">
               Політика конфіденційності
             </h1>
@@ -87,8 +94,8 @@ export default function PrivacyPage() {
                 Якщо у вас є питання щодо політики конфіденційності, зв'яжіться з нами:
               </p>
               <ul className="list-none space-y-2">
-                <li>📧 Email: <a href="mailto:privacy@mlp.store" className="text-purple-600 hover:underline">privacy@mlp.store</a></li>
-                <li>💬 Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a></li>
+                <li className="flex items-center gap-2"><EnvelopeIcon className="w-4 h-4 text-purple-500 flex-shrink-0" /> Email: <a href="mailto:privacy@mlp.store" className="text-purple-600 hover:underline">privacy@mlp.store</a></li>
+                <li className="flex items-center gap-2"><DevicePhoneMobileIcon className="w-4 h-4 text-purple-500 flex-shrink-0" /> Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a></li>
               </ul>
             </section>
           </div>

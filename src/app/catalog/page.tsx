@@ -5,6 +5,21 @@ import Link from 'next/link';
 import Basket from '../components/client/basket';
 import AccountButton from '../components/client/account-button';
 import { fetchAllProducts, type Product } from '@/lib/firebase';
+import { 
+  SparklesIcon, 
+  RocketLaunchIcon, 
+  CheckCircleIcon, 
+  PaintBrushIcon, 
+  GlobeAltIcon, 
+  BanknotesIcon, 
+  XCircleIcon, 
+  TruckIcon, 
+  ArrowLeftIcon, 
+  ArrowRightIcon, 
+  ClockIcon, 
+  ArrowUturnLeftIcon,
+  XCircleIcon
+} from '@heroicons/react/24/solid';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -223,7 +238,7 @@ export default function CatalogPage() {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-4">🦄</div>
+          <SparklesIcon className="w-16 h-16 text-purple-400 mx-auto mb-4 animate-pulse" />
           <p className="text-gray-600 text-lg">Завантаження товарів...</p>
         </div>
       </main>
@@ -235,7 +250,7 @@ export default function CatalogPage() {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-6xl mb-4">🦄</div>
+          <SparklesIcon className="w-16 h-16 text-purple-400 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Товари не знайдено</h1>
           <p className="text-gray-600 mb-6">Наразі товари відсутні в базі даних</p>
         </div>
@@ -250,7 +265,7 @@ export default function CatalogPage() {
         <nav className="bg-white border-b border-gray-200" aria-label="Breadcrumb">
           <div className="container mx-auto px-4 py-4 max-w-7xl">
             <ol className="flex items-center gap-2 text-sm text-gray-600">
-              <li><a href="/" className="hover:text-indigo-600 transition-colors">Головна</a></li>
+              <li><Link href="/" className="hover:text-indigo-600 transition-colors">Головна</Link></li>
               <li className="text-gray-300">/</li>
               <li className="text-indigo-600 font-semibold">Каталог</li>
             </ol>
@@ -272,13 +287,13 @@ export default function CatalogPage() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <span className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full font-semibold">
-                <span className="text-xl">✨</span> {allProducts.length}+ товарів
+                <SparklesIcon className="w-5 h-5 text-yellow-400" /> {allProducts.length}+ товарів
               </span>
               <span className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full font-semibold">
-                <span className="text-xl">🚀</span> Швидка доставка
+                <RocketLaunchIcon className="w-5 h-5 text-blue-400" /> Швидка доставка
               </span>
               <span className="inline-flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-full font-semibold">
-                <span className="text-xl">✅</span> 100% оригіналу
+                <CheckCircleIcon className="w-5 h-5 text-green-500" /> 100% оригіналу
               </span>
             </div>
           </div>
@@ -290,7 +305,7 @@ export default function CatalogPage() {
             <aside className="lg:col-span-1">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 sticky top-4">
                 <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <span className="text-2xl">🎨</span> Категорії
+                  <PaintBrushIcon className="w-6 h-6 text-purple-500" /> Категорії
                 </h2>
                 <nav className="space-y-2">
                   <button
@@ -341,7 +356,10 @@ export default function CatalogPage() {
                       : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600 hover:translate-x-1 border border-blue-200'
                       }`}
                   >
-                    <span className="font-medium">🌍З-за кордону</span>
+                    <span className="font-medium flex items-center gap-2">
+                      <GlobeAltIcon className={`w-5 h-5 ${showAbroadOnly ? 'text-white' : 'text-blue-500'}`} />
+                      З-за кордону
+                    </span>
                     <span className={`text-xs font-bold px-3 py-1 rounded-full ${showAbroadOnly ? 'bg-white/30' : 'bg-blue-100 text-blue-700'
                       }`}>
                       {allProducts.filter(p => (p as any).isAbroad).length}
@@ -352,7 +370,7 @@ export default function CatalogPage() {
                 {/* Фільтри ціни */}
                 <div className="mt-8 pt-8 border-t border-gray-300">
                   <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="text-xl">💰</span> Ціна
+                    <BanknotesIcon className="w-6 h-6 text-emerald-500" /> Ціна
                   </h3>
                   <div className="space-y-3">
                     <div className="flex gap-2">
@@ -413,9 +431,9 @@ export default function CatalogPage() {
                   }}
                   className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 font-semibold hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all cursor-pointer text-sm sm:text-base"
                 >
-                  <option value="popular">✨ За популярністю</option>
-                  <option value="price-asc">💰 За ціною (зростання)</option>
-                  <option value="price-desc">💰 За ціною (спадання)</option>
+                  <option value="popular">За популярністю</option>
+                  <option value="price-asc">За ціною (зростання)</option>
+                  <option value="price-desc">За ціною (спадання)</option>
                 </select>
               </div>
 
@@ -452,11 +470,15 @@ export default function CatalogPage() {
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                           />
                         ) : (
-                          <div className="text-7xl group-hover:scale-125 transition-transform duration-300">{product.image || '📦'}</div>
+                          <div className="w-full h-full bg-purple-50 flex items-center justify-center group-hover:scale-125 transition-transform duration-300">
+                            <SparklesIcon className="w-16 h-16 text-purple-200" />
+                          </div>
                         )}
-                        {(product.quantity || 0) === 0 ? (
+                         {(product.quantity || 0) === 0 ? (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                            <p className="text-white font-bold text-lg text-center">❌ Немає в наявності</p>
+                            <p className="text-white font-bold text-lg text-center flex items-center gap-2">
+                              <XCircleIcon className="w-6 h-6" /> Немає в наявності
+                            </p>
                           </div>
                         ) : null}
                         {(Number(product.discount) || 0) > 0 ? (
@@ -464,9 +486,9 @@ export default function CatalogPage() {
                             −{product.discount}%
                           </div>
                         ) : null}
-                        {(product as any).isAbroad ? (
+                         {(product as any).isAbroad ? (
                           <div className="absolute top-4 left-4 bg-[#F0A1BF] text-white font-bold px-2 py-1 rounded-full text-xs shadow-md flex items-center gap-1">
-                            🌍 З-за кордону
+                            <GlobeAltIcon className="w-3.5 h-3.5" /> З-за кордону
                           </div>
                         ) : null}
                       </div>
@@ -482,7 +504,7 @@ export default function CatalogPage() {
                           {product.name}
                         </h3>
                       </Link>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-3 whitespace-pre-wrap">
                         {product.description}
                       </p>
 
@@ -507,7 +529,7 @@ export default function CatalogPage() {
 
                         {/* Доставка */}
                         <div className="flex items-center gap-2 text-xs bg-blue-50 rounded-lg p-2 border border-blue-100">
-                          <span className="text-sm">🚚</span>
+                          <TruckIcon className="w-4 h-4 text-blue-500" />
                           <span className="text-gray-700">
                             <span className="font-semibold text-blue-600">{product.deliveryPrice || '120'} ₴</span>
                           </span>
@@ -539,7 +561,7 @@ export default function CatalogPage() {
                               ? "Видалити"
                               : product.quantity > 0
                                 ? "В кошик"
-                                : "❌ Закінчився"}
+                                : "Немає в наявності"}
                       </button>
                     </div>
                   </article>
@@ -554,10 +576,10 @@ export default function CatalogPage() {
                   disabled={currentPage === 1}
                   className={`px-5 py-3 border-2 rounded-lg font-bold transition-all duration-200 ${currentPage === 1
                     ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50 opacity-50"
-                    : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
+                    : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg flex items-center gap-2"
                     }`}
                 >
-                  ← Назад
+                  <ArrowLeftIcon className="w-4 h-4" /> Назад
                 </button>
 
                 {/* Номери сторінок */}
@@ -585,10 +607,10 @@ export default function CatalogPage() {
                   disabled={currentPage === totalPages}
                   className={`px-5 py-3 border-2 rounded-lg font-bold transition-all duration-200 ${currentPage === totalPages
                     ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50 opacity-50"
-                    : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg"
+                    : "border-purple-600 text-purple-600 hover:bg-gradient-to-r hover:from-purple-600 hover:to-pink-600 hover:text-white hover:shadow-lg flex items-center gap-2"
                     }`}
                 >
-                  Далі →
+                  Далі <ArrowRightIcon className="w-4 h-4" />
                 </button>
               </nav>
 
@@ -616,30 +638,34 @@ export default function CatalogPage() {
                 {
                   q: "Чи оригінальні всі товари?",
                   a: "Так, ми продаємо тільки оригінальну продукцію від офіційних виробників.",
-                  emoji: "✅"
+                  icon: CheckCircleIcon,
+                  color: "text-green-500"
                 },
                 {
                   q: "Скільки коштує доставка?",
                   a: <>Доставка безкоштовна при замовленні від 5000₴. Зазвичай вартість доставки по Україні - 80-120₴. <Link href='/delivery' className='underline text-purple-600'>Детальніше про доставку</Link></>,
-                  emoji: "🚚"
+                  icon: TruckIcon,
+                  color: "text-blue-500"
                 },
                 {
                   q: "Який час доставки?",
                   a: "Доставляємо по Україні за 1-3 робочі дні.",
-                  emoji: "⏱️"
+                  icon: ClockIcon,
+                  color: "text-amber-500"
                 },
                 {
                   q: "Можна повернути товар?",
-                  a: <>Так, товар повернути можна. Ознайомтесь з нашою <Link href='/refund' className='underline text-purple-600'>політикою повернення товарів</Link>.</>,
-                  emoji: "↩️"
+                  a: <>Так, ви можете повернути товар протягом 14 днів (крім <Link href='/refund#abroad' className='underline text-pink-600 font-semibold'>індивідуальних замовлень з-за кордону</Link>). Ознайомтесь з нашою <Link href='/refund' className='underline text-purple-600'>політикою повернення</Link>.</>,
+                  icon: ArrowUturnLeftIcon,
+                  color: "text-purple-500"
                 },
               ].map((item, index) => (
                 <div key={index} className="bg-white border border-gray-300 rounded-lg p-6 hover:shadow-md transition-all duration-200 hover:-translate-y-1">
-                  <h3 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-2xl">{item.emoji}</span>
+                  <h3 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-3">
+                    <item.icon className={`w-6 h-6 ${item.color}`} />
                     {item.q}
                   </h3>
-                  <p className="text-gray-700 leading-relaxed">{item.a}</p>
+                  <div className="text-gray-700 leading-relaxed">{item.a}</div>
                 </div>
               ))}
             </div>

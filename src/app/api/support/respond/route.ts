@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         let message: string;
 
         if (status === 'closed') {
-          message = `🔔 Ваш тікет був закритий\n\nДякую за звернення до нас! Якщо у вас ще є питання, ми завжди тут для вас 💜`;
+          message = `icons Ваш тікет був закритий\n\nДякую за звернення до нас! Якщо у вас ще є питання, ми завжди тут для вас icons`;
         } else {
           message = `- ${adminReply}\n\nАдміністратор ${adminName}`;
         }

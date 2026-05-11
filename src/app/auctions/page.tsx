@@ -7,6 +7,21 @@ import AccountButton from '../components/client/account-button';
 import { fetchAllAuctions, fetchAuction, placeBid, updateAuction, type Auction } from '@/lib/firebase';
 import { useAuth } from '@/app/providers';
 import { useModal } from '@/app/providers';
+import { 
+  TrophyIcon, 
+  ClockIcon, 
+  BanknotesIcon, 
+  CheckCircleIcon, 
+  NoSymbolIcon, 
+  ChatBubbleLeftRightIcon,
+  WrenchScrewdriverIcon,
+  FireIcon,
+  CalendarDaysIcon,
+  FolderOpenIcon,
+  InboxIcon,
+  SparklesIcon,
+  LockClosedIcon
+} from '@heroicons/react/24/solid';
 
 export default function AuctionsPage() {
   const { user, profile } = useAuth();
@@ -262,7 +277,7 @@ export default function AuctionsPage() {
           if (isFinished && winnerName) {
             return (
               <div className="mb-3 p-3 bg-green-50 rounded border border-green-200">
-                <p className="text-xs text-green-600">🏆 Переможець</p>
+                <p className="text-xs text-green-600 flex items-center gap-1"><TrophyIcon className="w-3 h-3" /> Переможець</p>
                 <p className="font-bold text-green-700">{winnerName}</p>
                 {winnerPrice !== null && <p className="text-sm text-green-600">Ціна: {winnerPrice}₴</p>}
               </div>
@@ -344,7 +359,19 @@ export default function AuctionsPage() {
                   : 'bg-gray-300 text-gray-600 cursor-not-allowed'
                 }`}
             >
-              {placingBid[auction.id] ? '⏳ Обробка...' : !user ? '🔒 Авторизуйтись' : bidAmount[auction.id] ? `🔨 Ставка ${bidAmount[auction.id]}₴` : 'Вкажіть суму'}
+              {placingBid[auction.id] ? (
+                <div className="flex items-center justify-center gap-2">
+                  <ClockIcon className="w-5 h-5 animate-spin" /> Обробка...
+                </div>
+              ) : !user ? (
+                <div className="flex items-center justify-center gap-2">
+                  <LockClosedIcon className="w-5 h-5" /> Авторизуйтись
+                </div>
+              ) : bidAmount[auction.id] ? (
+                `Ставка ${bidAmount[auction.id]}₴`
+              ) : (
+                'Вкажіть суму'
+              )}
             </button>
           </div>
         )}
@@ -355,7 +382,7 @@ export default function AuctionsPage() {
             disabled
             className="w-full font-bold py-2 rounded-lg bg-gray-400 text-gray-600 cursor-not-allowed"
           >
-            ⏹️ Аукціон завершений
+            <CheckCircleIcon className="w-5 h-5 inline mr-1" /> Аукціон завершений
           </button>
         )}
 
@@ -365,7 +392,7 @@ export default function AuctionsPage() {
             disabled
             className="w-full font-bold py-2 rounded-lg bg-blue-200 text-blue-600 cursor-not-allowed"
           >
-            ⏱️ Відкриється за {timers[auction.id] || '—'}
+            <ClockIcon className="w-5 h-5 inline mr-1" /> Відкриється за {timers[auction.id] || '—'}
           </button>
         )}
 
@@ -391,7 +418,7 @@ export default function AuctionsPage() {
     return (
       <main className="min-h-screen bg-gradient-to-b from-purple-50 via-purple-50 to-white py-8">
         <div className="flex items-center justify-center h-96">
-          <p className="text-xl text-gray-600">⏳ Завантаження...</p>
+          <p className="text-xl text-gray-600"><ClockIcon className="w-6 h-6 inline mr-2 animate-spin" /> Завантаження...</p>
         </div>
       </main>
     );
@@ -402,14 +429,14 @@ export default function AuctionsPage() {
       <main className="min-h-screen bg-white py-12 text-black">
         <div className="container mx-auto px-4 max-w-md text-center">
           <div className="bg-red-50 p-10 rounded-3xl border-2 border-red-200 shadow-xl">
-            <div className="text-6xl mb-6">🔨🚫</div>
+            <div className="flex justify-center mb-6"><NoSymbolIcon className="w-16 h-16 text-red-500" /></div>
             <h1 className="text-2xl font-black text-red-600 mb-4 uppercase tracking-tight">Доступ обмежено</h1>
             <p className="text-gray-700 font-bold mb-6">Ви не можете брати участь в аукціонах, оскільки ваш акаунт було заблоковано модератором.</p>
             <Link
               href="https://t.me/mlp_cutie_family_bot"
               className="block w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg mb-4"
             >
-              📣 Звернутися в підтримку
+              <ChatBubbleLeftRightIcon className="w-5 h-5 inline mr-2" /> Звернутися в підтримку
             </Link>
             <Link href="/" className="text-gray-500 hover:text-gray-700 font-bold">← Повернутися на головну</Link>
           </div>
@@ -422,7 +449,7 @@ export default function AuctionsPage() {
     <main className="min-h-screen bg-gradient-to-b from-purple-50 via-purple-50 to-white">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">🔨 Аукціони</h1>
+        <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3"><WrenchScrewdriverIcon className="w-10 h-10 text-purple-600" /> Аукціони</h1>
         <p className="text-xl text-gray-600 mb-12">
           Беріться в ставках і отримайте рідкісні товари за найкращою ціною
         </p>
@@ -430,7 +457,7 @@ export default function AuctionsPage() {
         {/* Активні аукціони */}
         {activeAuctions.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">🟢 Активні аукціони</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2"><FireIcon className="w-7 h-7 text-orange-500" /> Активні аукціони</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {activeAuctions.map(auction => (
                 <AuctionCard key={auction.id} auction={auction} />
@@ -442,7 +469,7 @@ export default function AuctionsPage() {
         {/* Запланові аукціони */}
         {scheduledAuctions.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">🔵 Запланові аукціони</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2"><CalendarDaysIcon className="w-7 h-7 text-blue-500" /> Заплановані аукціони</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {scheduledAuctions.map(auction => (
                 <AuctionCard key={auction.id} auction={auction} />
@@ -454,7 +481,7 @@ export default function AuctionsPage() {
         {/* Архів - завершені аукціони */}
         {endedAuctions.length > 0 && (
           <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">📚 Архів</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2"><FolderOpenIcon className="w-7 h-7 text-gray-500" /> Архів</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {endedAuctions.map(auction => (
                 <AuctionCard key={auction.id} auction={auction} />
@@ -465,7 +492,7 @@ export default function AuctionsPage() {
 
         {allAuctions.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-xl text-gray-600">😴 Аукціонів поки немає</p>
+            <p className="text-xl text-gray-600"><InboxIcon className="w-8 h-8 inline mr-2 text-gray-300" /> Аукціонів поки немає</p>
           </div>
         )}
       </div>

@@ -21,17 +21,17 @@ export interface ModalState {
 const getIcon = (type: ModalType) => {
   switch (type) {
     case 'success':
-      return '✅';
+      return 'icons';
     case 'error':
-      return '❌';
+      return 'icons';
     case 'warning':
-      return '⚠️';
+      return 'icons️';
     case 'confirm':
-      return '❓';
+      return 'icons';
     case 'prompt':
-      return '❓';
+      return 'icons';
     default:
-      return 'ℹ️';
+      return 'icons️';
   }
 };
 

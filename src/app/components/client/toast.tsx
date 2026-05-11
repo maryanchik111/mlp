@@ -1,6 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { 
+  CheckCircleIcon, 
+  XCircleIcon, 
+  ExclamationTriangleIcon, 
+  InformationCircleIcon 
+} from '@heroicons/react/24/outline';
 
 export type ToastType = 'info' | 'success' | 'error' | 'warning';
 
@@ -14,13 +20,13 @@ export interface Toast {
 const getIcon = (type: ToastType) => {
   switch (type) {
     case 'success':
-      return '✓';
+      return <CheckCircleIcon className="w-6 h-6" />;
     case 'error':
-      return '✕';
+      return <XCircleIcon className="w-6 h-6" />;
     case 'warning':
-      return '⚠';
+      return <ExclamationTriangleIcon className="w-6 h-6" />;
     default:
-      return 'ℹ';
+      return <InformationCircleIcon className="w-6 h-6" />;
   }
 };
 
@@ -119,7 +125,7 @@ function ToastItem({ toast }: ToastItemProps) {
           backdrop-blur-xl bg-opacity-95
         `}
       >
-        <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-white bg-opacity-20 rounded-full text-xl font-bold">
+        <div className="flex-shrink-0 flex items-center justify-center text-white">
           {icon}
         </div>
         <p className="flex-1 text-sm font-medium leading-snug">

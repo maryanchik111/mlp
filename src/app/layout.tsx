@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   keywords: ["My Little Pony", "MLP", "іграшки", "фігурки", "колекція", "поні"],
   authors: [{ name: "mlpcutiefamily" }],
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: '/pwa-icon.png', type: 'image/png' },
+    ],
+    apple: '/pwa-icon.png',
+    shortcut: '/pwa-icon.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
