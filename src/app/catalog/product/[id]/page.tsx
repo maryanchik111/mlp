@@ -6,6 +6,18 @@ import Link from 'next/link';
 import { fetchProductById, type Product } from '@/lib/firebase';
 import Basket from '@/app/components/client/basket';
 import AccountButton from '@/app/components/client/account-button';
+import {
+  SparklesIcon,
+  GlobeAltIcon,
+  TruckIcon,
+  ShoppingCartIcon,
+  TrashIcon,
+  CheckIcon,
+  MagnifyingGlassIcon,
+  CubeIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon
+} from '@heroicons/react/24/solid';
 
 export default function ProductPage() {
   const params = useParams();
@@ -125,7 +137,9 @@ export default function ProductPage() {
       <>
         <main className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-6xl mb-4">🦄</div>
+            <div className="flex justify-center mb-4">
+              <SparklesIcon className="w-16 h-16 text-indigo-400 animate-pulse" />
+            </div>
             <p className="text-gray-600 text-lg">Завантаження товару...</p>
           </div>
         </main>
@@ -142,7 +156,9 @@ export default function ProductPage() {
           <div className="container mx-auto px-4 max-w-2xl">
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
               <p className="text-gray-700 mb-4">Товар не знайдено</p>
-              <Link href="/catalog" className="text-purple-600 hover:text-purple-700">← Повернутися до каталогу</Link>
+              <Link href="/catalog" className="text-purple-600 hover:text-purple-700 flex items-center justify-center gap-1">
+                <ArrowLeftIcon className="w-4 h-4" /> Повернутися до каталогу
+              </Link>
             </div>
           </div>
         </main>
@@ -174,12 +190,14 @@ export default function ProductPage() {
                       className="object-contain max-h-80 cursor-zoom-in"
                       onClick={() => setIsFullscreen(true)}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setIsFullscreen(true)}
-                      className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white text-xs px-2 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                      aria-label="Переглянути на весь екран"
-                    >🔍</button>
+                      <button
+                        type="button"
+                        onClick={() => setIsFullscreen(true)}
+                        className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Переглянути на весь екран"
+                      >
+                        <MagnifyingGlassIcon className="w-4 h-4" />
+                      </button>
                   </div>
                   {images.length > 1 && (
                     <div className="flex gap-2 mt-3 overflow-x-auto">
@@ -198,7 +216,7 @@ export default function ProductPage() {
                 </div>
               ) : (
                 <div className="w-full h-80 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg shadow-sm flex items-center justify-center">
-                  <div className="text-8xl">{product.image || '📦'}</div>
+                  <CubeIcon className="w-20 h-20 text-purple-300" />
                 </div>
               )}
             </div>
@@ -216,7 +234,7 @@ export default function ProductPage() {
                       </span>
                       {(product as any).isAbroad && (
                         <span className="text-sm font-bold bg-blue-600 text-white px-3 py-1 rounded-full flex items-center gap-1">
-                          🌍 З-за кордону
+                          <GlobeAltIcon className="w-3 h-3" /> З-за кордону
                         </span>
                       )}
                     </div>
@@ -256,7 +274,7 @@ export default function ProductPage() {
               {/* Доставка */}
               <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <span className="text-2xl">🚚</span> Доставка
+                  <TruckIcon className="w-6 h-6 text-blue-500" /> Доставка
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-blue-50 rounded-lg p-3">
@@ -300,7 +318,7 @@ export default function ProductPage() {
               <button
                 onClick={handleAddToCart}
                 disabled={isOut || qty <= 0}
-                className={`w-full py-4 rounded-lg font-bold text-lg transition-all shadow-md hover:shadow-lg active:scale-95 ${isOut
+                className={`w-full py-4 rounded-lg font-bold text-lg transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2 ${isOut
                   ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
                   : isInCart
                     ? 'bg-red-500 text-white hover:bg-red-600'
@@ -309,7 +327,13 @@ export default function ProductPage() {
                       : 'bg-purple-600 text-white hover:bg-purple-700'
                   }`}
               >
-                {isInCart ? '🗑️ Забрати з кошика' : (added === 'added' ? '✓ Додано в кошик!' : '🛒 Додати в кошик')}
+                {isInCart ? (
+                  <><TrashIcon className="w-5 h-5" /> Забрати з кошика</>
+                ) : added === 'added' ? (
+                  <><CheckIcon className="w-5 h-5" /> Додано в кошик!</>
+                ) : (
+                  <><ShoppingCartIcon className="w-5 h-5" /> Додати в кошик</>
+                )}
               </button>
             </div>
           </div>
@@ -350,14 +374,14 @@ export default function ProductPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setActiveIndex(prev => (prev - 1 + images.length) % images.length)}
-                  className="px-2 py-1 rounded bg-white/20 hover:bg-white/30"
+                  className="p-2 rounded bg-white/20 hover:bg-white/30"
                   aria-label="Попереднє"
-                >←</button>
+                ><ArrowLeftIcon className="w-4 h-4 text-white" /></button>
                 <button
                   onClick={() => setActiveIndex(prev => (prev + 1) % images.length)}
-                  className="px-2 py-1 rounded bg-white/20 hover:bg-white/30"
+                  className="p-2 rounded bg-white/20 hover:bg-white/30"
                   aria-label="Наступне"
-                >→</button>
+                ><ArrowRightIcon className="w-4 h-4 text-white" /></button>
               </div>
             )}
           </div>

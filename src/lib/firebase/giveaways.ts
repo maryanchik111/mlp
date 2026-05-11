@@ -41,7 +41,7 @@ export async function fetchGiveaway(giveawayId: string): Promise<Giveaway | null
   return snapshot.exists() ? (snapshot.val() as Giveaway) : null;
 }
 
-export async function joinGiveaway(giveawayId: string, userId: string, userName: string, userPhone?: string): Promise<void> {
+export async function joinGiveaway(giveawayId: string, userId: string, userName: string, userPhone?: string, userPhotoURL?: string): Promise<void> {
   const participantRef = ref(database, `giveaway_participants/${giveawayId}/${userId}`);
   const snapshot = await get(participantRef);
   if (snapshot.exists()) throw new Error('Ви вже берете участь у цьому розіграші');
@@ -57,6 +57,7 @@ export async function joinGiveaway(giveawayId: string, userId: string, userName:
     userId,
     userName,
     userPhone: userPhone || '',
+    userPhotoURL: userPhotoURL || '',
     hasCompletedOrder,
     joinedAt: Date.now(),
   };

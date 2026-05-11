@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { fetchRecentReviews, fetchAllScreenshotReviews, Review, ScreenshotReview } from '@/lib/firebase';
+import { HeartIcon } from '@heroicons/react/24/outline';
 
 export default function RecentReviews() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -74,10 +75,7 @@ export default function RecentReviews() {
   return (
     <div className="bg-white/85 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-purple-200">
       {/* Заголовок з середнім рейтингом */}
-      <div className="mb-6 text-center">
-        <h2 className="text-2xl font-bold text-purple-700 mb-4 flex items-center justify-center gap-3">
-          💬 Відгуки покупців
-        </h2>
+      <div className="mb-6 text-center">          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600 flex items-center justify-center gap-2"><HeartIcon className="w-7 h-7 text-pink-400" /> Відгуки клієнтів</h2>
         {reviews.length > 0 && (
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="flex gap-1">
@@ -180,12 +178,12 @@ export default function RecentReviews() {
             {currentScreenshots.map(sr => (
               <div key={sr.id} className="rounded-xl overflow-hidden shadow-md border border-purple-100 hover:shadow-xl transition-all cursor-pointer bg-gray-50">
                 {sr.type === 'video' ? (
-                  <video 
-                    src={sr.imageUrl} 
-                    className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300" 
-                    controls 
-                    preload="metadata" 
-                    playsInline 
+                  <video
+                    src={sr.imageUrl}
+                    className="w-full h-48 md:h-64 object-cover hover:scale-105 transition-transform duration-300"
+                    controls
+                    preload="metadata"
+                    playsInline
                   />
                 ) : (
                   <button onClick={() => setSelectedMedia(sr)} className="w-full text-left focus:outline-none">
@@ -222,29 +220,29 @@ export default function RecentReviews() {
 
       {/* Lightbox Modal */}
       {selectedMedia && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
           onClick={() => setSelectedMedia(null)}
         >
           <div className="relative max-w-4xl w-full max-h-[90vh] flex items-center justify-center">
-            <button 
+            <button
               className="absolute -top-10 right-0 text-white hover:text-gray-300 text-3xl font-bold p-2 z-50"
               onClick={() => setSelectedMedia(null)}
             >
               ✕
             </button>
             {selectedMedia.type === 'video' ? (
-              <video 
-                src={selectedMedia.imageUrl} 
-                className="max-w-full max-h-[85vh] object-contain rounded-lg" 
-                controls 
+              <video
+                src={selectedMedia.imageUrl}
+                className="max-w-full max-h-[85vh] object-contain rounded-lg"
+                controls
                 autoPlay
                 onClick={(e) => e.stopPropagation()}
               />
             ) : (
-              <img 
-                src={selectedMedia.imageUrl} 
-                alt="Відгук збільшено" 
+              <img
+                src={selectedMedia.imageUrl}
+                alt="Відгук збільшено"
                 className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
               />

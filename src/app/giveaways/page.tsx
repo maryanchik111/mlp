@@ -60,7 +60,7 @@ export default function GiveawaysPage() {
 
     setJoiningId(giveaway.id);
     try {
-      await joinGiveaway(giveaway.id, user.uid, user.displayName || user.email || 'Користувач', (user as any).phone);
+      await joinGiveaway(giveaway.id, user.uid, user.displayName || user.email || 'Користувач', (user as any).phone, user.photoURL || '');
       showSuccess('Ви успішно приєдналися до розіграшу! Бажаємо успіху! 🍀');
       setJoinedStatus(prev => ({ ...prev, [giveaway.id]: true }));
     } catch (error: any) {

@@ -6,6 +6,23 @@ import { database, generateOrderNumber, decreaseProductQuantity, updateUserStats
 import { useAuth, useModal } from '@/app/providers';
 import { ref, set } from 'firebase/database';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
+import {
+  NoSymbolIcon,
+  UsersIcon,
+  ArrowLeftIcon,
+  SparklesIcon,
+  ShoppingBagIcon,
+  CreditCardIcon,
+  ClipboardDocumentListIcon,
+  HomeIcon,
+  MapPinIcon,
+  TruckIcon,
+  PencilSquareIcon,
+  CubeIcon,
+  StarIcon,
+  CheckIcon,
+  LockClosedIcon
+} from '@heroicons/react/24/solid';
 
 interface CartItem {
   id: number | string;
@@ -288,16 +305,20 @@ export default function CheckoutPage() {
       <main className="min-h-screen bg-white py-12 text-black">
         <div className="container mx-auto px-4 max-w-md text-center">
           <div className="bg-red-50 p-10 rounded-3xl border-2 border-red-200 shadow-xl">
-            <div className="text-6xl mb-6">🚫</div>
+            <div className="flex justify-center mb-6">
+              <NoSymbolIcon className="w-16 h-16 text-red-500" />
+            </div>
             <h1 className="text-2xl font-black text-red-600 mb-4 uppercase">Купівля обмежена</h1>
             <p className="text-gray-700 font-bold mb-6">Ваш акаунт було заблоковано модератором. На жаль, ви не можете здійснювати покупки.</p>
             <Link
               href="https://t.me/mlp_cutie_family_bot"
-              className="block w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg mb-4"
+              className="flex items-center justify-center gap-2 w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-all shadow-lg mb-4"
             >
-              📣 Зв'язатися з підтримкою
+              <UsersIcon className="w-5 h-5" /> Зв'язатися з підтримкою
             </Link>
-            <Link href="/catalog" className="text-gray-500 hover:text-gray-700 font-bold">← До товарів</Link>
+            <Link href="/catalog" className="flex items-center justify-center gap-1 text-gray-500 hover:text-gray-700 font-bold">
+              <ArrowLeftIcon className="w-4 h-4" /> До товарів
+            </Link>
           </div>
         </div>
       </main>
@@ -314,14 +335,16 @@ export default function CheckoutPage() {
       <main className="min-h-screen bg-white py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="bg-white border border-gray-300 rounded-lg shadow-md p-12 text-center">
-            <div className="text-6xl mb-4">🦄</div>
+            <div className="flex justify-center mb-4">
+              <SparklesIcon className="w-16 h-16 text-indigo-300" />
+            </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Кошик порожній</h1>
             <p className="text-gray-600 mb-6 text-base">Поверніться до каталогу, щоб додати товари</p>
             <Link
               href="/catalog"
-              className="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg transition-colors font-semibold"
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-lg transition-colors font-semibold"
             >
-              🛍️ До каталогу
+              <ShoppingBagIcon className="w-5 h-5" /> До каталогу
             </Link>
           </div>
         </div>
@@ -334,11 +357,11 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Заголовок */}
         <div className="mb-8">
-          <Link href="/catalog" className="text-indigo-600 hover:text-indigo-700 mb-4 inline-block font-semibold">
-            ← Повернутися до каталогу
+          <Link href="/catalog" className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 mb-4 inline-block font-semibold">
+            <ArrowLeftIcon className="w-4 h-4" /> Повернутися до каталогу
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-3xl">💳</span>
+            <CreditCardIcon className="w-8 h-8 text-indigo-600" />
             <h1 className="text-3xl font-bold text-gray-900">Оформлення замовлення</h1>
           </div>
           <p className="text-gray-600 mt-2 text-sm">Заповніть форму для оформлення покупки</p>
@@ -350,8 +373,8 @@ export default function CheckoutPage() {
             <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 space-y-6">
               {/* Контактна інформація */}
               <section>
-                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
-                  📋 Контактна інформація
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300 flex items-center gap-2">
+                  <ClipboardDocumentListIcon className="w-5 h-5 text-indigo-600" /> Контактна інформація
                 </h2>
                 <div className="grid grid-cols-1 gap-3">
                   <div>
@@ -421,8 +444,8 @@ export default function CheckoutPage() {
 
               {/* Адреса */}
               <section>
-                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
-                  🏠 Адреса доставки
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300 flex items-center gap-2">
+                  <HomeIcon className="w-5 h-5 text-indigo-600" /> Адреса доставки
                 </h2>
 
                 {/* 1. Вибір міста */}
@@ -487,7 +510,9 @@ export default function CheckoutPage() {
                   </div>
                 ) : (
                   <div className="p-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl text-center">
-                    <div className="text-3xl mb-2">📍</div>
+                    <div className="flex justify-center mb-2">
+                      <MapPinIcon className="w-8 h-8 text-gray-300" />
+                    </div>
                     <p className="text-sm text-gray-500 font-medium">
                       Будь ласка, спочатку виберіть місто
                     </p>
@@ -500,8 +525,8 @@ export default function CheckoutPage() {
 
               {/* Способ доставки */}
               <section>
-                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
-                  🚚 Спосіб доставки
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300 flex items-center gap-2">
+                  <TruckIcon className="w-5 h-5 text-indigo-600" /> Спосіб доставки
                 </h2>
                 <div className="space-y-2">
                   <label className={`flex items-center p-3 border rounded-lg cursor-pointer hover:border-indigo-400 transition-colors ${formData.deliveryMethod === 'nova'
@@ -544,8 +569,8 @@ export default function CheckoutPage() {
 
               {/* Спосіб оплати */}
               <section>
-                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
-                  💳 Спосіб оплати
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300 flex items-center gap-2">
+                  <CreditCardIcon className="w-5 h-5 text-indigo-600" /> Спосіб оплати
                 </h2>
                 <div className="space-y-2">
                   <label className="flex items-center p-3 border border-gray-300 rounded-lg bg-blue-50 cursor-pointer hover:border-indigo-400 transition-colors">
@@ -567,8 +592,8 @@ export default function CheckoutPage() {
 
               {/* Коментарії */}
               <section>
-                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300">
-                  📝 Додаткові коментарії
+                <h2 className="text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-300 flex items-center gap-2">
+                  <PencilSquareIcon className="w-5 h-5 text-indigo-600" /> Додаткові коментарії
                 </h2>
                 <textarea
                   name="comments"
@@ -584,7 +609,9 @@ export default function CheckoutPage() {
           {/* Бічна панель - Замовлення */}
           <div className="lg:col-span-1">
             <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6 sticky top-4 space-y-4 mb-12">
-              <h2 className="text-lg font-bold text-gray-900">📦 Ваше замовлення</h2>
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <CubeIcon className="w-5 h-5 text-indigo-600" /> Ваше замовлення
+              </h2>
 
               {/* Список товарів */}
               <div className="space-y-2 max-h-72 overflow-y-auto">
@@ -645,7 +672,7 @@ export default function CheckoutPage() {
                 {userDiscountPercent > 0 && (
                   <>
                     <div className="flex justify-between items-center text-gray-700 font-semibold text-sm bg-green-50 px-2 py-1.5 rounded border-l-4 border-green-400">
-                      <span>✨ Знижка ({userDiscountPercent}%)</span>
+                      <span className="flex items-center gap-1"><SparklesIcon className="w-4 h-4 text-green-500" /> Знижка ({userDiscountPercent}%)</span>
                       <span className="text-green-600">−{discountAmount}₴</span>
                     </div>
                     <div className="flex justify-between items-center text-gray-700 font-semibold text-sm">
@@ -657,7 +684,7 @@ export default function CheckoutPage() {
                 {profile && profile.points > 0 && (
                   <div className="bg-amber-50 border border-amber-300 rounded-lg p-3 text-xs text-amber-900 space-y-2 font-semibold">
                     <div className="flex justify-between items-center">
-                      <span>⭐ Ваші бали:</span>
+                      <span className="flex items-center gap-1"><StarIcon className="w-4 h-4 text-amber-500" /> Ваші бали:</span>
                       <span className="text-sm font-bold text-amber-700">{profile.points}</span>
                     </div>
                     <label className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
@@ -721,24 +748,33 @@ export default function CheckoutPage() {
                 <button
                   onClick={handleSubmitOrder}
                   disabled={isLoading}
-                  className={`w-full font-bold py-3 rounded-lg transition-colors text-base ${isLoading
+                  className={`w-full font-bold py-3 rounded-lg transition-colors text-base flex items-center justify-center gap-2 ${isLoading
                     ? 'bg-gray-400 text-gray-600 cursor-not-allowed opacity-60'
                     : 'bg-indigo-600 hover:bg-indigo-700 text-white'
                     }`}
                 >
-                  {isLoading ? '⏳ Обробка...' : '✓ Оформити'}
+                  {isLoading ? (
+                    <>
+                      <SparklesIcon className="w-5 h-5 animate-spin" /> Обробка...
+                    </>
+                  ) : (
+                    <>
+                      <CheckIcon className="w-5 h-5" /> Оформити
+                    </>
+                  )}
                 </button>
                 <Link
                   href="/catalog"
-                  className="block text-center bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-bold py-3 rounded-lg transition-colors text-base"
+                  className="flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-bold py-3 rounded-lg transition-colors text-base"
                 >
-                  🛍️ Покупки
+                  <ShoppingBagIcon className="w-5 h-5" /> Покупки
                 </Link>
               </div>
 
               {/* Інформація */}
-              <div className="bg-blue-50 border border-blue-300 rounded-lg p-3 text-xs text-blue-900 font-semibold">
-                <p>🔒 Ваші дані захищені</p>
+              <div className="bg-blue-50 border border-blue-300 rounded-lg p-3 text-xs text-blue-900 font-semibold flex items-center gap-2">
+                <LockClosedIcon className="w-4 h-4 text-blue-500" />
+                <p>Ваші дані захищені</p>
               </div>
             </div>
           </div>

@@ -10,7 +10,6 @@ export default function PrivacyPage() {
 
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 border-4 border-purple-200">
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">🔒</div>
             <h1 className="text-3xl md:text-4xl font-black text-purple-700 mb-2">
               Політика конфіденційності
             </h1>
@@ -21,7 +20,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">1. Збір інформації</h2>
               <p>
-                MLP Cutie Family збирає та обробляє персональні дані для забезпечення якісного обслуговування наших клієнтів. 
+                MLP Cutie Family збирає та обробляє персональні дані для забезпечення якісного обслуговування наших клієнтів.
                 Ми збираємо інформацію, яку ви надаєте під час реєстрації, оформлення замовлення або зв'язку з підтримкою.
               </p>
               <ul className="list-disc pl-6 space-y-2">
@@ -48,7 +47,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">3. Захист даних</h2>
               <p>
-                Ми використовуємо сучасні методи захисту інформації, включаючи шифрування SSL/TLS для всіх транзакцій. 
+                Ми використовуємо сучасні методи захисту інформації, включаючи шифрування SSL/TLS для всіх транзакцій.
                 Платіжні дані обробляються через захищену платіжну систему WayForPay і не зберігаються на наших серверах.
               </p>
             </section>
@@ -56,7 +55,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">4. Розкриття інформації третім особам</h2>
               <p>
-                Ми не продаємо та не передаємо ваші персональні дані третім особам без вашої згоди, за винятком випадків, 
+                Ми не продаємо та не передаємо ваші персональні дані третім особам без вашої згоди, за винятком випадків,
                 необхідних для виконання замовлення (служби доставки) або вимог законодавства.
               </p>
             </section>
@@ -64,7 +63,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">5. Cookies</h2>
               <p>
-                Наш сайт використовує cookies для покращення користувацького досвіду, зберігання налаштувань та аналітики. 
+                Наш сайт використовує cookies для покращення користувацького досвіду, зберігання налаштувань та аналітики.
                 Ви можете керувати налаштуваннями cookies у вашому браузері.
               </p>
             </section>
@@ -87,8 +86,7 @@ export default function PrivacyPage() {
                 Якщо у вас є питання щодо політики конфіденційності, зв'яжіться з нами:
               </p>
               <ul className="list-none space-y-2">
-                <li>📧 Email: <a href="mailto:privacy@mlp.store" className="text-purple-600 hover:underline">privacy@mlp.store</a></li>
-                <li>💬 Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a></li>
+                <li>Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 underline">@mlpcutiefamily</a></li>
               </ul>
             </section>
           </div>

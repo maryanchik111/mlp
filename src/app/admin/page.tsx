@@ -5,6 +5,58 @@ import { useRouter } from 'next/navigation';
 import { fetchAllOrders, fetchOrdersByStatus, updateOrderStatus, fetchAllProducts, updateProduct, addProduct, deleteProduct, fetchUserProfile, fetchUsersCount, fetchAllUsers, updateUserProfileAdmin, checkAdminAccess, isAdmin as checkIsAdmin, fetchAllReviews, deleteReview, addAdminReply, uploadImage, deleteImage, createAuction, fetchAllAuctions, deleteAuction, updateAuction, type Order, type Product, type UserProfile, type Review, type SupportTicket, type SupportMessage, type Auction, listenToSupportTickets, listenToBoxTypes, listenToBoxItems, createBoxType, updateBoxType, deleteBoxType, createBoxItem, updateBoxItem, deleteBoxItem, syncBoxItemToCatalog, removeBoxItemFromCatalog, type BoxType, type BoxItem, type ScreenshotReview, fetchAllScreenshotReviews, addScreenshotReview, deleteScreenshotReview, updateScreenshotReviewOrders, createGiveaway, fetchGiveaways, pickWinners, deleteGiveaway, fetchGiveawayParticipants, type Giveaway, type GiveawayParticipant } from '@/lib/firebase';
 import { useAuth, useModal } from '@/app/providers';
 import { AdminStats } from './admin-stats';
+import {
+  ChartBarIcon,
+  ShoppingBagIcon,
+  TagIcon,
+  ChatBubbleLeftRightIcon,
+  LifebuoyIcon,
+  CurrencyDollarIcon,
+  GiftIcon,
+  UsersIcon,
+  TrophyIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  TrashIcon,
+  PencilIcon,
+  HandRaisedIcon,
+  IdentificationIcon,
+  StarIcon,
+  GlobeAltIcon,
+  ExclamationTriangleIcon,
+  UserIcon,
+  XMarkIcon,
+  CameraIcon,
+  PhotoIcon,
+  ArrowPathIcon,
+  BoltIcon,
+  ClockIcon,
+  FireIcon,
+  FlagIcon,
+  UserGroupIcon,
+  SparklesIcon,
+  InformationCircleIcon,
+  WrenchIcon,
+  ArrowUpTrayIcon,
+  CircleStackIcon,
+  LockClosedIcon,
+  LockOpenIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  HomeIcon,
+  TruckIcon,
+  CalendarIcon,
+  PencilSquareIcon,
+  CubeIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon
+} from '@heroicons/react/24/outline';
+
+const CircleIconSolid = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <circle cx="12" cy="12" r="12" />
+  </svg>
+);
 
 type TabType = 'orders' | 'products' | 'reviews' | 'stats' | 'support' | 'auctions' | 'boxes' | 'users' | 'giveaways';
 
@@ -129,6 +181,8 @@ export default function AdminPage() {
     rating: 0,
     points: 0,
     discountPercent: 0,
+    telegramId: '',
+    telegramUsername: '',
     isBlocked: false,
   });
 
@@ -1005,6 +1059,8 @@ export default function AdminPage() {
       rating: userProfile.rating || 0,
       points: userProfile.points || 0,
       discountPercent: userProfile.discountPercent || 0,
+      telegramId: userProfile.telegramId || '',
+      telegramUsername: userProfile.telegramUsername || '',
       isBlocked: userProfile.isBlocked || false,
     });
   };
@@ -1197,8 +1253,8 @@ export default function AdminPage() {
         {/* Заголовок */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Панель адміністратора</h1>
-          <p className="text-gray-600">
-            Вітаємо, {user?.displayName || user?.email?.split('@')[0] || 'Адміністратор'}! 👋
+          <p className="text-gray-600 flex items-center gap-2">
+            Вітаємо, {user?.displayName || user?.email?.split('@')[0] || 'Адміністратор'}! <HandRaisedIcon className="w-5 h-5 text-yellow-500" />
           </p>
           <p className="text-gray-500 text-sm mt-1">Управління замовленнями та товарами</p>
         </div>
@@ -1208,84 +1264,84 @@ export default function AdminPage() {
           <div className="grid grid-cols-2 md:grid md:grid-cols-4 gap-2">
             <button
               onClick={() => setActiveTab('stats')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'stats'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'stats'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              📊 Статистика
+              <ChartBarIcon className="w-5 h-5" /> Статистика
             </button>
             <button
               onClick={() => setActiveTab('orders')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'orders'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'orders'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              📦 Замовлення
+              <ShoppingBagIcon className="w-5 h-5" /> Замовлення
             </button>
             <button
               onClick={() => setActiveTab('products')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'products'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'products'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              🛍️ Товари
+              <TagIcon className="w-5 h-5" /> Товари
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'reviews'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'reviews'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              💬 Відгуки
+              <ChatBubbleLeftRightIcon className="w-5 h-5" /> Відгуки
             </button>
             <button
               onClick={() => setActiveTab('support')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'support'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'support'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              🆘 Підтримка
+              <LifebuoyIcon className="w-5 h-5" /> Підтримка
             </button>
             <button
               onClick={() => setActiveTab('auctions')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'auctions'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'auctions'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              🔨 Аукціони
+              <CurrencyDollarIcon className="w-5 h-5" /> Аукціони
             </button>
             <button
               onClick={() => setActiveTab('boxes')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'boxes'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'boxes'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              🎁 Бокси
+              <GiftIcon className="w-5 h-5" /> Бокси
             </button>
             <button
               onClick={() => setActiveTab('users')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'users'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'users'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              👥 Користувачі
+              <UsersIcon className="w-5 h-5" /> Користувачі
             </button>
             <button
               onClick={() => setActiveTab('giveaways')}
-              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === 'giveaways'
+              className={`md:w-full px-6 py-3 rounded-lg font-medium transition-all whitespace-nowrap flex items-center justify-center gap-2 ${activeTab === 'giveaways'
                 ? 'bg-purple-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              🎉 Розіграші
+              <TrophyIcon className="w-5 h-5" /> Розіграші
             </button>
           </div>
         </div>
@@ -1345,21 +1401,21 @@ export default function AdminPage() {
                             {order.firstName} {order.lastName}
                             {order.userId ? (
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-medium" title={`Авторизований користувач${userProfiles[order.userId]?.displayName ? ': ' + userProfiles[order.userId].displayName : ''}`}>
-                                👤 {userProfiles[order.userId]?.displayName || 'auth'}
+                                <UserIcon className="w-3 h-3" /> {userProfiles[order.userId]?.displayName || 'auth'}
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs" title="Гість">👥 guest</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs" title="Гість"><UsersIcon className="w-3 h-3" /> guest</span>
                             )}
                           </p>
                           {order.userId && userProfiles[order.userId] && (
                             <div className="mt-2 flex flex-wrap gap-1">
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs" title="Рейтинг">⭐ Рейтинг {userProfiles[order.userId].rating}</span>
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs" title="Замовлень">📦 {userProfiles[order.userId].totalOrders}</span>
-                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs" title="Знижка">💳 {userProfiles[order.userId].discountPercent}%</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-xs" title="Рейтинг"><StarIcon className="w-3 h-3" /> Рейтинг {userProfiles[order.userId].rating}</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs" title="Замовлень"><ShoppingBagIcon className="w-3 h-3" /> {userProfiles[order.userId].totalOrders}</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs" title="Знижка"><TagIcon className="w-3 h-3" /> {userProfiles[order.userId].discountPercent}%</span>
                             </div>
                           )}
                           {order.redeemedPoints && order.redeemedPoints > 0 && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs mt-1" title="Списано балів">🎯 −{order.redeemedPoints} балів</span>
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 text-xs mt-1" title="Списано балів"><BoltIcon className="w-3 h-3" /> −{order.redeemedPoints} балів</span>
                           )}
                         </div>
                         <div>
@@ -1421,10 +1477,12 @@ export default function AdminPage() {
                     <p className="text-sm text-gray-500">Знайдено за запитом: {filteredProducts.length}</p>
                   )}
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
                   <div className="relative flex-1 sm:min-w-[300px]">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <MagnifyingGlassIcon className="w-5 h-5" />
+                    </span>
                     <input
                       type="text"
                       placeholder="Пошук товарів за назвою, категорією..."
@@ -1437,11 +1495,11 @@ export default function AdminPage() {
                         onClick={() => setProductSearch('')}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                       >
-                        ✕
+                        <XMarkIcon className="w-5 h-5" />
                       </button>
                     )}
                   </div>
-                  
+
                   <button
                     onClick={handleCreateProduct}
                     className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium whitespace-nowrap"
@@ -1457,7 +1515,7 @@ export default function AdminPage() {
                 <div className="col-span-2 bg-white rounded-lg shadow-sm p-12 text-center">
                   <p className="text-gray-600 text-lg">Товарів не знайдено</p>
                   {productSearch && (
-                    <button 
+                    <button
                       onClick={() => setProductSearch('')}
                       className="mt-2 text-purple-600 hover:underline"
                     >
@@ -1467,68 +1525,72 @@ export default function AdminPage() {
                 </div>
               ) : (
                 filteredProducts.map((product) => (
-                <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex flex-col items-start gap-4">
-                        {product.images && product.images.length > 0 ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={product.images[0]}
-                            alt={product.name}
-                            className="md:w-48 md:h-48 object-cover rounded-[.8em]"
-                          />
-                        ) : (
-                          <div className="md:w-48 md:h-48 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full">
-                            {product.image || '📦'}
+                  <div key={product.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex flex-col items-start gap-4">
+                          {product.images && product.images.length > 0 ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={product.images[0]}
+                              alt={product.name}
+                              className="md:w-48 md:h-48 object-cover rounded-[.8em]"
+                            />
+                          ) : (
+                            <div className="md:w-48 md:h-48 text-4xl flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 rounded-full">
+                              {product.image ? (
+                                <span>{product.image}</span>
+                              ) : (
+                                <CubeIcon className="w-12 h-12 text-purple-400" />
+                              )}
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-lg font-bold text-gray-900">{product.name}</p>
+                            <p className="text-sm text-gray-600">{product.category}</p>
+                            <div className={`text-sm font-medium ${product.quantity > 0 ? 'text-green-400' : 'text-red-800'
+                              }`}>
+                              {product.quantity > 0 ? 'В наявності' : 'Немає в наявності'}
+                            </div>
                           </div>
-                        )}
+                        </div>
+
+                      </div>
+
+                      <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                          <p className="text-lg font-bold text-gray-900">{product.name}</p>
-                          <p className="text-sm text-gray-600">{product.category}</p>
-                          <div className={`text-sm font-medium ${product.quantity > 0 ? 'text-green-400' : 'text-red-800'
-                            }`}>
-                            {product.quantity > 0 ? 'В наявності' : 'Немає в наявності'}
-                          </div>
+                          <p className="text-sm text-gray-600">Ціна</p>
+                          <p className="font-bold text-purple-600 text-lg">{product.price}₴</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Кількість</p>
+                          <p className="font-semibold text-gray-900">{product.quantity} шт</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-sm text-gray-600">Опис</p>
+                          <p className="text-gray-900 whitespace-pre-wrap">{product.description}</p>
                         </div>
                       </div>
 
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
-                      <div>
-                        <p className="text-sm text-gray-600">Ціна</p>
-                        <p className="font-bold text-purple-600 text-lg">{product.price}₴</p>
+                      <div className="flex justify-between gap-2">
+                        <button
+                          onClick={() => handleDeleteProduct(product.id)}
+                          disabled={actionLoading}
+                          className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 w-full"
+                        >
+                          Видалити
+                        </button>
+                        <button
+                          onClick={() => handleEditProduct(product)}
+                          className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium w-full"
+                        >
+                          Редагувати
+                        </button>
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-600">Кількість</p>
-                        <p className="font-semibold text-gray-900">{product.quantity} шт</p>
-                      </div>
-                      <div className="col-span-2">
-                        <p className="text-sm text-gray-600">Опис</p>
-                        <p className="text-gray-900 whitespace-pre-wrap">{product.description}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between gap-2">
-                      <button
-                        onClick={() => handleDeleteProduct(product.id)}
-                        disabled={actionLoading}
-                        className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium disabled:opacity-50 w-full"
-                      >
-                        Видалити
-                      </button>
-                      <button
-                        onClick={() => handleEditProduct(product)}
-                        className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium w-full"
-                      >
-                        Редагувати
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))
-            )}
+                ))
+              )}
             </div>
           </div>
         )}
@@ -1540,15 +1602,15 @@ export default function AdminPage() {
               <div className="flex bg-gray-100 p-1 rounded-lg w-full sm:w-auto">
                 <button
                   onClick={() => setReviewTab('text')}
-                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-colors ${reviewTab === 'text' ? 'bg-white text-purple-700 shadow flex items-center gap-2 justify-center' : 'text-gray-600 hover:bg-gray-200 flex items-center justify-center'}`}
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-colors ${reviewTab === 'text' ? 'bg-white text-purple-700 shadow flex items-center gap-2 justify-center' : 'text-gray-600 hover:bg-gray-200 flex items-center justify-center gap-2'}`}
                 >
-                  📝 Відгуки на сайті
+                  <ChatBubbleLeftRightIcon className="w-4 h-4" /> Відгуки на сайті
                 </button>
                 <button
                   onClick={() => setReviewTab('screenshots')}
-                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-colors ${reviewTab === 'screenshots' ? 'bg-white text-purple-700 shadow flex items-center gap-2 justify-center' : 'text-gray-600 hover:bg-gray-200 flex items-center justify-center'}`}
+                  className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-colors ${reviewTab === 'screenshots' ? 'bg-white text-purple-700 shadow flex items-center gap-2 justify-center' : 'text-gray-600 hover:bg-gray-200 flex items-center justify-center gap-2'}`}
                 >
-                  📸 Скріншоти (Telegram)
+                  <CameraIcon className="w-4 h-4" /> Скріншоти (Telegram)
                 </button>
               </div>
               <h2 className="text-lg font-bold text-gray-900">
@@ -1571,12 +1633,12 @@ export default function AdminPage() {
                     <div className="text-purple-600">
                       {uploadingScreenshot ? (
                         <>
-                          <span className="text-2xl animate-spin inline-block">⏳</span>
+                          <ArrowPathIcon className="text-2xl animate-spin inline-block w-8 h-8" />
                           <p className="text-sm font-medium mt-2">Завантаження...</p>
                         </>
                       ) : (
                         <>
-                          <span className="text-3xl">📸</span>
+                          <CameraIcon className="w-10 h-10 mx-auto" />
                           <p className="text-sm font-medium mt-2">Завантажити скріншоти</p>
                           <p className="text-xs text-gray-500 mt-1">Натисніть або перетягніть</p>
                         </>
@@ -1602,7 +1664,7 @@ export default function AdminPage() {
                             className="bg-red-100 text-red-600 px-2 py-1 text-xs rounded hover:bg-red-200 font-medium"
                             disabled={actionLoading}
                           >
-                            🗑️
+                            <TrashIcon className="w-4 h-4" />
                           </button>
                           {index > 0 && (
                             <button
@@ -1611,7 +1673,7 @@ export default function AdminPage() {
                               disabled={actionLoading}
                               title="Перемістити лівіше"
                             >
-                              ←
+                              <ArrowLeftIcon className="w-4 h-4" />
                             </button>
                           )}
                           {index < screenshotReviews.length - 1 && (
@@ -1621,7 +1683,7 @@ export default function AdminPage() {
                               disabled={actionLoading}
                               title="Перемістити правіше"
                             >
-                              →
+                              <ArrowRightIcon className="w-4 h-4" />
                             </button>
                           )}
                         </div>
@@ -1665,12 +1727,12 @@ export default function AdminPage() {
                             : 'bg-red-600 text-white hover:bg-red-700'
                             }`}
                         >
-                          🗑️ Видалити
+                          <TrashIcon className="w-5 h-5" /> Видалити
                         </button>
                       </div>
                       <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
                         <p className="text-gray-800 leading-relaxed">
-                          {review.text?.length ? `"${review.text}"` : '⭐ Без коментаря'}
+                          {review.text?.length ? `"${review.text}"` : <span className="flex items-center gap-1"><StarIcon className="w-4 h-4" /> Без коментаря</span>}
                         </p>
                       </div>
 
@@ -1716,7 +1778,7 @@ export default function AdminPage() {
                                     : 'bg-purple-600 text-white hover:bg-purple-700'
                                     }`}
                                 >
-                                  📤 Відправити
+                                  <ArrowUpTrayIcon className="w-5 h-5" /> Відправити
                                 </button>
                                 <button
                                   onClick={() => {
@@ -1736,7 +1798,7 @@ export default function AdminPage() {
                               disabled={actionLoading}
                               className="ml-8 px-4 py-2 rounded-lg font-medium bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors"
                             >
-                              💬 Відповісти
+                              <ChatBubbleLeftRightIcon className="w-5 h-5" /> Відповісти
                             </button>
                           )}
                         </div>
@@ -1754,7 +1816,7 @@ export default function AdminPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Список тікетів */}
             <div className="lg:col-span-1 bg-white rounded-lg shadow-sm p-6 max-h-[80vh] overflow-y-auto">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">🆘 Тікети підтримки</h2>
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><LifebuoyIcon className="w-5 h-5 text-purple-600" /> Тікети підтримки</h2>
               <p className="text-sm text-gray-600 mb-4">
                 Всього: <span className="font-bold text-purple-600">{supportTickets.length}</span>
               </p>
@@ -1784,7 +1846,13 @@ export default function AdminPage() {
                           ticket.status === 'responded' ? 'bg-blue-200 text-blue-800' :
                             'bg-green-200 text-green-800'
                           }`}>
-                          {ticket.status === 'open' ? '🔴 Нове' : ticket.status === 'responded' ? '🟡 Відповідь' : 'Завершено'}
+                          {ticket.status === 'open' ? (
+                            <span className="flex items-center gap-1"><CircleIconSolid className="w-2 h-2 text-red-500" /> Нове</span>
+                          ) : ticket.status === 'responded' ? (
+                            <span className="flex items-center gap-1"><CircleIconSolid className="w-2 h-2 text-yellow-500" /> Відповідь</span>
+                          ) : (
+                            'Завершено'
+                          )}
                         </span>
                       </div>
                       <p className="text-xs text-gray-600 truncate">
@@ -1807,8 +1875,8 @@ export default function AdminPage() {
                     <h2 className="text-xl font-bold text-gray-900 mb-2">#{selectedTicket.id}</h2>
                     <div className="space-y-1 text-sm text-gray-600">
                       <p><span className="font-semibold">Користувач:</span> {selectedTicket.telegramUsername ? `@${selectedTicket.telegramUsername}` : selectedTicket.telegramId}</p>
-                      <p><span className="font-semibold">Статус:</span>
-                        {selectedTicket.status === 'open' ? ' 🔴 Нове' : selectedTicket.status === 'responded' ? ' 🟡 Відповідь отримана' : ' Завершено'}
+                      <p className="flex items-center gap-1"><span className="font-semibold">Статус:</span>
+                        {selectedTicket.status === 'open' ? <><CircleIconSolid className="w-2 h-2 text-red-500" /> Нове</> : selectedTicket.status === 'responded' ? <><CircleIconSolid className="w-2 h-2 text-yellow-500" /> Відповідь отримана</> : ' Завершено'}
                       </p>
                       <p><span className="font-semibold">Дата:</span> {new Date(selectedTicket.createdAt).toLocaleString('uk-UA')}</p>
                       {selectedTicket.updatedAt && (
@@ -1820,7 +1888,7 @@ export default function AdminPage() {
                     onClick={() => setSelectedTicket(null)}
                     className="text-gray-500 hover:text-gray-700 text-2xl"
                   >
-                    ✕
+                    <XMarkIcon className="w-6 h-6" />
                   </button>
                 </div>
 
@@ -1837,8 +1905,8 @@ export default function AdminPage() {
                           }`}
                       >
                         <div className="flex justify-between items-start mb-1">
-                          <p className={`text-xs font-semibold ${msg.isAdmin ? 'text-purple-700' : 'text-yellow-700'}`}>
-                            {msg.isAdmin ? '🔧 Адміністратор' : '👤 Користувач'}
+                          <p className={`text-xs font-semibold flex items-center gap-1 ${msg.isAdmin ? 'text-purple-700' : 'text-yellow-700'}`}>
+                            {msg.isAdmin ? <><WrenchIcon className="w-3 h-3" /> Адміністратор</> : <><UserIcon className="w-3 h-3" /> Користувач</>}
                           </p>
                           <p className="text-xs text-gray-600">{new Date(msg.timestamp).toLocaleString('uk-UA', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</p>
                         </div>
@@ -1892,14 +1960,14 @@ export default function AdminPage() {
 
                 {selectedTicket.status === 'closed' && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                    <p className="text-green-700 font-semibold">✅ Цей тікет закрито</p>
+                    <p className="text-green-700 font-semibold flex items-center justify-center gap-2"><CheckCircleIcon className="w-5 h-5" /> Цей тікет закрито</p>
                   </div>
                 )}
               </div>
             ) : (
               <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-12 flex items-center justify-center">
-                <p className="text-gray-500 text-center">
-                  {supportTickets.length === 0 ? '🎉 Немає тікетів для підтримки' : '👈 Виберіть тікет для перегляду деталей'}
+                <p className="text-gray-500 text-center flex flex-col items-center gap-2">
+                  {supportTickets.length === 0 ? <><SparklesIcon className="w-12 h-12 text-purple-200" /> Немає тікетів для підтримки</> : '👈 Виберіть тікет для перегляду деталей'}
                 </p>
               </div>
             )}
@@ -1912,7 +1980,7 @@ export default function AdminPage() {
             {/* Кнопка створення аукціону */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex justify-between items-center">
-                <h2 className="text-lg font-bold text-gray-900">🔨 Аукціони</h2>
+                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><CurrencyDollarIcon className="w-5 h-5" /> Аукціони</h2>
                 <button
                   onClick={() => {
                     setShowAuctionModal(true);
@@ -1929,7 +1997,7 @@ export default function AdminPage() {
                   }}
                   className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-all"
                 >
-                  ＋ Новий аукціон
+                  <PlusIcon className="w-5 h-5" /> Новий аукціон
                 </button>
               </div>
             </div>
@@ -1940,12 +2008,12 @@ export default function AdminPage() {
                 <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto">
                   {/* Заголовок модалі */}
                   <div className="bg-purple-600 p-6 flex justify-between items-center sticky top-0">
-                    <h2 className="text-2xl font-bold text-white">🔨 Створення аукціону</h2>
+                    <h2 className="text-2xl font-bold text-white flex items-center gap-2"><CurrencyDollarIcon className="w-8 h-8" /> Створення аукціону</h2>
                     <button
                       onClick={() => setShowAuctionModal(false)}
                       className="text-white hover:opacity-80 transition-opacity text-2xl font-bold"
                     >
-                      ✕
+                      <XMarkIcon className="w-6 h-6" />
                     </button>
                   </div>
 
@@ -2035,7 +2103,7 @@ export default function AdminPage() {
                                 }}
                                 className="text-xs px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-all"
                               >
-                                ✕ Видалити
+                                <XMarkIcon className="w-4 h-4" /> Видалити
                               </button>
                             </div>
                           </div>
@@ -2157,7 +2225,7 @@ export default function AdminPage() {
                           : 'bg-green-600 text-white hover:bg-green-700'
                           }`}
                       >
-                        {actionLoading ? '⏳ Обробка...' : uploadingAuctionImage ? '📤 Завантаження фото...' : '✅ Створити'}
+                        {actionLoading ? <><ArrowPathIcon className="w-5 h-5 animate-spin" /> Обробка...</> : uploadingAuctionImage ? <><ArrowUpTrayIcon className="w-5 h-5 animate-spin" /> Завантаження фото...</> : 'Створити'}
                       </button>
                     </div>
                   </div>
@@ -2189,9 +2257,9 @@ export default function AdminPage() {
                           : auction.status === 'scheduled' ? 'bg-blue-100 text-blue-800'
                             : 'bg-gray-100 text-gray-800'
                           }`}>
-                          {auction.status === 'active' ? '🟢 Активний'
-                            : auction.status === 'scheduled' ? '🔵 Запланований'
-                              : '⚫ Завершений'}
+                          {auction.status === 'active' ? <span className="flex items-center gap-1"><CircleIconSolid className="w-2 h-2 text-green-500" /> Активний</span>
+                            : auction.status === 'scheduled' ? <span className="flex items-center gap-1"><CircleIconSolid className="w-2 h-2 text-blue-500" /> Запланований</span>
+                              : <span className="flex items-center gap-1"><CircleIconSolid className="w-2 h-2 text-gray-500" /> Завершений</span>}
                         </span>
                       </div>
 
@@ -2222,7 +2290,7 @@ export default function AdminPage() {
                           return (
                             winnerName && (
                               <div className="mb-3 p-3 bg-green-50 rounded border border-green-200">
-                                <p className="text-sm text-green-700"><strong>🏆 Переможець:</strong> {winnerName}</p>
+                                <p className="text-sm text-green-700 flex items-center gap-2"><strong><TrophyIcon className="w-4 h-4 text-yellow-500" /> Переможець:</strong> {winnerName}</p>
                                 {winnerPrice !== null && <p className="text-sm text-green-700"><strong>Фінальна ціна:</strong> {winnerPrice}₴</p>}
                               </div>
                             )
@@ -2246,12 +2314,12 @@ export default function AdminPage() {
                             }
                           }}
                           disabled={actionLoading}
-                          className={`flex-1 font-bold py-2 rounded-lg transition-all text-sm ${actionLoading
+                          className={`flex-1 font-bold py-2 rounded-lg transition-all text-sm flex items-center justify-center gap-2 ${actionLoading
                             ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                             : 'bg-red-600 text-white hover:bg-red-700'
                             }`}
                         >
-                          🗑️ Видалити
+                          <TrashIcon className="w-5 h-5" /> Видалити
                         </button>
                       </div>
                     </div>
@@ -2270,15 +2338,11 @@ export default function AdminPage() {
             {/* Заголовок */}
             <div className="bg-gradient-to-r from-green-600 to-emerald-500 text-white p-6 sticky top-0 z-10">
               <div className="flex justify-between items-start gap-4">
-                <div className="flex-1">
-                  <p className="text-sm opacity-90">Додавання нового товару</p>
-                  <p className="text-2xl font-bold">Новий товар</p>
-                </div>
                 <button
                   onClick={() => setIsCreatingProduct(false)}
                   className="text-white text-2xl font-bold hover:scale-110 transition-transform"
                 >
-                  ✕
+                  <XMarkIcon className="w-6 h-6" />
                 </button>
               </div>
             </div>
@@ -2373,13 +2437,13 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Іконка (emoji) / Головне зображення</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Іконка / Головне зображення</label>
                 <input
                   type="text"
                   value={newProductForm.image}
                   onChange={(e) => setNewProductForm({ ...newProductForm, image: e.target.value })}
                   className="w-full px-4 py-2 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-400 bg-purple-50/30 text-gray-900"
-                  placeholder="🎁"
+                  placeholder="🎁 або посилання"
                 />
               </div>
 
@@ -2417,12 +2481,12 @@ export default function AdminPage() {
                   className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
                 <label htmlFor="newIsAbroad1" className="font-medium text-blue-800 cursor-pointer select-none">
-                  🌍 Товар із-за кордону
+                  <GlobeAltIcon className="w-5 h-5" /> Товар із-за кордону
                 </label>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару <CameraIcon className="w-4 h-4 inline" /></label>
 
                 {/* Завантажені фото */}
                 {newProductForm.images && newProductForm.images.length > 0 && (
@@ -2435,13 +2499,7 @@ export default function AdminPage() {
                           alt={`Photo ${idx + 1}`}
                           className="w-full h-24 object-cover rounded border border-purple-200"
                         />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(url, 'create')}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                        >
-                          ✕
-                        </button>
+                        <XMarkIcon className="w-4 h-4" />
                       </div>
                     ))}
                   </div>
@@ -2459,13 +2517,10 @@ export default function AdminPage() {
                   />
                   <div className="text-purple-600">
                     {uploadingImages ? (
-                      <>
-                        <span className="text-2xl">⏳</span>
-                        <p className="text-sm font-medium mt-2">Завантаження...</p>
-                      </>
+                      <ArrowPathIcon className="w-6 h-6 animate-spin mx-auto" />
                     ) : (
                       <>
-                        <span className="text-3xl">📸</span>
+                        <CameraIcon className="w-10 h-10 mx-auto" />
                         <p className="text-sm font-medium mt-2">Завантажити фото</p>
                         <p className="text-xs text-gray-500 mt-1">Натисніть або перетягніть (макс 5MB на фото)</p>
                       </>
@@ -2483,7 +2538,7 @@ export default function AdminPage() {
                     : 'bg-green-600 text-white hover:bg-green-700'
                     }`}
                 >
-                  {actionLoading ? '⏳ Додавання...' : 'Додати'}
+                  {actionLoading ? <span className="flex items-center justify-center gap-2"><ArrowPathIcon className="w-5 h-5 animate-spin" /> Додавання...</span> : 'Додати'}
                 </button>
                 <button
                   onClick={() => setIsCreatingProduct(false)}
@@ -2504,15 +2559,11 @@ export default function AdminPage() {
             {/* Заголовок */}
             <div className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-6 sticky top-0 z-10">
               <div className="flex justify-between items-start gap-4">
-                <div className="flex-1">
-                  <p className="text-sm opacity-90">Редагування товару</p>
-                  <p className="text-2xl font-bold">{editingProduct.name}</p>
-                </div>
                 <button
                   onClick={() => setEditingProduct(null)}
                   className="text-white text-2xl font-bold hover:scale-110 transition-transform"
                 >
-                  ✕
+                  <XMarkIcon className="w-6 h-6" />
                 </button>
               </div>
             </div>
@@ -2605,7 +2656,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Іконка (emoji) / Головне зображення</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Іконка / Головне зображення</label>
                 <input
                   type="text"
                   value={editForm.image || ''}
@@ -2646,12 +2697,12 @@ export default function AdminPage() {
                   className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                 />
                 <label htmlFor="editIsAbroad" className="font-medium text-blue-800 cursor-pointer select-none">
-                  🌍 Товар із-за кордону
+                  <GlobeAltIcon className="w-5 h-5" /> Товар із-за кордону
                 </label>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару 📸</label>
+                <label className="block text-sm font-medium text-purple-600 mb-2">Фото товару <CameraIcon className="w-4 h-4 inline" /></label>
 
                 {/* Завантажені фото */}
                 {editForm.images && Array.isArray(editForm.images) && editForm.images.length > 0 && (
@@ -2664,13 +2715,7 @@ export default function AdminPage() {
                           alt={`Photo ${idx + 1}`}
                           className="w-full h-24 object-cover rounded border border-purple-200"
                         />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(url, 'edit')}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                        >
-                          ✕
-                        </button>
+                        <XMarkIcon className="w-4 h-4" />
                       </div>
                     ))}
                   </div>
@@ -2688,13 +2733,10 @@ export default function AdminPage() {
                   />
                   <div className="text-purple-600">
                     {uploadingImages ? (
-                      <>
-                        <span className="text-2xl">⏳</span>
-                        <p className="text-sm font-medium mt-2">Завантаження...</p>
-                      </>
+                      <ArrowPathIcon className="w-6 h-6 animate-spin mx-auto" />
                     ) : (
                       <>
-                        <span className="text-3xl">📸</span>
+                        <CameraIcon className="w-10 h-10 mx-auto" />
                         <p className="text-sm font-medium mt-2">Завантажити фото</p>
                         <p className="text-xs text-gray-500 mt-1">Натисніть або перетягніть (макс 5MB на фото)</p>
                       </>
@@ -2712,7 +2754,7 @@ export default function AdminPage() {
                     : 'bg-green-600 text-white hover:bg-green-700'
                     }`}
                 >
-                  {actionLoading ? '⏳ Збереження...' : 'Зберегти зміни'}
+                  {actionLoading ? <span className="flex items-center justify-center gap-2"><ArrowPathIcon className="w-5 h-5 animate-spin" /> Збереження...</span> : 'Зберегти зміни'}
                 </button>
                 <button
                   onClick={() => setEditingProduct(null)}
@@ -2762,7 +2804,7 @@ export default function AdminPage() {
               {/* Контактна інформація */}
               <section>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
-                  👤 Контактна інформація
+                  <UserIcon className="w-5 h-5 text-purple-600" /> Контактна інформація
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
@@ -2789,14 +2831,14 @@ export default function AdminPage() {
                           Авторизований
                           {userProfiles[selectedOrder.userId]?.displayName && (
                             <span className="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700">
-                              👤 {userProfiles[selectedOrder.userId].displayName}
+                              <UserIcon className="w-4 h-4" /> {userProfiles[selectedOrder.userId].displayName}
                             </span>
                           )}
                         </p>
                         {userProfiles[selectedOrder.userId] && (
                           <div className="mt-2 flex flex-wrap gap-2">
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs sm:text-sm" title="Рейтинг">⭐ Рейтинг: {userProfiles[selectedOrder.userId].rating}</span>
-                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm" title="Замовлень">📦 Замовлень: {userProfiles[selectedOrder.userId].totalOrders}</span>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-700 text-xs sm:text-sm" title="Рейтинг"><StarIcon className="w-4 h-4 fill-yellow-400" /> Рейтинг: {userProfiles[selectedOrder.userId].rating}</span>
+                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs sm:text-sm" title="Замовлень"><GiftIcon className="w-4 h-4" /> Замовлень: {userProfiles[selectedOrder.userId].totalOrders}</span>
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs sm:text-sm" title="Знижка">💳 Знижка: {userProfiles[selectedOrder.userId].discountPercent}%</span>
                             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 text-xs sm:text-sm" title="Бали">🎁 Бали: {userProfiles[selectedOrder.userId].points}</span>
                             {userProfiles[selectedOrder.userId].telegramUsername && (
@@ -2807,7 +2849,7 @@ export default function AdminPage() {
                                 className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-sky-100 text-sky-700 text-xs sm:text-sm hover:bg-sky-200 transition-colors"
                                 title="Перейти до Telegram профілю"
                               >
-                                💬 @{userProfiles[selectedOrder.userId].telegramUsername}
+                                <ChatBubbleLeftRightIcon className="w-4 h-4" /> @{userProfiles[selectedOrder.userId].telegramUsername}
                               </a>
                             )}
                           </div>
@@ -2823,7 +2865,7 @@ export default function AdminPage() {
               {/* Адреса доставки */}
               <section>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
-                  🏠 Адреса доставки
+                  <HomeIcon className="w-5 h-5 text-purple-600" /> Адреса доставки
                 </h3>
                 <div className="space-y-2">
                   <p className="text-gray-900 text-sm sm:text-base">
@@ -2843,7 +2885,7 @@ export default function AdminPage() {
               {/* Способ доставки та оплати */}
               <section>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
-                  🚚 Доставка та оплата
+                  <TruckIcon className="w-5 h-5 text-purple-600" /> Доставка та оплата
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
@@ -2860,7 +2902,7 @@ export default function AdminPage() {
               {/* Товари */}
               <section>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
-                  📦 Товари ({selectedOrder.items.length})
+                  <CubeIcon className="w-5 h-5 text-purple-600" /> Товари ({selectedOrder.items.length})
                 </h3>
                 <div className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto">
                   {selectedOrder.items.map((item) => (
@@ -2894,7 +2936,7 @@ export default function AdminPage() {
               {/* Розрахунки */}
               <section>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
-                  💰 Розрахунки
+                  <CurrencyDollarIcon className="w-5 h-5 text-purple-600" /> Розрахунки
                 </h3>
                 <div className="space-y-2">
                   <div className="flex justify-between text-gray-900 text-sm sm:text-base">
@@ -2938,7 +2980,7 @@ export default function AdminPage() {
                   {selectedOrder.deliveryPrice === 0 && (
                     <div className="flex justify-between text-gray-900 text-sm sm:text-base">
                       <span>Доставка:</span>
-                      <span className="font-semibold text-green-600">Безкоштовна ✓</span>
+                      <span className="font-semibold text-green-600 flex items-center gap-1">Безкоштовна <CheckIcon className="w-4 h-4" /></span>
                     </div>
                   )}
                   <div className="flex justify-between text-base sm:text-lg font-bold text-purple-600 pt-2 sm:pt-3 border-t border-gray-200">
@@ -2952,7 +2994,7 @@ export default function AdminPage() {
               {selectedOrder.comments && (
                 <section>
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
-                    📝 Коментарі
+                    <PencilSquareIcon className="w-5 h-5 text-purple-600" /> Коментарі
                   </h3>
                   <p className="text-gray-700 text-sm sm:text-base whitespace-pre-wrap break-words">{selectedOrder.comments}</p>
                 </section>
@@ -2961,7 +3003,7 @@ export default function AdminPage() {
               {/* Дати */}
               <section>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pb-2 border-b border-gray-200">
-                  📅 Дати
+                  <CalendarIcon className="w-5 h-5 text-purple-600" /> Дати
                 </h3>
                 <div className="space-y-2">
                   <div>
@@ -2988,7 +3030,7 @@ export default function AdminPage() {
                         : 'bg-green-600 text-white hover:bg-green-700'
                         }`}
                     >
-                      {actionLoading ? '⏳ Обробка...' : '✅ Підтвердити оплату'}
+                      {actionLoading ? <span className="flex items-center justify-center gap-2"><ArrowPathIcon className="w-5 h-5 animate-spin" /> Обробка...</span> : <span className="flex items-center justify-center gap-2"><CheckCircleIcon className="w-5 h-5" /> Підтвердити оплату</span>}
                     </button>
                     <button
                       onClick={handleCancelOrder}
@@ -3014,7 +3056,7 @@ export default function AdminPage() {
                         : 'bg-purple-600 text-white hover:bg-purple-700'
                         }`}
                     >
-                      {actionLoading ? '⏳ Обробка...' : '📮 Відправлено (ТТН)'}
+                      {actionLoading ? <span className="flex items-center justify-center gap-2"><ArrowPathIcon className="w-5 h-5 animate-spin" /> Обробка...</span> : <span className="flex items-center justify-center gap-2"><ArrowUpTrayIcon className="w-5 h-5" /> Відправлено (ТТН)</span>}
                     </button>
                     <button
                       onClick={handleMarkReadyForPickup}
@@ -3043,7 +3085,7 @@ export default function AdminPage() {
                 {selectedOrder.status === 'shipped' && (
                   <div className="flex flex-col sm:flex-row gap-3">
                     <div className="flex-1 bg-purple-50 border border-purple-200 rounded-lg p-2 sm:p-3">
-                      <p className="text-xs sm:text-sm text-gray-600">📦 ТТН:</p>
+                      <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1"><CubeIcon className="w-4 h-4" /> ТТН:</p>
                       <p className="text-sm sm:text-base font-bold text-purple-700">{selectedOrder.trackingNumber || 'N/A'}</p>
                     </div>
                     <button
@@ -3070,7 +3112,7 @@ export default function AdminPage() {
                         : 'bg-green-600 text-white hover:bg-green-700'
                         }`}
                     >
-                      {actionLoading ? '⏳ Обробка...' : '🏁 Позначити як завершене'}
+                      {actionLoading ? <span className="flex items-center justify-center gap-2"><ArrowPathIcon className="w-5 h-5 animate-spin" /> Обробка...</span> : <span className="flex items-center justify-center gap-2"><FlagIcon className="w-5 h-5" /> Позначити як завершене</span>}
                     </button>
                   </div>
                 )}
@@ -3095,17 +3137,17 @@ export default function AdminPage() {
           <div className="bg-white rounded-lg shadow-sm p-2 mb-6 flex flex-col sm:flex-row gap-2">
             <button
               onClick={() => setBoxesSubTab('types')}
-              className={`flex-1 px-4 py-3 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${boxesSubTab === 'types' ? 'bg-purple-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              className={`flex justify-center gap-2 items-center w-full px-4 py-3 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${boxesSubTab === 'types' ? 'bg-purple-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              📦 Типи боксів
+              <CubeIcon className="w-5 h-5" /> Типи боксів
             </button>
             <button
               onClick={() => setBoxesSubTab('items')}
-              className={`flex-1 px-4 py-3 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${boxesSubTab === 'items' ? 'bg-purple-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              className={`flex justify-center gap-2 items-center w-full px-4 py-3 sm:px-6 rounded-lg font-semibold transition-all text-sm sm:text-base ${boxesSubTab === 'items' ? 'bg-purple-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
-              🛍️ Товари для боксів
+              <ShoppingBagIcon className="w-5 h-5" /> Товари для боксів
             </button>
           </div>
 
@@ -3131,7 +3173,7 @@ export default function AdminPage() {
 
               {boxTypes.length === 0 ? (
                 <div className="bg-white rounded-xl p-16 text-center border-2 border-dashed border-gray-200">
-                  <div className="text-6xl mb-4">📦</div>
+                  <div className="text-6xl mb-4 flex justify-center"><CubeIcon className="w-20 h-20 text-purple-200" /></div>
                   <h3 className="text-xl font-bold text-gray-700 mb-2">Ще немає типів боксів</h3>
                   <p className="text-gray-500">Натисніть «Додати тип боксу», щоб почати</p>
                 </div>
@@ -3145,7 +3187,7 @@ export default function AdminPage() {
                         {boxType.image ? (
                           <img src={boxType.image} alt={boxType.name} className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-6xl">📦</span>
+                          <CubeIcon className="w-20 h-20 text-purple-200" />
                         )}
                       </div>
                       <div className="p-5">
@@ -3184,9 +3226,9 @@ export default function AdminPage() {
                               });
                               setShowBoxTypeModal(true);
                             }}
-                            className="w-full sm:flex-1 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-2 rounded-lg transition-colors text-sm"
+                            className="w-full flex items-center justify-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-2 rounded-lg transition-colors text-sm"
                           >
-                            ✏️ Редагувати
+                            <PencilIcon className="w-4 h-4" /> Редагувати
                           </button>
                           <button
                             onClick={async () => {
@@ -3231,7 +3273,7 @@ export default function AdminPage() {
 
               {boxItems.length === 0 ? (
                 <div className="bg-white rounded-xl p-16 text-center border-2 border-dashed border-gray-200">
-                  <div className="text-6xl mb-4">🛍️</div>
+                  <div className="text-6xl mb-4 flex justify-center"><ShoppingBagIcon className="w-20 h-20 text-purple-200" /></div>
                   <h3 className="text-xl font-bold text-gray-700 mb-2">Ще немає товарів</h3>
                   <p className="text-gray-500">Натисніть «Додати товар», щоб почати</p>
                 </div>
@@ -3244,7 +3286,7 @@ export default function AdminPage() {
                         {item.image ? (
                           <img src={item.image} alt={item.name} className="w-full h-full object-contain p-2" />
                         ) : (
-                          <span className="text-5xl">🎁</span>
+                          <CubeIcon className="w-16 h-16 text-purple-200" />
                         )}
                       </div>
                       <div className="p-3 sm:p-4">
@@ -3252,7 +3294,7 @@ export default function AdminPage() {
                           <h4 className="font-bold text-gray-900 text-xs sm:text-sm leading-tight line-clamp-2">{item.name}</h4>
                           <span className={`shrink-0 text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-semibold ${item.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
                             }`}>
-                            {item.isActive ? '✓' : '✗'}
+                            {item.isActive ? <CheckIcon className="w-3 h-3" /> : <XMarkIcon className="w-3 h-3" />}
                           </span>
                         </div>
                         <p className="text-[10px] sm:text-xs text-gray-500 mb-1">{item.category}</p>
@@ -3280,7 +3322,7 @@ export default function AdminPage() {
                             }}
                             className="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-700 font-semibold py-1.5 rounded-lg transition-colors text-xs"
                           >
-                            ✏️ Ред.
+                            <PencilIcon className="w-4 h-4" /> Ред.
                           </button>
                           <button
                             onClick={async () => {
@@ -3321,19 +3363,19 @@ export default function AdminPage() {
 
             {allUsers.length === 0 ? (
               <div className="p-20 text-center">
-                <div className="text-6xl mb-4">👥</div>
+                <div className="text-6xl mb-4 flex justify-center"><UserGroupIcon className="w-20 h-20 text-purple-200" /></div>
                 <h3 className="text-xl font-bold text-gray-700">Користувачів ще немає</h3>
               </div>
             ) : (
-              <table className="w-full text-left border-collapse min-w-[800px]">
+              <table className="w-full text-left border-collapse min-w-[1000px]">
                 <thead>
                   <tr className="bg-gray-50 text-gray-600 text-xs font-bold uppercase tracking-wider">
                     <th className="px-6 py-4">Користувач</th>
-                    <th className="px-6 py-4">Рейтинг</th>
+                    <th className="px-6 py-4">Telegram</th>
+                    <th className="px-6 py-4">Статистика</th>
+                    <th className="px-6 py-4">Рейтинг & Знижка</th>
                     <th className="px-6 py-4">Бали</th>
-                    <th className="px-6 py-4">Знижка</th>
                     <th className="px-6 py-4">Статус</th>
-                    <th className="px-6 py-4">Реєстрація</th>
                     <th className="px-6 py-4 text-right">Дії</th>
                   </tr>
                 </thead>
@@ -3357,20 +3399,50 @@ export default function AdminPage() {
                             </p>
                             <p className="text-xs text-gray-500 mt-1">{u.email}</p>
                             <p className="text-[10px] text-gray-400 mt-0.5 font-mono select-all">ID: {u.id || u.uid}</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">Реєстрація: {new Date(u.registeredAt || u.createdAt || Date.now()).toLocaleDateString('uk-UA')}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-purple-600 font-bold">
-                        <div className="flex items-center gap-1">
-                          <span>⭐</span>
-                          {u.rating}
+                      <td className="px-6 py-4">
+                        {u.telegramId ? (
+                          <div className="flex flex-col">
+                            {u.telegramUsername ? (
+                              <a
+                                href={`https://t.me/${u.telegramUsername}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sky-600 hover:underline font-medium flex items-center gap-1"
+                              >
+                                @{u.telegramUsername}
+                              </a>
+                            ) : (
+                              <span className="text-gray-600 font-medium flex items-center gap-1"><IdentificationIcon className="w-4 h-4" /> {u.telegramId}</span>
+                            )}
+                            <span className="text-[10px] text-gray-400">Прив'язано</span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-xs italic">Не прив'язано</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <p className="text-xs text-gray-700 font-semibold">Замовлень: <span className="text-purple-600">{u.totalOrders || 0}</span></p>
+                          <p className="text-xs text-gray-700 font-semibold">Витрачено: <span className="text-green-600">{u.totalSpent || 0}₴</span></p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1 text-purple-600 font-bold">
+                            <StarIcon className="w-4 h-4" />
+                            {u.rating}
+                          </div>
+                          <div className="text-xs text-green-600 font-bold">
+                            Знижка: {u.discountPercent}%
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-yellow-600 font-bold text-lg">
                         {u.points}
-                      </td>
-                      <td className="px-6 py-4 text-green-600 font-bold">
-                        {u.discountPercent}%
                       </td>
                       <td className="px-6 py-4">
                         {u.isBlocked ? (
@@ -3385,14 +3457,12 @@ export default function AdminPage() {
                           </span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-gray-500 text-xs">
-                        {new Date(u.createdAt || u.registeredAt || Date.now()).toLocaleDateString('uk-UA')}
-                      </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button
                             onClick={() => handleEditUser(u)}
-                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-all title='Редагувати'"
+                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-all"
+                            title="Редагувати"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -3444,7 +3514,9 @@ export default function AdminPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {giveaways.length === 0 ? (
               <div className="col-span-full py-20 text-center bg-white rounded-xl border-2 border-dashed border-gray-200">
-                <div className="text-6xl mb-4">🎉</div>
+                <div className="text-6xl mb-4 flex justify-center text-purple-200">
+                  <SparklesIcon className="w-16 h-16" />
+                </div>
                 <h3 className="text-xl font-bold text-gray-700">Розіграшів ще немає</h3>
                 <p className="text-gray-500">Натисніть кнопку вище, щоб створити свій перший розіграш</p>
               </div>
@@ -3491,7 +3563,7 @@ export default function AdminPage() {
                         <div className="space-y-1">
                           {giveaway.winners.map((winner, idx) => (
                             <div key={idx} className="flex items-center gap-2 text-sm bg-green-50 p-2 rounded-lg text-green-800 font-medium">
-                              <span>🏆</span>
+                              <TrophyIcon className="w-4 h-4 text-yellow-500" />
                               <div className="truncate">
                                 {winner.userName}
                                 {winner.userPhone && <span className="text-[10px] ml-2 opacity-70">({winner.userPhone})</span>}
@@ -3507,14 +3579,14 @@ export default function AdminPage() {
                         onClick={() => handleShowParticipants(giveaway)}
                         className="flex-1 bg-blue-50 text-blue-600 font-bold py-2 rounded-lg hover:bg-blue-100 transition-colors text-xs flex items-center justify-center gap-1"
                       >
-                        👥 Учасники
+                        <UserGroupIcon className="w-4 h-4" /> Учасники
                       </button>
                       {giveaway.status === 'active' && (
                         <button
                           onClick={() => handlePickWinnersAction(giveaway.id)}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition-colors text-xs"
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition-colors text-xs flex items-center justify-center gap-1"
                         >
-                          🏆 Обрати
+                          <TrophyIcon className="w-4 h-4" /> Обрати
                         </button>
                       )}
                       <button
@@ -3538,7 +3610,9 @@ export default function AdminPage() {
         <div className="fixed inset-0 bg-black/60 z-[1000] flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
             <div className="p-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white flex justify-between items-center">
-              <h3 className="text-2xl font-bold">🎉 Новий розіграш</h3>
+              <h3 className="text-2xl font-bold flex items-center gap-2">
+                <SparklesIcon className="w-8 h-8" /> Новий розіграш
+              </h3>
               <button onClick={() => setShowGiveawayModal(false)} className="hover:rotate-90 transition-transform">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -3553,7 +3627,7 @@ export default function AdminPage() {
                   type="text"
                   value={newGiveawayForm.title}
                   onChange={e => setNewGiveawayForm({ ...newGiveawayForm, title: e.target.value })}
-                  placeholder="наприклад: Великодній розіграш 🐣"
+                  placeholder="наприклад: Великодній розіграш"
                   className="w-full border-2 border-gray-100 rounded-2xl px-5 py-3 focus:border-purple-400 focus:outline-none text-black transition-all"
                 />
               </div>
@@ -3620,7 +3694,7 @@ export default function AdminPage() {
                         }}
                       />
                       <span className="text-xs font-bold text-gray-500">
-                        {uploadingGiveawayImage ? '⏳ Завантаження...' : '📁 Вибрати файл'}
+                        {uploadingGiveawayImage ? <span className="flex items-center gap-1"><ArrowPathIcon className="w-3 h-3 animate-spin" /> Завантаження...</span> : <span className="flex items-center gap-1"><ArrowUpTrayIcon className="w-3 h-3" /> Вибрати файл</span>}
                       </span>
                     </label>
                   </div>
@@ -3690,7 +3764,9 @@ export default function AdminPage() {
                 </div>
               ) : giveawayParticipants.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="text-5xl mb-4">😶</div>
+                  <div className="text-5xl mb-4 flex justify-center text-gray-200">
+                    <UserIcon className="w-16 h-16" />
+                  </div>
                   <p className="text-gray-500 font-medium">Учасників ще немає</p>
                 </div>
               ) : (
@@ -3703,7 +3779,7 @@ export default function AdminPage() {
                     <div key={idx} className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${p.hasCompletedOrder ? 'bg-purple-50 border-purple-100 shadow-sm' : 'bg-gray-50 border-gray-100'}`}>
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-sm ${p.hasCompletedOrder ? 'bg-gradient-to-br from-purple-500 to-pink-500' : 'bg-gray-300'}`}>
-                          {p.userName[0].toUpperCase()}
+                          {p.userPhotoURL ? <img src={p.userPhotoURL} className="w-full h-full rounded-full object-cover" /> : <UserIcon className="w-6 h-6" />}
                         </div>
                         <div>
                           <p className="font-bold text-gray-900 text-sm">
@@ -3715,7 +3791,7 @@ export default function AdminPage() {
                       </div>
                       <div className="text-right">
                         <p className={`text-sm font-black ${p.hasCompletedOrder ? 'text-purple-600' : 'text-gray-500'}`}>
-                          {p.hasCompletedOrder ? '+10% Шанс' : 'Базовий'}
+                          {p.hasCompletedOrder ? <span className="flex items-center gap-1 justify-end"><BoltIcon className="w-3 h-3" /> +10% Шанс</span> : 'Базовий'}
                         </p>
                         <p className="text-[10px] text-gray-400">{new Date(p.joinedAt).toLocaleString('uk-UA', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</p>
                       </div>
@@ -3740,8 +3816,8 @@ export default function AdminPage() {
         <div className="fixed inset-0 bg-black/60 z-500 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-100">
-              <h3 className="text-xl font-bold text-gray-900">
-                {editingBoxType ? '✏️ Редагувати тип боксу' : '+ Новий тип боксу'}
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                {editingBoxType ? <><PencilIcon className="w-5 h-5" /> Редагувати тип боксу</> : <><PlusIcon className="w-5 h-5" /> Новий тип боксу</>}
               </h3>
             </div>
             <div className="p-6 space-y-5">
@@ -3833,7 +3909,7 @@ export default function AdminPage() {
                   {uploadingBoxTypeImage ? (
                     <><div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mb-2" /><span className="text-sm text-purple-600">Завантаження...</span></>
                   ) : (
-                    <><span className="text-3xl mb-1">🖼️</span><span className="text-sm text-gray-500">Натисніть для завантаження фото</span></>
+                    <><PhotoIcon className="w-8 h-8 text-gray-400 mb-1" /><span className="text-sm text-gray-500">Натисніть для завантаження фото</span></>
                   )}
                 </label>
               </div>
@@ -3902,8 +3978,8 @@ export default function AdminPage() {
         <div className="fixed inset-0 bg-black/60 z-500 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-100">
-              <h3 className="text-xl font-bold text-gray-900">
-                {editingBoxItem ? '✏️ Редагувати товар' : '+ Новий товар для боксу'}
+              <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                {editingBoxItem ? <><PencilIcon className="w-5 h-5" /> Редагувати товар</> : <><PlusIcon className="w-5 h-5" /> Новий товар для боксу</>}
               </h3>
             </div>
             <div className="p-6 space-y-5">
@@ -4012,7 +4088,7 @@ export default function AdminPage() {
                   {uploadingBoxItemImages ? (
                     <><div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin mb-2" /><span className="text-sm text-purple-600">Завантаження...</span></>
                   ) : (
-                    <><span className="text-3xl mb-1">📸</span><span className="text-sm text-gray-500">Завантажити фото — перше буде головним</span></>
+                    <><CameraIcon className="w-8 h-8 text-gray-400 mb-1" /><span className="text-sm text-gray-500">Завантажити фото — перше буде головним</span></>
                   )}
                 </label>
               </div>
@@ -4042,12 +4118,12 @@ export default function AdminPage() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-blue-900">🌍 Додати товар до каталогу «Іграшки з-за кордону»</p>
-                    <p className="text-xs text-blue-700 mt-1">
-                      Товар з'явиться в каталозі з міткою «🌍 Із закордону» і буде синхронізуватись при змінах.
+                    <p className="text-sm font-bold text-blue-900 flex items-center gap-2"><GlobeAltIcon className="w-5 h-5" /> Додати товар до каталогу «Іграшки з-за кордону»</p>
+                    <p className="text-xs text-blue-700 mt-1 flex items-center gap-1">
+                      <GlobeAltIcon className="w-3 h-3" /> Товар з'явиться в каталозі з міткою «Із закордону» і буде синхронізуватись при змінах.
                       {editingBoxItem?.catalogProductId && !boxItemForm.addToCatalog && (
-                        <span className="block mt-1 text-red-600 font-semibold">
-                          ⚠️ Знявши галочку, товар буде видалений з каталогу!
+                        <span className="block mt-1 text-red-600 font-semibold flex items-center gap-1">
+                          <ExclamationTriangleIcon className="w-4 h-4" /> Знявши галочку, товар буде видалений з каталогу!
                         </span>
                       )}
                     </p>
@@ -4147,7 +4223,7 @@ export default function AdminPage() {
                         if (newCatalogId) {
                           // 3. Оновлюємо BoxItem з catalogProductId
                           await updateBoxItem(savedBoxItemId, { catalogProductId: newCatalogId });
-                          showSuccess('Товар створено і додано до каталогу 🌍');
+                          showSuccess('Товар створено і додано до каталогу');
                         } else {
                           showSuccess('Товар створено, але помилка додавання до каталогу');
                         }
@@ -4176,8 +4252,8 @@ export default function AdminPage() {
         <div className="fixed inset-0 bg-black/60 z-[10000] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
             <div className="p-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white flex justify-between items-center">
-              <h3 className="text-xl font-bold">
-                👤 Редагування профілю
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <UserIcon className="w-6 h-6" /> Редагування профілю
               </h3>
               <button
                 onClick={() => setEditingUser(null)}
@@ -4202,7 +4278,30 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Рейтинг ⭐</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Telegram ID</label>
+                  <input
+                    type="text"
+                    value={userEditForm.telegramId}
+                    onChange={e => setUserEditForm(f => ({ ...f, telegramId: e.target.value }))}
+                    className="w-full border-2 border-gray-100 rounded-xl px-4 py-2 focus:border-purple-400 focus:outline-none text-black bg-gray-50"
+                    placeholder="Не прив'язано"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Telegram @username</label>
+                  <input
+                    type="text"
+                    value={userEditForm.telegramUsername}
+                    onChange={e => setUserEditForm(f => ({ ...f, telegramUsername: e.target.value }))}
+                    className="w-full border-2 border-gray-100 rounded-xl px-4 py-2 focus:border-purple-400 focus:outline-none text-black bg-gray-50"
+                    placeholder="@username"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-1">Рейтинг <StarIcon className="w-4 h-4" /></label>
                   <input
                     type="number"
                     value={userEditForm.rating}
@@ -4211,7 +4310,7 @@ export default function AdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Знижка % 💳</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-1">Знижка % <TagIcon className="w-4 h-4" /></label>
                   <input
                     type="number"
                     value={userEditForm.discountPercent}
@@ -4222,7 +4321,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Бали лояльності 🎯</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1 flex items-center gap-1">Бали лояльності <BoltIcon className="w-4 h-4" /></label>
                 <input
                   type="number"
                   value={userEditForm.points}
@@ -4241,8 +4340,8 @@ export default function AdminPage() {
                     <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${userEditForm.isBlocked ? 'translate-x-6' : 'translate-x-0.5'
                       }`} />
                   </div>
-                  <span className={`text-sm font-bold ${userEditForm.isBlocked ? 'text-red-600' : 'text-gray-700'}`}>
-                    {userEditForm.isBlocked ? '🔒 Акаунт заблоковано' : '🔓 Акаунт активний'}
+                  <span className={`text-sm font-bold flex items-center gap-2 ${userEditForm.isBlocked ? 'text-red-600' : 'text-gray-700'}`}>
+                    {userEditForm.isBlocked ? <><LockClosedIcon className="w-5 h-5" /> Акаунт заблоковано</> : <><LockOpenIcon className="w-5 h-5" /> Акаунт активний</>}
                   </span>
                 </label>
               </div>

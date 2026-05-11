@@ -3,30 +3,33 @@
     "users": {
       ".read": true,
       "$uid": {
-        ".write": "$uid === auth.uid || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+        ".write": "$uid === auth.uid || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
+        "telegramId": { ".write": "true" },
+        "telegramUsername": { ".write": "true" },
+        "updatedAt": { ".write": "true" }
       }
     },
     "telegram_users": {
-      ".read": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
-      ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
+      ".read": true,
+      ".write": true
     },
     "support_tickets": {
       ".read": "auth != null",
       "$ticketId": {
-        ".write": "auth != null"
+        ".write": "auth != null || !data.exists()"
       }
     },
     "telegram_binding_codes": {
-      ".read": "auth != null",
+      ".read": true,
       "$code": {
-        ".write": "auth != null"
+        ".write": true
       }
     },
     "orders": {
       ".read": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
       ".indexOn": ["userId"],
       "$orderId": {
-        ".read": "data.child('userId').val() === auth.uid || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'",
+        ".read": "true",
         ".write": "(!data.exists() && (newData.child('userId').val() === auth.uid || !newData.child('userId').exists())) || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
       }
     },

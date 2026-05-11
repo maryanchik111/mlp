@@ -19,7 +19,6 @@ export default function RefundPage() {
 
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 border-4 border-purple-200">
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">↩️</div>
             <h1 className="text-3xl md:text-4xl font-black text-purple-700 mb-2">
               Повернення та обмін
             </h1>
@@ -28,7 +27,7 @@ export default function RefundPage() {
 
           <div className="prose prose-purple max-w-none space-y-6 text-gray-700">
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">📋 Загальні умови</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3">Загальні умови</h2>
               <p>
                 MLP Cutie Family дбає про задоволеність кожного клієнта. Якщо ви з будь-якої причини не задоволені покупкою,
                 ви можете повернути або обміняти товар протягом 14 днів з моменту отримання.
@@ -36,7 +35,7 @@ export default function RefundPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">✅ Умови прийняття товару назад</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3">Умови прийняття товару назад</h2>
               <p>Товар можна повернути, якщо він відповідає наступним вимогам:</p>
               <ul className="list-disc pl-6 space-y-2">
                 <li>Товар не використовувався та збережено товарний вигляд</li>
@@ -48,7 +47,7 @@ export default function RefundPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">🔄 Порядок повернення</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3">Порядок повернення</h2>
               <div className="space-y-4">
                 <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
                   <h3 className="font-bold text-purple-700 mb-2">Крок 1: Зв'язок з підтримкою</h3>
@@ -75,7 +74,7 @@ export default function RefundPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">🔁 Обмін товару</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3">Обмін товару</h2>
               <p>
                 Якщо ви хочете обміняти товар на інший:
               </p>
@@ -99,7 +98,7 @@ export default function RefundPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-pink-700 mb-3">🌍 Правила для передзамовлень із-за кордону</h2>
+              <h2 className="text-2xl font-bold text-pink-700 mb-3">Правила для передзамовлень із-за кордону</h2>
               <div className="bg-pink-50 border-l-4 border-pink-400 p-6 rounded-xl space-y-4 text-gray-700">
                 <p className="font-semibold text-pink-900">
                   Передзамовлення товарів, які доставляються з-за кордону, здійснюються спеціально під індивідуальне замовлення клієнта.
@@ -127,7 +126,7 @@ export default function RefundPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">💰 Повернення коштів</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3">Повернення коштів</h2>
               <p>
                 Кошти повертаються тим же способом, яким була здійснена оплата:
               </p>
@@ -140,31 +139,29 @@ export default function RefundPage() {
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">📅 Терміни</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3">Терміни</h2>
               <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg border-2 border-purple-200">
                 <ul className="space-y-2">
-                  <li>📦 <strong>Термін повернення:</strong> 14 днів з моменту отримання</li>
-                  <li>⏰ <strong>Відповідь підтримки:</strong> до 24 годин</li>
-                  <li>✅ <strong>Перевірка товару:</strong> 1-3 робочих дні</li>
-                  <li>💳 <strong>Повернення коштів:</strong> 5-10 робочих днів</li>
-                  <li>🚚 <strong>Відправка заміни:</strong> 2-3 робочих дні</li>
+                  <li><strong>Термін повернення:</strong> 14 днів з моменту отримання</li>
+                  <li><strong>Відповідь підтримки:</strong> декілька хвилин</li>
+                  <li><strong>Перевірка товару:</strong> 1-3 робочих дні</li>
+                  <li><strong>Повернення коштів:</strong> 5-10 робочих днів</li>
+                  <li><strong>Відправка заміни:</strong> 2-3 робочих дні</li>
                 </ul>
               </div>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-purple-700 mb-3">📞 Контакти служби підтримки</h2>
+              <h2 className="text-2xl font-bold text-purple-700 mb-3">Контакти служби підтримки</h2>
               <div className="bg-white border-2 border-purple-300 rounded-lg p-6">
                 <ul className="space-y-3">
                   <li className="flex items-start gap-3">
-                    <span className="text-2xl">📧</span>
                     <div>
                       <strong>Підтримка:</strong> <a href="https://t.me/mlp_cutie_family_bot" className="text-purple-600 hover:underline">чат-бот</a>
-                      <p className="text-sm text-gray-600">Відповідаємо протягом 24 годин</p>
+                      <p className="text-sm text-gray-600">Відповідаємо протягом декількох хвилин</p>
                     </div>
                   </li>
                   <li className="flex items-start gap-3">
-                    <span className="text-2xl">💬</span>
                     <div>
                       <strong>Telegram:</strong> <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a>
                       <p className="text-sm text-gray-600">Швидкий зв'язок у месенджері</p>
@@ -176,7 +173,7 @@ export default function RefundPage() {
 
             <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-lg border-2 border-purple-300 text-center mt-8">
               <p className="text-lg font-semibold text-purple-700">
-                💝 Ваша задоволеність - наш пріоритет!
+                іВаша задоволеність - наш пріоритет!
               </p>
               <p className="text-gray-700 mt-2">
                 Якщо у вас виникли питання, не соромтеся звертатися. Ми завжди раді допомогти!

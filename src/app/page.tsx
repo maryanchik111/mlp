@@ -20,7 +20,8 @@ import {
   PaintBrushIcon,
   NewspaperIcon,
   HeartIcon,
-  ShoppingBagIcon
+  ShoppingBagIcon,
+  ArrowRightIcon
 } from '@heroicons/react/24/solid';
 import TopBuyers from "./components/client/top-buyers";
 import RecentReviews from "@/app/components/client/recent-reviews";
@@ -129,8 +130,8 @@ export default function Home() {
       {/* Статистика */}
       <section className="bg-white py-16">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600">
-            🌟 Чому нас обирають
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600 flex items-center justify-center gap-2">
+            <SparklesIcon className="w-8 h-8 text-yellow-400" /> Чому нас обирають
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="bg-purple-50 rounded-lg p-6 text-center">
@@ -173,9 +174,9 @@ export default function Home() {
             </p>
             <Link
               href="/forum"
-              className="inline-block px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors"
             >
-              Перейти до форуму →
+              Перейти до форуму <ArrowRightIcon className="w-5 h-5" />
             </Link>
           </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
@@ -202,7 +203,6 @@ export default function Home() {
       {/* Відгуки */}
       <section className="bg-purple-50 py-16">
         <div className="container mx-auto px-4 max-w-6xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10 text-purple-600 flex items-center justify-center gap-2"><HeartIcon className="w-7 h-7 text-pink-400" /> Відгуки клієнтів</h2>
           <RecentReviews />
         </div>
       </section>
@@ -221,7 +221,7 @@ export default function Home() {
             <div className="text-center md:text-left">
               <h3 className="text-base font-bold text-purple-600 mb-2 flex items-center gap-2">mlpcutiefamily store <SparklesIcon className="w-8 h-8 text-purple-400" /></h3>
               <p className="text-sm text-gray-600">
-                <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду 🦄✨
+                <strong>Єдиний спеціалізований магазин My Little Pony,</strong> де зібрані оригінальні фігурки, подарункові бокси та аксесуари для фанатів бренду
               </p>
             </div>
 

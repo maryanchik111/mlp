@@ -158,6 +158,7 @@ export interface GiveawayParticipant {
   userId: string;
   userName: string;
   userPhone?: string;
+  userPhotoURL?: string;
   hasCompletedOrder: boolean;
   joinedAt: number;
 }

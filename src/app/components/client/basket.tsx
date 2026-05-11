@@ -4,6 +4,17 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers';
+import {
+  ShoppingCartIcon,
+  XMarkIcon,
+  SparklesIcon,
+  ShoppingBagIcon,
+  CubeIcon,
+  BanknotesIcon,
+  ExclamationTriangleIcon,
+  StarIcon,
+  CreditCardIcon
+} from '@heroicons/react/24/solid';
 
 interface CartItem {
   id: string;
@@ -157,13 +168,15 @@ export default function Basket() {
             {/* Заголовок */}
             <div className="bg-indigo-600 text-white p-4 shadow-md flex-shrink-0">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold flex items-center gap-2">🛒 Кошик</h2>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <ShoppingCartIcon className="w-8 h-8" /> Кошик
+                </h2>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="text-2xl hover:text-red-200 transition-colors font-bold"
+                  className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors font-bold"
                   aria-label="Закрити кошик"
                 >
-                  ✕
+                  <XMarkIcon className="w-6 h-6" />
                 </button>
               </div>
               {totalItems > 0 && (
@@ -177,7 +190,9 @@ export default function Basket() {
             <div className="flex-1 overflow-y-auto p-4 min-h-0">
               {cartItems.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-gray-500">
-                  <div className="text-6xl mb-4">🦄</div>
+                  <div className="flex justify-center mb-4">
+                    <SparklesIcon className="w-16 h-16 text-indigo-300" />
+                  </div>
                   <p className="text-lg font-bold text-gray-900 mb-2">Кошик порожній</p>
                   <p className="text-xs text-center mb-6 text-gray-600 max-w-xs">
                     Додайте товари з каталогу, щоб почати покупки!
@@ -187,9 +202,9 @@ export default function Basket() {
                       setIsOpen(false);
                       router.push('/catalog');
                     }}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors font-semibold text-sm"
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors font-semibold text-sm"
                   >
-                    🛍️ Перейти до каталогу
+                    <ShoppingBagIcon className="w-4 h-4" /> Перейти до каталогу
                   </button>
                 </div>
               ) : (
@@ -209,8 +224,8 @@ export default function Basket() {
                             className="w-16 h-16 object-cover rounded-lg border border-gray-300 flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-16 h-16 text-4xl flex items-center justify-center bg-gray-100 rounded-lg flex-shrink-0">
-                            {item.image || '📦'}
+                          <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-lg flex-shrink-0">
+                            <CubeIcon className="w-8 h-8 text-gray-300" />
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
@@ -223,10 +238,10 @@ export default function Basket() {
                         </div>
                         <button
                           onClick={() => removeFromCart(item.id)}
-                          className="text-red-600 hover:text-red-700 text-lg flex-shrink-0 font-bold"
+                          className="w-8 h-8 flex items-center justify-center text-red-600 hover:bg-red-50 rounded-full transition-colors flex-shrink-0 font-bold"
                           aria-label="Видалити з кошика"
                         >
-                          ✕
+                          <XMarkIcon className="w-5 h-5" />
                         </button>
                       </div>
 
@@ -249,8 +264,9 @@ export default function Basket() {
                             </p>
                           )}
                           {item.quantity > 1 && (
-                            <p className="text-sm text-gray-600 font-semibold mt-1">
-                              💵 {(() => {
+                            <p className="text-sm text-gray-600 font-semibold mt-1 flex items-center gap-1">
+                              <BanknotesIcon className="w-4 h-4 text-green-500" />
+                              {(() => {
                                 const price = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
                                 const discount = item.discount ? Number(item.discount) : 0;
                                 const discountedPrice = discount > 0 ? Math.round(price * (1 - discount / 100)) : price;
@@ -292,8 +308,8 @@ export default function Basket() {
 
                       {/* Повідомлення про максимальну кількість */}
                       {item.maxQuantity !== undefined && item.quantity >= item.maxQuantity && (
-                        <p className="text-xs font-bold text-orange-600 mt-2 bg-orange-50 px-2 py-1 rounded border border-orange-200">
-                          ⚠️ Макс: {item.maxQuantity}
+                        <p className="text-xs font-bold text-orange-600 mt-2 bg-orange-50 px-2 py-1 rounded border border-orange-200 flex items-center gap-1">
+                          <ExclamationTriangleIcon className="w-4 h-4" /> Макс: {item.maxQuantity}
                         </p>
                       )}
                     </div>
@@ -331,8 +347,8 @@ export default function Basket() {
 
                 {/* Інформація для авторизованих про бали */}
                 {user && estimatedPoints > 0 && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-sm text-amber-900 font-semibold">
-                    ⭐ +{estimatedPoints} балів за замовлення
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 text-sm text-amber-900 font-semibold flex items-center gap-2">
+                    <StarIcon className="w-4 h-4 text-amber-500" /> +{estimatedPoints} балів за замовлення
                   </div>
                 )}
 
@@ -343,15 +359,15 @@ export default function Basket() {
                       setIsOpen(false);
                       router.push('/checkout');
                     }}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors text-base"
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition-colors text-base"
                   >
-                    💳 Оформити
+                    <CreditCardIcon className="w-5 h-5" /> Оформити
                   </button>
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="w-full bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-bold py-3 rounded-lg transition-colors text-base"
+                    className="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-900 font-bold py-3 rounded-lg transition-colors text-base"
                   >
-                    🛍️ Покупки
+                    <ShoppingBagIcon className="w-5 h-5" /> Покупки
                   </button>
                 </div>
               </div>

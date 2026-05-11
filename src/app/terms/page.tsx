@@ -10,7 +10,6 @@ export default function TermsPage() {
 
         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 border-4 border-purple-200">
           <div className="text-center mb-8">
-            <div className="text-6xl mb-4">📜</div>
             <h1 className="text-3xl md:text-4xl font-black text-purple-700 mb-2">
               Умови використання
             </h1>
@@ -21,7 +20,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">1. Прийняття умов</h2>
               <p>
-                Використовуючи веб-сайт MLP Cutie Family, ви погоджуєтесь з цими умовами використання. 
+                Використовуючи веб-сайт MLP Cutie Family, ви погоджуєтесь з цими умовами використання.
                 Якщо ви не згодні з будь-якою частиною цих умов, будь ласка, не користуйтесь нашим сайтом.
               </p>
             </section>
@@ -40,7 +39,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">3. Оплата</h2>
               <p>
-                Оплата здійснюється онлайн через платіжну систему WayForPay. Ми приймаємо картки Visa та Mastercard. 
+                Оплата здійснюється онлайн через платіжну систему WayForPay. Ми приймаємо картки Visa та Mastercard.
                 Всі платежі захищені за допомогою 3D Secure.
               </p>
               <ul className="list-disc pl-6 space-y-2">
@@ -53,7 +52,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">4. Доставка</h2>
               <p>
-                Доставка здійснюється службами Нова Пошта або кур'єром по Україні. Детальніше про умови доставки 
+                Доставка здійснюється службами Нова Пошта або кур'єром по Україні. Детальніше про умови доставки
                 ви можете дізнатися на <Link href="/delivery" className="text-purple-600 hover:underline">сторінці доставки</Link>.
               </p>
             </section>
@@ -71,7 +70,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">6. Повернення та обмін</h2>
               <p>
-                Повернення товару можливе протягом 14 днів з моменту отримання. Детальні умови повернення описані на 
+                Повернення товару можливе протягом 14 днів з моменту отримання. Детальні умови повернення описані на
                 <Link href="/refund" className="text-purple-600 hover:underline"> сторінці повернення</Link>.
               </p>
             </section>
@@ -92,7 +91,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">8. Інтелектуальна власність</h2>
               <p>
-                Весь контент на сайті, включаючи зображення, тексти, логотипи та дизайн, захищений авторським правом. 
+                Весь контент на сайті, включаючи зображення, тексти, логотипи та дизайн, захищений авторським правом.
                 Використання матеріалів без письмового дозволу заборонено.
               </p>
             </section>
@@ -112,7 +111,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-purple-700 mb-3">10. Зміни умов</h2>
               <p>
-                Ми залишаємо за собою право змінювати ці умови в будь-який час. Нова версія набуває чинності з моменту 
+                Ми залишаємо за собою право змінювати ці умови в будь-який час. Нова версія набуває чинності з моменту
                 публікації на сайті. Використання сайту після внесення змін означає вашу згоду з новими умовами.
               </p>
             </section>
@@ -123,9 +122,7 @@ export default function TermsPage() {
                 Якщо у вас виникли питання щодо умов використання:
               </p>
               <ul className="list-none space-y-2">
-                <li>📧 Email: <a href="mailto:support@mlp.store" className="text-purple-600 hover:underline">support@mlp.store</a></li>
-                <li>💬 Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">@mlpcutiefamily</a></li>
-                <li>📱 Робочі години: Пн-Нд, 9:00 - 21:00</li>
+                <li>Telegram: <a href="https://t.me/mlpcutiefamily" target="_blank" rel="noopener noreferrer" className="text-purple-600 underline">@mlpcutiefamily</a></li>
               </ul>
             </section>
           </div>
