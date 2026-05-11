@@ -190,14 +190,14 @@ export default function ProductPage() {
                       className="object-contain max-h-80 cursor-zoom-in"
                       onClick={() => setIsFullscreen(true)}
                     />
-                      <button
-                        type="button"
-                        onClick={() => setIsFullscreen(true)}
-                        className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        aria-label="Переглянути на весь екран"
-                      >
-                        <MagnifyingGlassIcon className="w-4 h-4" />
-                      </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsFullscreen(true)}
+                      className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      aria-label="Переглянути на весь екран"
+                    >
+                      <MagnifyingGlassIcon className="w-4 h-4" />
+                    </button>
                   </div>
                   {images.length > 1 && (
                     <div className="flex gap-2 mt-3 overflow-x-auto">

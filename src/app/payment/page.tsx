@@ -56,11 +56,35 @@ function PaymentPageContent() {
     check();
   }, [paymentConfirmed, paymentDetails?.orderId]);
 
-  const handleCopyCardNumber = () => {
-    navigator.clipboard.writeText(paymentConfig.cardNumber);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyCardNumber = async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(paymentConfig.cardNumber);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        const textArea = document.createElement('textarea');
+        textArea.value = paymentConfig.cardNumber;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          console.error('Fallback copy failed', err);
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      console.error('Copy failed', err);
+    }
   };
+
 
   const handleCheckPayment = async () => {
     if (!paymentDetails?.orderId) return;

@@ -672,13 +672,13 @@ export default function BoxBuilderPage() {
                   })}
                 </div>
 
-                  {/* Empty State */}
-                  {filteredItems.length === 0 && (
-                    <div className="text-center py-20">
-                      <div className="flex justify-center mb-4">
-                        <MagnifyingGlassIcon className="w-16 h-16 text-gray-300" />
-                      </div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-3">Товари не знайдено</h3>
+                {/* Empty State */}
+                {filteredItems.length === 0 && (
+                  <div className="text-center py-20">
+                    <div className="flex justify-center mb-4">
+                      <MagnifyingGlassIcon className="w-16 h-16 text-gray-300" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-3">Товари не знайдено</h3>
                     <p className="text-gray-600 mb-6 max-w-md mx-auto">
                       Спробуйте змінити пошуковий запит або оберіть іншу категорію
                     </p>

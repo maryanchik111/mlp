@@ -2,6 +2,16 @@
 
 import { useState } from 'react';
 import { generateTelegramBindingCode, unbindTelegramFromUser } from '@/lib/firebase';
+import {
+  PaperAirplaneIcon,
+  CheckIcon,
+  ClipboardDocumentIcon,
+  ArrowPathIcon,
+  XMarkIcon,
+  LinkIcon,
+  ClockIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/24/outline';
 
 const TELEGRAM_BOT_USERNAME = 'mlp_cutie_family_bot';
 
@@ -29,14 +39,11 @@ export default function TelegramBinder({
     setLoading(true);
     setError(null);
     setCopied(false);
-
     try {
       const code = await generateTelegramBindingCode(uid);
       setBindingCode(code);
-      if (onBoundSuccess) {
-        onBoundSuccess(code);
-      }
-    } catch (err) {
+      onBoundSuccess?.(code);
+    } catch {
       setError('Не вдалося згенерувати код. Спробуйте ще раз.');
     } finally {
       setLoading(false);
@@ -44,134 +51,200 @@ export default function TelegramBinder({
   };
 
   const openTelegramBot = (code: string) => {
-    const deepLink = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=bind_${code}`;
-    window.open(deepLink, '_blank');
+    window.open(`https://t.me/${TELEGRAM_BOT_USERNAME}?start=bind_${code}`, '_blank');
   };
 
-  const handleCopyCode = () => {
-    if (bindingCode) {
-      navigator.clipboard.writeText(bindingCode);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  const handleCopyCode = async () => {
+    if (!bindingCode) return;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(bindingCode);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        // Fallback for non-secure contexts or missing clipboard API
+        const textArea = document.createElement('textarea');
+        textArea.value = bindingCode;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-9999px';
+        textArea.style.top = '0';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          console.error('Fallback copy failed', err);
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      console.error('Copy failed', err);
     }
   };
+
 
   const handleUnbind = async () => {
-    if (!confirm('Ви впевнені, що хочете розв\'язати Telegram?')) {
-      return;
-    }
-
+    if (!confirm('Ви впевнені, що хочете відʼязати Telegram?')) return;
     setLoading(true);
     setError(null);
-
     try {
       const success = await unbindTelegramFromUser(uid);
       if (success) {
         setBindingCode(null);
-        if (onUnboundSuccess) {
-          onUnboundSuccess();
-        }
+        onUnboundSuccess?.();
       } else {
-        setError('Не вдалося розв\'язати Telegram. Спробуйте ще раз.');
+        setError('Не вдалося відʼязати Telegram. Спробуйте ще раз.');
       }
-    } catch (err) {
-      setError('Помилка при розв\'язуванні.');
+    } catch {
+      setError('Помилка при відʼязуванні.');
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="bg-white rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
-      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-      Telegram
-      </h3>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
-        </div>
-      )}
-
-      {telegramId ? (
-        <div className="space-y-3">
-          <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-            <p className="text-lg font-bold text-green-600">Прив'язано</p>
-            <p className="text-xs text-gray-600 mt-2">ID: {telegramId}</p>
-            {telegramUsername && (
-              <p className="text-xs text-gray-600 mt-1">NickName: @{telegramUsername}</p>
-            )}
+  /* ── Bound state ── */
+  if (telegramId) {
+    return (
+      <div className="bg-white border border-gray-100 rounded-xl p-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <PaperAirplaneIcon className="w-4 h-4 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-900">Telegram підключено</p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {telegramUsername ? `@${telegramUsername}` : `ID: ${telegramId}`}
+              </p>
+            </div>
           </div>
 
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="inline-flex items-center gap-1 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-medium px-2.5 py-1 rounded-full">
+              <CheckIcon className="w-3 h-3" /> Активно
+            </span>
+            <button
+              onClick={handleUnbind}
+              disabled={loading}
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 border border-gray-100 hover:border-red-100 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+            >
+              <XMarkIcon className="w-3.5 h-3.5" />
+              {loading ? 'Зачекайте...' : 'Відʼязати'}
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <p className="mt-3 text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  /* ── Code generated state ── */
+  if (bindingCode) {
+    return (
+      <div className="bg-white border border-gray-100 rounded-xl p-5 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <PaperAirplaneIcon className="w-4 h-4 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-900">Код для підключення</p>
+            <p className="text-xs text-gray-400 mt-0.5">Введіть його в Telegram-боті</p>
+          </div>
+        </div>
+
+        {/* Code block */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-center">
+            <span className="font-mono text-2xl font-semibold tracking-widest text-[#534AB7]">
+              {bindingCode}
+            </span>
+          </div>
           <button
-            onClick={handleUnbind}
-            disabled={loading}
-            className="w-full py-2 px-4 rounded-lg bg-red-50 text-red-600 font-semibold hover:bg-red-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleCopyCode}
+            className={`flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl border text-xs font-medium transition-colors flex-shrink-0 ${copied
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'
+              }`}
           >
-            {loading ? '⏳ Завантаження...' : 'Розв\'язати Telegram'}
+            {copied
+              ? <CheckIcon className="w-4 h-4" />
+              : <ClipboardDocumentIcon className="w-4 h-4" />
+            }
+            {copied ? 'Скоп.' : 'Копія'}
           </button>
         </div>
-      ) : (
-        <div className="space-y-4">
-          {bindingCode ? (
-            <div className="space-y-3">
-              <div className="bg-green-50 rounded-lg p-4 border-2 border-green-300">
-                <p className="text-sm text-gray-600 mb-2">✅ Код згенерований:</p>
-                <div className="flex items-center gap-2">
-                  <code className="text-2xl font-bold text-green-600 bg-white px-3 py-2 rounded border-2 border-green-300 flex-1 text-center">
-                    {bindingCode}
-                  </code>
-                  <button
-                    onClick={handleCopyCode}
-                    className={`px-3 py-2 rounded font-semibold text-sm transition-all ${
-                      copied
-                        ? 'bg-green-500 text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    {copied ? '✓' : '📋'}
-                  </button>
-                </div>
-              </div>
 
-              <button
-                onClick={() => openTelegramBot(bindingCode)}
-                className="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-              >
-                🚀 Відкрити бота
-              </button>
+        {/* Open bot button */}
+        <button
+          onClick={() => openTelegramBot(bindingCode)}
+          className="w-full flex items-center justify-center gap-2 bg-[#185FA5] hover:bg-[#0C447C] text-white text-sm font-medium py-2.5 rounded-xl transition-colors"
+        >
+          <LinkIcon className="w-4 h-4" /> Відкрити бота в Telegram
+        </button>
 
-              <div className="bg-blue-50 rounded-lg p-3 border border-blue-200 text-sm text-gray-700">
-                <p className="font-semibold mb-2">ℹ️ Як це працює:</p>
-                <ol className="list-decimal list-inside space-y-2 text-xs">
-                  <li>Натисніть "Відкрити бота" або перейдіть на @{TELEGRAM_BOT_USERNAME}</li>
-                  <li>Напишіть команду: <code className="bg-white px-1 rounded">/bind {bindingCode}</code></li>
-                  <li>Або скопіюйте код (кнопка 📋) і вставте після /bind</li>
-                  <li>Бот відправить підтвердження 🎉</li>
-                </ol>
-              </div>
-
-              <p className="text-xs text-gray-600 text-center">
-                ⏱️ Код дійсний 15 хвилин
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-gray-700 text-sm">
-                Прив'яжіть свій Telegram до акаунту, щоб отримувати сповіщення про замовлення та
-                спеціальні пропозиції.
-              </p>
-
-              <button
-                onClick={handleGenerateCode}
-                disabled={loading}
-                className="w-full py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-              >
-                {loading ? '⏳ Генерування...' : '📱 Генерувати код'}
-              </button>
-            </div>
-          )}
+        {/* Instructions */}
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 mb-2">
+            <InformationCircleIcon className="w-4 h-4" /> Як підключити
+          </div>
+          <ol className="space-y-1.5 text-xs text-gray-500 list-decimal list-inside">
+            <li>Відкрийте <span className="font-medium text-gray-700">@{TELEGRAM_BOT_USERNAME}</span> або натисніть кнопку вище</li>
+            <li>Надішліть команду <code className="bg-white border border-gray-200 rounded px-1 py-0.5 font-mono text-[#534AB7]">/bind {bindingCode}</code></li>
+            <li>Бот підтвердить підключення</li>
+          </ol>
         </div>
+
+        <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
+          <ClockIcon className="w-3.5 h-3.5" /> Код дійсний 15 хвилин
+        </div>
+
+        {error && (
+          <p className="text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+            {error}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  /* ── Default state ── */
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl p-4">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+            <PaperAirplaneIcon className="w-4 h-4 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-900">Telegram-сповіщення</p>
+            <p className="text-xs text-gray-400 mt-0.5">Отримуйте статус замовлень миттєво</p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleGenerateCode}
+          disabled={loading}
+          className="flex items-center gap-1.5 bg-[#534AB7] hover:bg-[#3C3489] text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors disabled:opacity-50 flex-shrink-0"
+        >
+          {loading
+            ? <><ArrowPathIcon className="w-4 h-4 animate-spin" /> Генерую...</>
+            : <><LinkIcon className="w-4 h-4" /> Підключити</>
+          }
+        </button>
+      </div>
+
+      {error && (
+        <p className="mt-3 text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+          {error}
+        </p>
       )}
     </div>
   );

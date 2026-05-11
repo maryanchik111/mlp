@@ -6,9 +6,75 @@ import { useAuth } from '@/app/providers';
 import { fetchUserOrders, type Order, updateUserName, updateUserPhoto } from '@/lib/firebase';
 import TelegramBinder from '@/app/components/client/telegram-binder';
 import SupportButton from '@/app/components/client/support-button';
-import PhoneLogin from '@/app/components/client/PhoneLogin';
 import { useModal } from '@/app/providers';
+import {
+  SparklesIcon,
+  LockClosedIcon,
+  EnvelopeIcon,
+  ArrowRightOnRectangleIcon,
+  StarIcon,
+  TrophyIcon,
+  MoonIcon,
+  AcademicCapIcon,
+  CameraIcon,
+  PencilSquareIcon,
+  CubeIcon,
+  ClipboardDocumentListIcon,
+  UserIcon,
+  MapPinIcon,
+  TruckIcon,
+  CurrencyDollarIcon,
+  CheckIcon,
+  DocumentTextIcon,
+  CalendarIcon,
+  XMarkIcon,
+  GiftIcon,
+  ArrowLeftIcon,
+  ArrowPathIcon,
+  ShieldCheckIcon,
+  CurrencyEuroIcon,
+} from '@heroicons/react/24/outline';
 
+/* ─── helpers ─── */
+function getStatusColor(status: string) {
+  switch (status) {
+    case 'pending': return 'bg-amber-50 text-amber-800 border border-amber-200';
+    case 'processing': return 'bg-blue-50 text-blue-800 border border-blue-200';
+    case 'shipped': return 'bg-indigo-50 text-indigo-800 border border-indigo-200';
+    case 'ready_for_pickup': return 'bg-purple-50 text-purple-800 border border-purple-200';
+    case 'completed': return 'bg-emerald-50 text-emerald-800 border border-emerald-200';
+    case 'cancelled': return 'bg-red-50 text-red-800 border border-red-200';
+    default: return 'bg-gray-50 text-gray-700 border border-gray-200';
+  }
+}
+
+function getStatusLabel(status: string) {
+  switch (status) {
+    case 'pending': return 'Очікує обробки';
+    case 'processing': return 'В процесі';
+    case 'shipped': return 'Відправлено';
+    case 'ready_for_pickup': return 'Готово до забору';
+    case 'completed': return 'Завершено';
+    case 'cancelled': return 'Скасовано';
+    default: return status;
+  }
+}
+
+const formatDate = (ts: number) => new Date(ts).toLocaleString('uk-UA');
+
+/* ─── rating config ─── */
+const ratingBadges = [
+  { level: 0, label: 'Новий друг Еквестрії', Icon: SparklesIcon },
+  { level: 1, label: 'Друг місяця', Icon: MoonIcon },
+  { level: 2, label: 'Істинний шанувальник', Icon: StarIcon },
+  { level: 3, label: 'Колекціонер MLP', Icon: GiftIcon },
+  { level: 4, label: 'Королева Понів', Icon: AcademicCapIcon },
+  { level: 5, label: 'Легенда Еквестрії', Icon: TrophyIcon },
+];
+
+/* ═══════════════════════════════════════════
+   Page
+═══════════════════════════════════════════ */
 export default function AccountPage() {
   const { user, profile, loading, signIn, signOut, refreshProfile } = useAuth();
   const { showSuccess, showError } = useModal();
@@ -16,43 +82,36 @@ export default function AccountPage() {
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  // Редагування імені
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState('');
   const [isSavingName, setIsSavingName] = useState(false);
-
-  // Редагування фото
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+
+  useEffect(() => {
+    setNewName(profile?.displayName || user?.displayName || '');
+  }, [profile, user]);
+
+  useEffect(() => {
+    if (!user) return;
+    setOrdersLoading(true);
+    fetchUserOrders(user.uid).then(list => {
+      setOrders(list);
+      setOrdersLoading(false);
+    });
+  }, [user]);
 
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!user || !file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-      showError('Фото занадто велике (макс 2MB)');
-      return;
-    }
-
+    if (file.size > 2 * 1024 * 1024) { showError('Фото занадто велике (макс 2 MB)'); return; }
     setIsUploadingPhoto(true);
     try {
       await updateUserPhoto(user, file);
       await refreshProfile();
       showSuccess('Фото оновлено!');
-    } catch (e) {
-      console.error('Помилка оновлення фото:', e);
-      showError('Не вдалося оновити фото.');
-    } finally {
-      setIsUploadingPhoto(false);
-    }
+    } catch { showError('Не вдалося оновити фото.'); }
+    finally { setIsUploadingPhoto(false); }
   };
-
-  useEffect(() => {
-    if (profile?.displayName) {
-      setNewName(profile.displayName);
-    } else if (user?.displayName) {
-      setNewName(user.displayName);
-    }
-  }, [profile, user]);
 
   const handleUpdateName = async () => {
     if (!user || !newName.trim()) return;
@@ -61,262 +120,250 @@ export default function AccountPage() {
       await updateUserName(user, newName);
       await refreshProfile();
       setIsEditingName(false);
-      showSuccess('Ім\'я оновлено!');
-    } catch (e) {
-      console.error('Помилка оновлення імені:', e);
-      showError('Не вдалося оновити ім\'я.');
-    } finally {
-      setIsSavingName(false);
-    }
+      showSuccess('Імʼя оновлено!');
+    } catch { showError('Не вдалося оновити імʼя.'); }
+    finally { setIsSavingName(false); }
   };
 
-  useEffect(() => {
-    const load = async () => {
-      if (!user) return;
-      setOrdersLoading(true);
-      const list = await fetchUserOrders(user.uid);
-      setOrders(list);
-      setOrdersLoading(false);
-    };
-    load();
-  }, [user]);
+  const reloadOrders = async () => {
+    if (!user) return;
+    setOrdersLoading(true);
+    await refreshProfile();
+    const list = await fetchUserOrders(user.uid);
+    setOrders(list);
+    setOrdersLoading(false);
+  };
 
+  /* ── loading ── */
   if (loading) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Завантаження...</p>
+        <p className="text-sm text-gray-400">Завантаження...</p>
       </main>
     );
   }
 
+  /* ── not logged in ── */
   if (!user) {
     return (
-      <main className="min-h-screen bg-gray-50 py-12 text-black">
-        <div className="container mx-auto px-4 max-w-md text-center">
-          <div className="bg-white p-8 rounded-lg shadow-sm">
-            <div className="text-6xl mb-4">🦄</div>
-            <h1 className="text-2xl font-bold mb-4 text-gray-900">Увійдіть в акаунт</h1>
-            <p className="text-gray-600 mb-6 font-medium text-sm">Авторизуйтесь щоб бачити історію покупок, рейтинг та бали.</p>
-
-            <div className="space-y-4">
-              <button
-                onClick={() => signIn().then(() => refreshProfile())}
-                className="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
-              >
-                🔐 Увійти через Google
-              </button>
-            </div>
-
-            <Link href="/catalog" className="block mt-6 text-purple-600 hover:text-purple-700 font-bold transition-colors">← До каталогу</Link>
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8 w-full max-w-sm text-center">
+          <div className="w-14 h-14 rounded-full bg-purple-50 flex items-center justify-center mx-auto mb-5">
+            <SparklesIcon className="w-7 h-7 text-purple-600" />
           </div>
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">Увійдіть в акаунт</h1>
+          <p className="text-sm text-gray-400 mb-6">
+            Щоб бачити замовлення, рейтинг та бали
+          </p>
+          <button
+            onClick={() => signIn().then(() => refreshProfile())}
+            className="w-full bg-[#534AB7] hover:bg-[#3C3489] text-white py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            <LockClosedIcon className="w-4 h-4" /> Увійти через Google
+          </button>
+          <Link
+            href="/catalog"
+            className="inline-flex items-center gap-1.5 mt-5 text-sm text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <ArrowLeftIcon className="w-4 h-4" /> До каталогу
+          </Link>
         </div>
       </main>
     );
   }
 
+  /* ── blocked ── */
   if (profile?.isBlocked) {
     return (
-      <main className="min-h-screen bg-red-50 py-12 text-black">
-        <div className="container mx-auto px-4 max-w-md text-center mb-12">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl border-4 border-red-500">
-            <div className="text-7xl mb-6">🔒</div>
-            <h1 className="text-3xl font-black mb-4 text-red-600 uppercase tracking-widest">Акаунт заблоковано</h1>
-            <div className="bg-red-50 p-4 rounded-xl mb-6">
-              <p className="text-gray-700 font-bold mb-2">На жаль, ваш доступ до особистого кабінету призупинено.</p>
-              <p className="text-sm text-gray-500 font-semibold italic">Зверніться в підтримку для з’ясування причин.</p>
-            </div>
-            <div className="space-y-3">
-              <a
-                href="https://t.me/mlp_cutie_family_bot"
-                className="block w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-black transition-all shadow-lg"
-              >
-                💌 Написати в підтримку
-              </a>
-              <button
-                onClick={() => signOut()}
-                className="w-full bg-white border-2 border-red-500 text-red-600 py-3 rounded-xl font-bold hover:bg-red-50 transition-all"
-              >
-                🚪 Вийти з акаунта
-              </button>
-            </div>
+      <main className="min-h-screen bg-red-50 flex items-center justify-center py-12">
+        <div className="bg-white border-2 border-red-100 rounded-2xl shadow-sm p-8 w-full max-w-sm text-center">
+          <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-5">
+            <LockClosedIcon className="w-7 h-7 text-red-400" />
+          </div>
+          <h1 className="text-xl font-semibold text-red-700 mb-2">Акаунт заблоковано</h1>
+          <p className="text-sm text-gray-400 mb-6">
+            Доступ до особистого кабінету призупинено. Зверніться в підтримку.
+          </p>
+          <div className="flex flex-col gap-3">
+            <a
+              href="https://t.me/mlp_cutie_family_bot"
+              className="w-full bg-gray-900 hover:bg-black text-white py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <EnvelopeIcon className="w-4 h-4" /> Написати в підтримку
+            </a>
+            <button
+              onClick={() => signOut()}
+              className="w-full border border-red-200 text-red-600 hover:bg-red-50 py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              <ArrowRightOnRectangleIcon className="w-4 h-4" /> Вийти
+            </button>
           </div>
         </div>
       </main>
     );
   }
 
-  const ratingBadges = [
-    { level: 0, label: '🐎 Новий друг Еквестрії', color: 'bg-gray-200 text-gray-800' },
-    { level: 1, label: '🌙 Друг місяця', color: 'bg-blue-100 text-blue-800' },
-    { level: 2, label: '⭐ Істинний шанувальник', color: 'bg-purple-100 text-purple-800' },
-    { level: 3, label: '💎 Колекціонер MLP', color: 'bg-pink-100 text-pink-800' },
-    { level: 4, label: '👑 Королева Понів', color: 'bg-amber-100 text-amber-800' },
-    { level: 5, label: '✨ Легенда Еквестрії', color: 'bg-green-100 text-green-800' },
-  ];
-  const badge = ratingBadges.find(b => b.level === profile?.rating) || ratingBadges[0];
+  const badge = ratingBadges.find(b => b.level === profile?.rating) ?? ratingBadges[0];
+  const BadgeIcon = badge.Icon;
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'processing':
-        return 'bg-blue-100 text-blue-800';
-      case 'shipped':
-        return 'bg-indigo-100 text-indigo-800';
-      case 'ready_for_pickup':
-        return 'bg-purple-100 text-purple-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return 'Очікує обробки';
-      case 'processing':
-        return 'В процесі';
-      case 'shipped':
-        return 'Відправлено';
-      case 'ready_for_pickup':
-        return 'Готово до забору';
-      case 'completed':
-        return 'Завершено';
-      case 'cancelled':
-        return 'Скасовано';
-      default:
-        return status;
-    }
-  };
-
-  const getDeliveryLabel = (method: string) => {
-    return 'Нова Пошта';
-  };
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('uk-UA');
-  };
-
+  /* ── main ── */
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-10">
-        {/* Заголовок + юзер (мобільний стек) */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">Мій кабінет</h1>
-          <p className="text-sm sm:text-base text-gray-600 font-medium mb-6">Керуйте замовленнями та бонусами</p>
+      <div className="max-w-3xl mx-auto px-4 py-8 pb-20">
 
-          {/* Карточка з інфо юзера */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              {/* Аватар з можливістю зміни */}
-              <div className="relative group/avatar">
-                {user.photoURL || profile?.photoURL ? (
-                  <img
-                    src={profile?.photoURL || user.photoURL || ''}
-                    alt="avatar"
-                    className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-purple-300 object-cover"
-                  />
-                ) : (
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-xl sm:text-2xl font-bold border-2 border-white shadow-sm">
-                    {(profile?.displayName || user.displayName || 'К')[0].toUpperCase()}
-                  </div>
-                )}
-                <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity cursor-pointer">
-                  {isUploadingPhoto ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <span className="text-white text-xs font-bold">📷</span>
-                  )}
+        {/* Page header */}
+        <h1 className="text-2xl font-semibold text-gray-900 mb-0.5">Мій кабінет</h1>
+        <p className="text-sm text-gray-400 mb-6">Замовлення, бонуси та налаштування профілю</p>
+
+        {/* ── Profile card ── */}
+        <div className="bg-[#534AB7] rounded-2xl p-5 mb-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex items-center gap-4">
+
+            {/* Avatar */}
+            <div className="relative group/av flex-shrink-0">
+              {user.photoURL || profile?.photoURL ? (
+                <img
+                  src={profile?.photoURL || user.photoURL || ''}
+                  alt="avatar"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-white/20"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-[#7F77DD] border-2 border-white/20 flex items-center justify-center text-white text-xl font-medium">
+                  {(profile?.displayName || user.displayName || 'К')[0].toUpperCase()}
+                </div>
+              )}
+              <label className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover/av:opacity-100 transition-opacity cursor-pointer">
+                {isUploadingPhoto
+                  ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  : <CameraIcon className="w-5 h-5 text-white" />
+                }
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  disabled={isUploadingPhoto}
+                />
+              </label>
+            </div>
+
+            {/* Name / email */}
+            <div>
+              {isEditingName ? (
+                <div className="flex items-center gap-2">
                   <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handlePhotoChange}
-                    disabled={isUploadingPhoto}
+                    type="text"
+                    value={newName}
+                    onChange={e => setNewName(e.target.value)}
+                    maxLength={30}
+                    autoFocus
+                    className="bg-white/10 border border-white/30 rounded-lg px-2 py-1 text-white text-sm font-medium focus:outline-none w-40"
                   />
-                </label>
-              </div>
+                  <button
+                    onClick={handleUpdateName}
+                    disabled={isSavingName || !newName.trim()}
+                    className="bg-white/20 hover:bg-white/30 border border-white/30 rounded-lg p-1.5 text-white disabled:opacity-40 transition-colors"
+                  >
+                    <CheckIcon className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setIsEditingName(false)}
+                    disabled={isSavingName}
+                    className="bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-1.5 text-white/70 transition-colors"
+                  >
+                    <XMarkIcon className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-white font-medium text-base">
+                    {profile?.displayName || user.displayName || 'Користувач'}
+                  </p>
+                  <button
+                    onClick={() => setIsEditingName(true)}
+                    className="bg-white/10 hover:bg-white/20 rounded-md p-1 transition-colors"
+                    title="Редагувати імʼя"
+                  >
+                    <PencilSquareIcon className="w-3.5 h-3.5 text-white/70" />
+                  </button>
+                </div>
+              )}
+              <p className="text-white/50 text-xs mt-0.5">{user.email || user.phoneNumber}</p>
+            </div>
+          </div>
 
-              <div className="min-w-0 flex-1">
-                {isEditingName ? (
-                  <div className="flex items-center gap-2 w-full">
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      className="text-black flex-1 min-w-0 px-2 py-1 border-2 border-purple-300 rounded-lg focus:outline-none text-sm sm:text-base font-semibold"
-                      autoFocus
-                      maxLength={30}
-                    />
-                    <button
-                      onClick={handleUpdateName}
-                      disabled={isSavingName || !newName.trim()}
-                      className="p-1 px-2 bg-green-500 text-white rounded-lg text-xs font-bold hover:bg-green-600 disabled:opacity-50"
-                    >
-                      {isSavingName ? '...' : '💾'}
-                    </button>
-                    <button
-                      onClick={() => setIsEditingName(false)}
-                      disabled={isSavingName}
-                      className="p-1 px-2 bg-gray-200 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-300 disabled:opacity-50"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 group">
-                    <p className="font-semibold text-gray-900 text-sm sm:text-base truncate">
-                      {profile?.displayName || user.displayName || 'Користувач'}
-                    </p>
-                    <button
-                      onClick={() => setIsEditingName(true)}
-                      className="text-gray-400 hover:text-purple-600 transition-colors text-xs p-1"
-                      title="Змінити ім'я"
-                    >
-                      ✏️
-                    </button>
-                  </div>
-                )}
-                <p className="text-xs text-gray-500 truncate">{user.email || user.phoneNumber}</p>
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <button onClick={() => signOut()} className="px-4 py-2 rounded-xl bg-purple-600 text-white font-medium text-sm sm:text-base hover:bg-purple-700 transition-colors">Вийти</button>
-              <SupportButton />
-            </div>
+          {/* Actions */}
+          <div className="flex gap-2 sm:flex-col">
+            <SupportButton />
+            <button
+              onClick={() => signOut()}
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl px-4 py-2 text-white text-sm transition-colors"
+            >
+              <ArrowRightOnRectangleIcon className="w-4 h-4" /> Вийти
+            </button>
           </div>
         </div>
 
-        {/* Показники - мобільний скрол або сітка */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 sm:mb-10">
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Рейтинг</p>
-            <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${badge.color}`}>{badge.label}</span>
-            <p className="text-xs text-gray-500 mt-2">Рівень: {profile?.rating}</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Бали</p>
-            <p className="text-2xl sm:text-3xl font-bold text-purple-700">{profile?.points ?? 0}</p>
-            <p className="text-xs text-gray-500 mt-2">1 = 100₴</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Знижка</p>
-            <p className="text-2xl sm:text-3xl font-bold text-emerald-700">{profile?.discountPercent ?? 0}%</p>
-            <p className="text-xs text-gray-500 mt-2">Автоматично</p>
-          </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <p className="text-xs sm:text-sm text-purple-600 font-medium mb-2">Замовлень</p>
-            <p className="text-2xl sm:text-3xl font-bold text-blue-600">{profile?.totalOrders ?? 0}</p>
-            <p className="text-xs text-gray-500 mt-2">{(profile?.totalSpent ?? 0)}₴</p>
-          </div>
+        {/* ── Stats ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          {(
+            [
+              {
+                label: 'Рейтинг',
+                value: `Рівень ${profile?.rating ?? 0}`,
+                hint: badge.label,
+                iconBg: 'bg-purple-50',
+                iconColor: 'text-purple-600',
+                Icon: ShieldCheckIcon,
+                small: true,
+              },
+              {
+                label: 'Бали',
+                value: profile?.points ?? 0,
+                hint: '1 бал = 100 ₴',
+                iconBg: 'bg-pink-50',
+                iconColor: 'text-pink-600',
+                Icon: StarIcon,
+              },
+              {
+                label: 'Знижка',
+                value: `${profile?.discountPercent ?? 0}%`,
+                hint: 'Застосовується авто',
+                iconBg: 'bg-emerald-50',
+                iconColor: 'text-emerald-600',
+                Icon: CurrencyEuroIcon,
+              },
+              {
+                label: 'Замовлень',
+                value: profile?.totalOrders ?? 0,
+                hint: `${profile?.totalSpent ?? 0} ₴`,
+                iconBg: 'bg-blue-50',
+                iconColor: 'text-blue-600',
+                Icon: CubeIcon,
+              },
+            ] as {
+              label: string;
+              value: string | number;
+              hint: string;
+              iconBg: string;
+              iconColor: string;
+              Icon: React.ElementType;
+              small?: boolean;
+            }[]
+          ).map(({ label, value, hint, iconBg, iconColor, Icon, small }) => (
+            <div key={label} className="bg-white border border-gray-100 rounded-xl p-4">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-3 ${iconBg} ${iconColor}`}>
+                <Icon className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] uppercase tracking-wide text-gray-400 mb-1">{label}</p>
+              <p className={`font-medium text-gray-900 leading-tight ${small ? 'text-sm' : 'text-xl'}`}>{value}</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">{hint}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Telegram Binder */}
-        <section className="mb-12">
+        {/* ── Telegram ── */}
+        <section className="mb-8">
           <TelegramBinder
             uid={user.uid}
             telegramId={profile?.telegramId}
@@ -326,56 +373,64 @@ export default function AccountPage() {
           />
         </section>
 
-        {/* Історія замовлень */}
-        <section className="mb-20">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">📦 Замовлення</h2>
+        {/* ── Orders ── */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-medium text-gray-900 flex items-center gap-2">
+              <CubeIcon className="w-5 h-5 text-gray-400" /> Замовлення
+            </h2>
             <button
-              onClick={async () => {
-                if (!user) return;
-                setOrdersLoading(true);
-                await refreshProfile();
-                const list = await fetchUserOrders(user.uid);
-                setOrders(list);
-                setOrdersLoading(false);
-              }}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-purple-600 text-white font-bold text-sm sm:text-base hover:bg-purple-700 transition-colors"
+              onClick={reloadOrders}
+              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
             >
-              Оновити
+              <ArrowPathIcon className="w-4 h-4" /> Оновити
             </button>
           </div>
+
           {ordersLoading ? (
-            <p className="text-purple-600 font-medium text-sm">Завантаження...</p>
+            <p className="text-sm text-gray-400">Завантаження...</p>
           ) : orders.length === 0 ? (
-            <p className="text-gray-600 text-sm">Замовлень ще немає</p>
+            <p className="text-sm text-gray-400">Замовлень ще немає</p>
           ) : (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {orders.map(order => (
-                <div key={order.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-200">
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-3">
+                <div
+                  key={order.id}
+                  className="bg-white border border-gray-100 rounded-xl p-4 hover:border-gray-200 transition-colors"
+                >
+                  <div className="flex justify-between items-start mb-3">
                     <div>
-                      <p className="font-semibold text-gray-900">№ {order.id}</p>
-                      <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString('uk-UA')}</p>
+                      <p className="font-medium text-gray-900 text-sm">№ {order.id}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {new Date(order.createdAt).toLocaleDateString('uk-UA')}
+                      </p>
                     </div>
-                    <div className="flex flex-col sm:items-end gap-2">
-                      <p className="font-bold text-purple-700">{order.finalPrice}₴</p>
-                      <span className={`inline-block px-2 py-1 rounded text-xs font-semibold w-fit sm:w-auto ${getStatusColor(order.status)}`}>{getStatusLabel(order.status)}</span>
+                    <div className="text-right">
+                      <p className="font-medium text-[#534AB7] text-base">{order.finalPrice} ₴</p>
+                      <span className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium ${getStatusColor(order.status)}`}>
+                        {getStatusLabel(order.status)}
+                      </span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-xs">
-                    {order.items.slice(0, 6).map(i => (
-                      <div key={i.id} className="flex items-center gap-2 bg-gray-50 px-2 py-1.5 rounded border border-gray-200">
-                        <span>{i.image}</span>
-                        <span className="truncate text-gray-700">{i.name}</span>
-                        <span className="text-gray-500 ml-auto">x{i.quantity}</span>
+
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {order.items.slice(0, 6).map(item => (
+                      <div
+                        key={item.id}
+                        className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-xs text-gray-600"
+                      >
+                        <CubeIcon className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                        <span className="truncate max-w-[120px]">{item.name}</span>
+                        <span className="text-gray-400">×{item.quantity}</span>
                       </div>
                     ))}
                   </div>
+
                   <button
                     onClick={() => setSelectedOrder(order)}
-                    className="w-full sm:w-auto bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 transition-colors font-medium text-sm"
+                    className="flex items-center gap-1.5 bg-[#534AB7] hover:bg-[#3C3489] text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors"
                   >
-                    📋 Деталі
+                    <ClipboardDocumentListIcon className="w-3.5 h-3.5" /> Деталі замовлення
                   </button>
                 </div>
               ))}
@@ -383,219 +438,207 @@ export default function AccountPage() {
           )}
         </section>
 
-        <div className="text-center pb-16">
-          <Link href="/catalog" className="inline-block bg-purple-600 text-white px-6 py-3 rounded-xl font-semibold text-sm sm:text-base hover:bg-purple-700 transition-colors">← До каталогу</Link>
-        </div>
+        <Link
+          href="/catalog"
+          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 bg-white border border-gray-200 rounded-xl px-4 py-2.5 transition-colors"
+        >
+          <ArrowLeftIcon className="w-4 h-4" /> До каталогу
+        </Link>
       </div>
 
-      {/* Модальне вікно з деталями замовлення */}
+      {/* ── Order detail modal ── */}
       {selectedOrder && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-3 sm:p-4 z-[9999]">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-200">
-            {/* Заголовок модалю */}
-            <div className="bg-purple-600 text-white p-4 sm:p-6 sticky top-0 z-10 rounded-t-2xl">
-              <div className="flex justify-between items-start gap-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs opacity-90 font-medium">Замовлення №</p>
-                  <p className="text-xl sm:text-2xl font-bold truncate">{selectedOrder.id}</p>
-                </div>
-                <button
-                  onClick={() => setSelectedOrder(null)}
-                  className="text-white text-xl font-bold hover:scale-110 transition-transform flex-shrink-0"
-                  aria-label="Закрити"
-                >
-                  ✕
-                </button>
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]"
+          onClick={e => { if (e.target === e.currentTarget) setSelectedOrder(null); }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto border border-gray-100">
+
+            {/* Modal header */}
+            <div className="bg-[#534AB7] px-6 py-5 rounded-t-2xl sticky top-0 z-10 flex justify-between items-start">
+              <div>
+                <p className="text-xs text-white/50 mb-0.5">Замовлення</p>
+                <h2 className="text-lg font-medium text-white">№ {selectedOrder.id}</h2>
               </div>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="bg-white/10 hover:bg-white/20 rounded-lg p-1.5 transition-colors"
+              >
+                <XMarkIcon className="w-5 h-5 text-white" />
+              </button>
             </div>
 
-            {/* Вміст модалю */}
-            <div className="p-4 sm:p-6 space-y-6">
-              {/* Статус */}
-              <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-gray-700 font-semibold text-sm">Статус:</p>
-                <span className={`px-3 py-1.5 rounded text-xs sm:text-sm font-bold ${getStatusColor(selectedOrder.status)}`}>
+            <div className="p-6 space-y-6">
+
+              {/* Status */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-gray-400">Статус:</span>
+                <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(selectedOrder.status)}`}>
                   {getStatusLabel(selectedOrder.status)}
                 </span>
               </div>
 
-              {/* Контактна інформація */}
+              {/* Contact */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200">
-                  👤 Контактна інформація
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">Ім&apos;я</p>
-                    <p className="font-semibold text-gray-900 text-sm">{selectedOrder.firstName}</p>
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                  <UserIcon className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Контактна інформація</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    ['Імʼя', selectedOrder.firstName],
+                    ['Прізвище', selectedOrder.lastName],
+                    ['Email', selectedOrder.email],
+                    ['Телефон', selectedOrder.phone],
+                  ].map(([lbl, val]) => (
+                    <div key={lbl} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">{lbl}</p>
+                      <p className="text-sm text-gray-800 break-all">{val}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Address */}
+              <section>
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                  <MapPinIcon className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Адреса доставки</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    ['Місто', selectedOrder.city],
+                    ['Адреса', selectedOrder.address],
+                    ...(selectedOrder.postalCode ? [['Поштовий код', selectedOrder.postalCode]] : []),
+                  ].map(([lbl, val]) => (
+                    <div key={lbl} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                      <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">{lbl}</p>
+                      <p className="text-sm text-gray-800 break-words">{val}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Delivery & payment */}
+              <section>
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                  <TruckIcon className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Доставка та оплата</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">Доставка</p>
+                    <p className="text-sm text-gray-800">Нова Пошта</p>
                   </div>
-                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">Прізвище</p>
-                    <p className="font-semibold text-gray-900 text-sm">{selectedOrder.lastName}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">Email</p>
-                    <p className="font-semibold text-gray-900 text-sm break-all">{selectedOrder.email}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">Телефон</p>
-                    <p className="font-semibold text-gray-900 text-sm">{selectedOrder.phone}</p>
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">Оплата</p>
+                    <p className="text-sm text-gray-800">Онлайн</p>
                   </div>
                 </div>
               </section>
 
-              {/* Адреса доставки */}
+              {/* Items */}
               <section>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-3 pb-2 border-b border-gray-200">
-                  📍 Адреса доставки
-                </h3>
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-2 text-sm">
-                  <p className="text-gray-900">
-                    <span className="font-semibold text-gray-600">Місто:</span> {selectedOrder.city}
-                  </p>
-                  <p className="text-gray-900 break-words">
-                    <span className="font-semibold text-gray-600">Адреса:</span> {selectedOrder.address}
-                  </p>
-                  {selectedOrder.postalCode && (
-                    <p className="text-gray-900">
-                      <span className="font-semibold text-gray-600">Поштовий код:</span> {selectedOrder.postalCode}
-                    </p>
-                  )}
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                  <CubeIcon className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                    Товари ({selectedOrder.items.length})
+                  </h3>
                 </div>
-              </section>
-
-              {/* Способ доставки та оплати */}
-              <section>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
-                  🚚 Доставка та оплата
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">Спосіб доставки</p>
-                    <p className="text-sm font-semibold text-gray-900">{getDeliveryLabel(selectedOrder.deliveryMethod)}</p>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">Спосіб оплати</p>
-                    <p className="text-sm font-semibold text-gray-900">Оплата онлайн</p>
-                  </div>
-                </div>
-              </section>
-
-              {/* Товари */}
-              <section>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
-                  📦 Товари ({selectedOrder.items.length})
-                </h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-start p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200 gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-semibold text-gray-900 break-words">{item.name}</p>
-                        <p className="text-xs text-gray-600 mt-0.5">Категорія: {item.category}</p>
-                        <p className="text-xs text-gray-600">Кількість: {item.quantity}</p>
+                <div className="flex flex-col gap-2 max-h-44 overflow-y-auto">
+                  {selectedOrder.items.map(item => (
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-center bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5"
+                    >
+                      <div>
+                        <p className="text-sm text-gray-800">{item.name}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">×{item.quantity} · {item.category}</p>
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-xs sm:text-sm font-semibold text-gray-900">{item.price}₴ за од.</p>
-                        <p className="text-xs sm:text-sm font-bold text-indigo-600">{parseInt(item.price) * item.quantity}₴</p>
+                      <div className="text-right ml-4 flex-shrink-0">
+                        <p className="text-xs text-gray-400">{item.price} ₴/шт</p>
+                        <p className="text-sm font-medium text-[#534AB7]">
+                          {parseInt(item.price) * item.quantity} ₴
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
               </section>
 
-              {/* Розрахунки */}
+              {/* Totals */}
               <section>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
-                  💰 Розрахунки
-                </h3>
-                <div className="bg-white border border-gray-300 rounded-lg p-3 sm:p-4 space-y-2">
-                  <div className="flex justify-between text-sm text-gray-900 font-semibold">
-                    <span>Сума товарів:</span>
-                    <span>{selectedOrder.totalPrice}₴</span>
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                  <CurrencyDollarIcon className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Розрахунки</h3>
+                </div>
+                <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2">
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Сума товарів</span><span>{selectedOrder.totalPrice} ₴</span>
                   </div>
-                  {selectedOrder.discountAmount && selectedOrder.discountAmount > 0 ? (
-                    <>
-                      <div className="flex justify-between text-sm text-gray-900">
-                        <span>Знижка ({selectedOrder.discountPercent}%):</span>
-                        <span className="font-semibold text-green-600">−{selectedOrder.discountAmount}₴</span>
-                      </div>
-                      <div className="flex justify-between text-sm text-gray-900 font-semibold">
-                        <span>Після знижки:</span>
-                        <span>{selectedOrder.discountedSubtotal}₴</span>
-                      </div>
-                    </>
-                  ) : (
+                  {selectedOrder.discountAmount && selectedOrder.discountAmount > 0 && (
                     <div className="flex justify-between text-sm text-gray-600">
-                      <span>Знижка (0%):</span>
-                      <span>0₴</span>
+                      <span>Знижка ({selectedOrder.discountPercent}%)</span>
+                      <span className="text-emerald-600">−{selectedOrder.discountAmount} ₴</span>
                     </div>
                   )}
-                  {selectedOrder.redeemedPoints && selectedOrder.redeemedPoints > 0 ? (
-                    <div className="flex justify-between text-sm text-gray-900">
-                      <span>Списано балів ({selectedOrder.redeemedPoints}):</span>
-                      <span className="font-semibold text-yellow-600">−{selectedOrder.redeemedAmount}₴</span>
-                    </div>
-                  ) : (
+                  {selectedOrder.redeemedPoints && selectedOrder.redeemedPoints > 0 && (
                     <div className="flex justify-between text-sm text-gray-600">
-                      <span>Списано балів (0):</span>
-                      <span>0₴</span>
+                      <span>Списано балів ({selectedOrder.redeemedPoints})</span>
+                      <span className="text-amber-600">−{selectedOrder.redeemedAmount} ₴</span>
                     </div>
                   )}
-                  {selectedOrder.deliveryPrice > 0 && (
-                    <div className="flex justify-between text-sm text-gray-900">
-                      <span>Доставка:</span>
-                      <span className="font-semibold text-orange-600">+{selectedOrder.deliveryPrice}₴</span>
-                    </div>
-                  )}
-                  {selectedOrder.deliveryPrice === 0 && (
-                    <div className="flex justify-between text-sm text-gray-900">
-                      <span>Доставка:</span>
-                      <span className="font-semibold text-green-600">Безкоштовна ✓</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-sm sm:text-base font-bold text-white pt-2 border-t border-gray-400 bg-indigo-600 -mx-3 -mb-3 sm:-mx-4 sm:-mb-4 px-3 sm:px-4 py-2 sm:py-3 rounded-b-lg">
-                    <span>До оплати:</span>
-                    <span>{selectedOrder.finalPrice}₴</span>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Доставка</span>
+                    {selectedOrder.deliveryPrice > 0
+                      ? <span className="text-orange-600">+{selectedOrder.deliveryPrice} ₴</span>
+                      : <span className="text-emerald-600">Безкоштовна</span>
+                    }
+                  </div>
+                  <div className="flex justify-between items-center bg-[#534AB7] text-white rounded-lg px-4 py-3 mt-1">
+                    <span className="text-sm font-medium">До оплати</span>
+                    <span className="text-base font-medium">{selectedOrder.finalPrice} ₴</span>
                   </div>
                 </div>
               </section>
 
-              {/* Коментарі */}
+              {/* Comments */}
               {selectedOrder.comments && (
                 <section>
-                  <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
-                    📝 Коментарі
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-200 whitespace-pre-wrap break-words">{selectedOrder.comments}</p>
+                  <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                    <DocumentTextIcon className="w-4 h-4 text-gray-400" />
+                    <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Коментарі</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 bg-gray-50 border border-gray-100 rounded-lg p-3 whitespace-pre-wrap break-words">
+                    {selectedOrder.comments}
+                  </p>
                 </section>
               )}
 
-              {/* Дати */}
+              {/* Dates */}
               <section>
-                <h3 className="text-sm sm:text-base font-bold text-gray-900 mb-3 pb-2 border-b border-gray-300">
-                  📅 Дати
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">Створено</p>
-                    <p className="text-sm font-semibold text-gray-900">{formatDate(selectedOrder.createdAt)}</p>
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-100">
+                  <CalendarIcon className="w-4 h-4 text-gray-400" />
+                  <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wide">Дати</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">Створено</p>
+                    <p className="text-sm text-gray-800">{formatDate(selectedOrder.createdAt)}</p>
                   </div>
-                  <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                    <p className="text-xs text-gray-600 font-semibold mb-1">Оновлено</p>
-                    <p className="text-sm font-semibold text-gray-900">{formatDate(selectedOrder.updatedAt)}</p>
+                  <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wide mb-1">Оновлено</p>
+                    <p className="text-sm text-gray-800">{formatDate(selectedOrder.updatedAt)}</p>
                   </div>
                 </div>
               </section>
 
-              {/* Кнопка закрити */}
-              <div className="pt-3 border-t border-gray-300">
-                <button
-                  onClick={() => setSelectedOrder(null)}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 sm:py-2.5 rounded-lg transition-colors"
-                >
-                  Закрити
-                </button>
-              </div>
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="w-full bg-[#534AB7] hover:bg-[#3C3489] text-white rounded-xl py-2.5 text-sm font-medium transition-colors"
+              >
+                Закрити
+              </button>
             </div>
           </div>
         </div>
