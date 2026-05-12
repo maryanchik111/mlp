@@ -16,7 +16,7 @@
     "support_tickets": {
       ".read": "auth != null",
       "$ticketId": {
-        ".write": "auth != null || !data.exists()"
+        ".write": "auth != null"
       }
     },
     "telegram_binding_codes": {

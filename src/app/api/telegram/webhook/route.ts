@@ -4,8 +4,8 @@ import {
   verifyTelegramBindingCode,
   deleteTelegramBindingCode,
   getUserByTelegramId,
-  createSupportTicket,
 } from '@/lib/firebase';
+import { createSupportTicketAdmin } from '@/lib/firebase/support-server';
 
 // Token of your Telegram bot (from BotFather)
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
     // Якщо це звичайне повідомлення (не команда) - створюємо тікет підтримки
     if (text && !text.startsWith('/')) {
       const user = await getUserByTelegramId(telegramId);
-      const ticketId = await createSupportTicket(
+      const ticketId = await createSupportTicketAdmin(
         telegramId,
         text,
         username,
