@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { respondToTicket, getSupportTicket } from '@/lib/firebase';
+import { getAdminDb } from '@/lib/firebase/admin-config';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const API_SECRET = process.env.API_SECRET || '';
-
 
 /**
  * POST /api/support/respond
@@ -27,7 +26,6 @@ export async function POST(request: NextRequest) {
   try {
     const { telegramId, adminReply = '', adminName = 'Адміністратор', status = 'responded' } = await request.json();
 
-
     if (!telegramId) {
       return NextResponse.json(
         { error: 'Missing telegramId' },
@@ -43,42 +41,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Оновлюємо тікет
-    const updated = await respondToTicket(telegramId, adminReply, status);
+    const adminDb = getAdminDb();
+    const ticketRef = adminDb.ref(`support_tickets/${telegramId}`);
+    const snapshot = await ticketRef.get();
 
-    if (!updated) {
+    if (!snapshot.exists()) {
       return NextResponse.json(
-        { error: 'Failed to update ticket' },
-        { status: 500 }
+        { error: 'Ticket not found' },
+        { status: 404 }
       );
     }
 
-    // Отримуємо оновлений тікет
-    const ticket = await getSupportTicket(telegramId);
+    const ticket = snapshot.val();
+    const messages = ticket.messages || [];
+    
+    if (adminReply.trim()) {
+      messages.push({ text: adminReply, timestamp: Date.now(), isAdmin: true });
+    }
 
-    if (ticket) {
-      // Відправляємо відповідь користувачу в Telegram
-      try {
-        let message: string;
+    await ticketRef.update({
+      messages,
+      status,
+      updatedAt: Date.now()
+    });
 
-        if (status === 'closed') {
-          message = `🔔 Ваш тікет був закритий\n\nДякую за звернення до нас! Якщо у вас ще є питання, ми завжди тут для вас 💜`;
-        } else {
-          message = `- ${adminReply}\n\nАдміністратор ${adminName}`;
-        }
+    // Відправляємо відповідь користувачу в Telegram
+    try {
+      let message: string;
 
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: telegramId,
-            text: message,
-            parse_mode: 'HTML',
-          }),
-        });
-      } catch (error) {
-        console.error('Error sending Telegram response:', error);
+      if (status === 'closed') {
+        message = `🔔 Ваш тікет був закритий\n\nДякую за звернення до нас! Якщо у вас ще є питання, ми завжди тут для вас 💜`;
+      } else {
+        message = `- ${adminReply}\n\nАдміністратор ${adminName}`;
       }
+
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: telegramId,
+          text: message,
+          parse_mode: 'HTML',
+        }),
+      });
+    } catch (error) {
+      console.error('Error sending Telegram response:', error);
     }
 
     return NextResponse.json({
