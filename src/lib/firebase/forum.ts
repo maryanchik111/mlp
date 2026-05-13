@@ -279,10 +279,15 @@ export async function editForumComment(threadId: string, commentId: string, cont
 }
 
 export async function incrementThreadViews(threadId: string): Promise<void> {
-  const thread = await getForumThread(threadId);
-  if (thread) {
-    await update(ref(database, `forum/threads/${threadId}`), {
-      viewsCount: (thread.viewsCount || 0) + 1,
-    });
+  try {
+    const thread = await getForumThread(threadId);
+    if (thread) {
+      await update(ref(database, `forum/threads/${threadId}`), {
+        viewsCount: (thread.viewsCount || 0) + 1,
+      });
+    }
+  } catch (error) {
+    // Silently handle view increment errors (usually permission or network)
+    console.debug('Failed to increment views:', error);
   }
 }

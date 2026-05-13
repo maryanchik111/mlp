@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { fetchRecentReviews, fetchAllScreenshotReviews, Review, ScreenshotReview } from '@/lib/firebase';
-import { HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon } from '@heroicons/react/24/solid';
 
 export default function RecentReviews() {
   const [reviews, setReviews] = useState<Review[]>([]);

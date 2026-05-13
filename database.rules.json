@@ -46,8 +46,39 @@
       ".write": "auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com'"
     },
     "forum": {
-      ".read": true,
-      ".write": "auth != null"
+      "threads": {
+        ".read": "true",
+        "$threadId": {
+          ".write": "auth != null && (data.child('authorId').val() === auth.uid || !data.exists() || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com')",
+          "viewsCount": {
+            ".write": "true"
+          },
+          "commentsCount": {
+            ".write": "auth != null"
+          },
+          "updatedAt": {
+            ".write": "auth != null"
+          },
+          "reactions": {
+            "$uid": {
+              ".write": "auth != null && auth.uid === $uid"
+            }
+          }
+        }
+      },
+      "comments": {
+        "$threadId": {
+          ".read": "true",
+          "$commentId": {
+            ".write": "auth != null && (data.child('authorId').val() === auth.uid || !data.exists() || auth.token.email === 'maryanlikesyou@gmail.com' || auth.token.email === 'musevi4ka@gmail.com')",
+            "reactions": {
+              "$uid": {
+                ".write": "auth != null && auth.uid === $uid"
+              }
+            }
+          }
+        }
+      }
     },
     "auctions": {
       ".read": true,

@@ -27,6 +27,22 @@ import {
 } from '@/lib/firebase';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import {
+  ArrowLeftIcon,
+  ChatBubbleLeftEllipsisIcon,
+  PencilIcon,
+  TrashIcon,
+  BookmarkIcon,
+  LockClosedIcon,
+  ChatBubbleBottomCenterTextIcon,
+  XMarkIcon,
+  ShieldCheckIcon,
+  StarIcon,
+  ChatBubbleLeftRightIcon,
+  QuestionMarkCircleIcon,
+  PaintBrushIcon,
+  NewspaperIcon
+} from '@heroicons/react/24/solid';
 import Image from 'next/image';
 
 const REACTIONS = {
@@ -38,10 +54,10 @@ const REACTIONS = {
 };
 
 const CATEGORIES = {
-  general: { name: 'Загальне', icon: '💬' },
-  help: { name: 'Допомога', icon: '❓' },
-  showcase: { name: 'Моя колекція', icon: '🎨' },
-  news: { name: 'Новини', icon: '📰' },
+  general: { name: 'Загальне', icon: <ChatBubbleLeftRightIcon className="w-4 h-4 inline mr-1 text-purple-400" /> },
+  help: { name: 'Допомога', icon: <QuestionMarkCircleIcon className="w-4 h-4 inline mr-1 text-pink-400" /> },
+  showcase: { name: 'Моя колекція', icon: <PaintBrushIcon className="w-4 h-4 inline mr-1 text-blue-400" /> },
+  news: { name: 'Новини', icon: <NewspaperIcon className="w-4 h-4 inline mr-1 text-green-400" /> },
 };
 
 export default function ThreadPage() {
@@ -334,12 +350,12 @@ export default function ThreadPage() {
                 </span>
                 {comment.isAdmin && (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">
-                    👑 Адмін
+                    <ShieldCheckIcon className="w-3 h-3" /> Адмін
                   </span>
                 )}
                 {comment.authorRank && !comment.isAdmin && (
-                  <span className="inline-flex items-center px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-blue-200">
-                    ⭐ Рівень {comment.authorRank}
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-blue-200">
+                    <StarIcon className="w-3 h-3 text-blue-500" /> Рівень {comment.authorRank}
                   </span>
                 )}
                 <span className="text-gray-400 text-xs md:text-sm">•</span>
@@ -412,7 +428,7 @@ export default function ThreadPage() {
                         }}
                         className="text-xs md:text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors flex items-center gap-1"
                       >
-                        💬 Відповісти
+                        <ChatBubbleLeftEllipsisIcon className="w-4 h-4" /> Відповісти
                       </button>
                     )}
 
@@ -474,8 +490,8 @@ export default function ThreadPage() {
       <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-10">
         <div className="container mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center gap-2 md:gap-4">
-            <Link href="/forum" className="text-black text-xl md:text-2xl hover:scale-110 transition-transform flex-shrink-0">
-              ⬅️ Назад до форуму
+            <Link href="/forum" className="flex items-center gap-2 text-purple-600 font-bold hover:scale-105 transition-transform flex-shrink-0">
+              <ArrowLeftIcon className="w-5 h-5" /> Назад до форуму
             </Link>
           </div>
         </div>
@@ -508,19 +524,14 @@ export default function ThreadPage() {
                 </span>
                 {thread.isAdmin && (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">
-                    👑 Адмін
+                    <ShieldCheckIcon className="w-3 h-3" /> Адмін
                   </span>
                 )}
-                {thread.authorRank && !thread.isAdmin && (
-                  <span className="inline-flex items-center px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-blue-200">
-                    ⭐ Рівень {thread.authorRank}
+                  <span className="inline-block px-2.5 md:px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs md:text-sm font-medium flex items-center">
+                    {categoryInfo.icon} {categoryInfo.name}
                   </span>
-                )}
-                <span className="inline-block px-2.5 md:px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs md:text-sm font-medium">
-                  {categoryInfo.icon} {categoryInfo.name}
-                </span>
-                {thread.isPinned && <span className="text-lg md:text-xl">📌</span>}
-                {thread.isLocked && <span className="text-lg md:text-xl">🔒</span>}
+                  {thread.isPinned && <BookmarkIcon className="w-5 h-5 text-yellow-500" />}
+                  {thread.isLocked && <LockClosedIcon className="w-5 h-5 text-gray-400" />}
               </div>
               <span className="text-xs md:text-sm text-gray-500 break-all">{formatDate(thread.createdAt)}</span>
             </div>
@@ -591,42 +602,42 @@ export default function ThreadPage() {
               {/* Actions */}
               {canEdit && (
                 <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={() => {
-                      setEditingThreadId(threadId);
-                      setEditTitle(thread.title);
-                      setEditContent(thread.content);
-                    }}
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors text-lg md:text-xl"
-                    title="Редагувати"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    onClick={handleDeleteThread}
-                    className="p-2 hover:bg-red-100 rounded-full transition-colors text-lg md:text-xl"
-                    title="Видалити"
-                  >
-                    🗑️
-                  </button>
-                  {isAdmin && (
-                    <>
-                      <button
-                        onClick={handleTogglePin}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors text-lg md:text-xl"
-                        title={thread.isPinned ? 'Відкріпити' : 'Закріпити'}
-                      >
-                        📌
-                      </button>
-                      <button
-                        onClick={handleToggleLock}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors text-lg md:text-xl"
-                        title={thread.isLocked ? 'Розблокувати' : 'Заблокувати'}
-                      >
-                        🔒
-                      </button>
-                    </>
-                  )}
+                    <button
+                      onClick={() => {
+                        setEditingThreadId(threadId);
+                        setEditTitle(thread.title);
+                        setEditContent(thread.content);
+                      }}
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      title="Редагувати"
+                    >
+                      <PencilIcon className="w-6 h-6 text-gray-500" />
+                    </button>
+                    <button
+                      onClick={handleDeleteThread}
+                      className="p-2 hover:bg-red-100 rounded-full transition-colors"
+                      title="Видалити"
+                    >
+                      <TrashIcon className="w-6 h-6 text-red-500" />
+                    </button>
+                    {isAdmin && (
+                      <>
+                        <button
+                          onClick={handleTogglePin}
+                          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                          title={thread.isPinned ? 'Відкріпити' : 'Закріпити'}
+                        >
+                          <BookmarkIcon className={`w-6 h-6 ${thread.isPinned ? 'text-yellow-500' : 'text-gray-400'}`} />
+                        </button>
+                        <button
+                          onClick={handleToggleLock}
+                          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                          title={thread.isLocked ? 'Розблокувати' : 'Заблокувати'}
+                        >
+                          <LockClosedIcon className={`w-6 h-6 ${thread.isLocked ? 'text-red-400' : 'text-gray-400'}`} />
+                        </button>
+                      </>
+                    )}
                 </div>
               )}
             </div>
@@ -635,8 +646,8 @@ export default function ThreadPage() {
 
         {/* Comments */}
         <div className="space-y-4 mb-20">
-          <h2 className="text-lg md:text-xl font-bold text-gray-900">
-            💬 Коментарі ({comments.length})
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+            <ChatBubbleBottomCenterTextIcon className="w-6 h-6 text-purple-600" /> Коментарі ({comments.length})
           </h2>
 
           {/* New comment form */}
@@ -650,7 +661,7 @@ export default function ThreadPage() {
                   onClick={() => setReplyTo(null)}
                   className="text-purple-400 hover:text-purple-600 transition-colors"
                 >
-                  ✕
+                  <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
             )}

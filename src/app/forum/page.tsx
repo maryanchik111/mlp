@@ -16,7 +16,10 @@ import {
   EyeIcon,
   PaperAirplaneIcon,
   LockClosedIcon,
-  BookmarkIcon
+  BookmarkIcon,
+  StarIcon,
+  UserIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 
@@ -156,7 +159,9 @@ export default function ForumPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 text-black">
         <div className="bg-white p-8 md:p-12 rounded-3xl shadow-2xl max-w-lg text-center border-t-8 border-red-500">
-          <div className="text-7xl mb-6">🔒</div>
+          <div className="flex justify-center mb-6">
+            <LockClosedIcon className="w-16 h-16 text-red-500" />
+          </div>
           <h1 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tighter">Доступ обмежено</h1>
           <p className="text-gray-600 font-medium mb-8">Ваш акаунт було заблоковано. Ви не можете переглядати форум та брати участь в обговореннях.</p>
           <div className="flex flex-col gap-3">
@@ -290,12 +295,12 @@ export default function ForumPage() {
                           <span className="font-medium text-purple-600">{thread.authorId === user?.uid ? (profile?.displayName || thread.authorName) : thread.authorName}</span>
                           {thread.isAdmin && (
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-pink-100 text-pink-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-pink-200">
-                              👑 Адмін
+                              <ShieldCheckIcon className="w-3 h-3" /> Адмін
                             </span>
                           )}
                           {thread.authorRank && !thread.isAdmin && (
-                            <span className="inline-flex items-center px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-blue-200">
-                              ⭐ Рівень {thread.authorRank}
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] md:text-xs font-bold uppercase tracking-wider border border-blue-200">
+                              <StarIcon className="w-3 h-3 text-blue-500" /> Рівень {thread.authorRank}
                             </span>
                           )}
                         </div>
