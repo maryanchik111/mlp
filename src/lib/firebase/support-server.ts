@@ -1,4 +1,4 @@
-import { adminDb } from './admin-config';
+import admin from './admin-config';
 import { SupportMessage, SupportTicket } from './support';
 
 export async function createSupportTicketAdmin(
@@ -8,6 +8,7 @@ export async function createSupportTicketAdmin(
   userId?: string
 ): Promise<string | null> {
   try {
+    const adminDb = admin.database();
     const ticketRef = adminDb.ref(`support_tickets/${telegramId}`);
     const snapshot = await ticketRef.get();
     const now = Date.now();

@@ -9,12 +9,21 @@ const serviceAccount = {
 };
 
 if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-    databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL
-  });
+  try {
+    // Only initialize if we have the necessary credentials
+    // This prevents build errors during static generation when env vars might be missing
+    if (serviceAccount.privateKey && serviceAccount.clientEmail) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+        databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL
+      });
+    } else {
+      console.warn('Firebase Admin SDK missing credentials. Skipping initialization during build.');
+    }
+  } catch (error) {
+    console.warn('Firebase Admin SDK initialization error (likely during build):', error);
+  }
 }
 
-export const adminDb = admin.database();
-export const adminAuth = admin.auth();
 export default admin;
+
