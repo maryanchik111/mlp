@@ -252,7 +252,7 @@ export default function Home() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
               <div className="text-center md:text-left">
                 <p>© mlpcutiefamily</p>
-                <p className="text-[10px] mt-1">Версія 0.9.72 (beta released) • 12.05.2026</p>
+                <p className="text-[10px] mt-1">Версія 0.9.91 (beta released) • 14.05.2026</p>
               </div>
 
               <div className="flex flex-wrap justify-center md:justify-end gap-3">
