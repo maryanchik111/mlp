@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  bindTelegramToUser,
-  verifyTelegramBindingCode,
-  deleteTelegramBindingCode,
-  getUserByTelegramId,
-} from '@/lib/firebase';
+import { getAdminDb } from '@/lib/firebase/admin-config';
 import { createSupportTicketAdmin } from '@/lib/firebase/support-server';
 
 // Token of your Telegram bot (from BotFather)
@@ -28,7 +23,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-
     const body = await request.json();
 
     // Check if this is an update from Telegram
@@ -44,13 +38,10 @@ export async function POST(request: NextRequest) {
 
     console.log('Telegram message received:', { text, chatId, telegramId, username });
 
+    const adminDb = getAdminDb();
+
     // Handle /start command with deep link parameter
-    // When user opens: https://t.me/mlp_cutie_family_bot?start=bind_ABC123
-    // Telegram sends: { text: "/start", entities: [...], ... }
-    // BUT the parameter is available in message.text as "/start bind_ABC123"
     if (text === '/start') {
-      // Check if there's a code in the deep link parameter
-      // The parameter comes concatenated with /start in some cases
       await sendTelegramMessage(
         chatId,
         '👋 <b>Привіт! Я бот MLP Store 🦄</b>\n\n' +
@@ -68,11 +59,10 @@ export async function POST(request: NextRequest) {
     // Handle /start with parameter (format: /start bind_ABC123)
     if (text.startsWith('/start ')) {
       const param = text.substring(7).trim();
-      // Extract code from bind_ prefix
       if (param.startsWith('bind_') || param.startsWith('BIND_')) {
         const code = param.replace(/^[Bb][Ii][Nn][Dd]_/, '').toUpperCase();
         console.log('Found binding code in /start:', code);
-        await processBindingCode(chatId, telegramId, username, code);
+        await processBindingCode(chatId, telegramId, username, code, adminDb);
         return NextResponse.json({ ok: true });
       }
     }
@@ -81,9 +71,19 @@ export async function POST(request: NextRequest) {
     if (text.startsWith('/bind ')) {
       const code = text.substring(6).trim().toUpperCase();
       console.log('Found /bind command:', code);
-      await processBindingCode(chatId, telegramId, username, code);
+      await processBindingCode(chatId, telegramId, username, code, adminDb);
       return NextResponse.json({ ok: true });
     }
+
+    // Helper to get user
+    const getUserByTelegramId = async (tId: string) => {
+      const tSnap = await adminDb.ref(`telegram_users/${tId}`).get();
+      if (!tSnap.exists()) return null;
+      const uid = tSnap.val().uid;
+      const uSnap = await adminDb.ref(`users/${uid}`).get();
+      if (!uSnap.exists()) return null;
+      return { uid, profile: uSnap.val() };
+    };
 
     // /status command
     if (text === '/status') {
@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
 /**
  * Process binding code (shared logic for /start and /bind commands)
  */
-async function processBindingCode(chatId: number | string, telegramId: string, username: string | undefined, code: string): Promise<void> {
+async function processBindingCode(chatId: number | string, telegramId: string, username: string | undefined, code: string, adminDb: any): Promise<void> {
   if (!code || code.length < 6) {
     await sendTelegramMessage(
       chatId,
@@ -177,25 +177,36 @@ async function processBindingCode(chatId: number | string, telegramId: string, u
     return;
   }
 
-  // Verify binding code
-  const uid = await verifyTelegramBindingCode(code);
+  try {
+    const codeRef = adminDb.ref(`telegram_binding_codes/${code}`);
+    const snapshot = await codeRef.get();
 
-  if (!uid) {
-    await sendTelegramMessage(
-      chatId,
-      '❌ Код прив\'язки невірний або закінчився. Спробуйте ще раз.'
-    );
-    return;
-  }
+    if (!snapshot.exists() || snapshot.val().expiresAt < Date.now()) {
+      if (snapshot.exists()) await codeRef.remove();
+      await sendTelegramMessage(
+        chatId,
+        '❌ Код прив\'язки невірний або закінчився. Спробуйте ще раз.'
+      );
+      return;
+    }
 
-  console.log('Processing binding:', { uid, telegramId, username, code });
+    const uid = snapshot.val().uid;
 
-  // Bind Telegram ID to user account (with username if available)
-  const success = await bindTelegramToUser(uid, telegramId, username);
+    // Bind Telegram ID to user account
+    await adminDb.ref(`users/${uid}`).update({
+      telegramId: telegramId.trim(),
+      telegramUsername: username?.trim() || null,
+      updatedAt: Date.now(),
+    });
 
-  if (success) {
+    await adminDb.ref(`telegram_users/${telegramId}`).set({
+      uid: uid,
+      username: username || null,
+      bindedAt: Date.now(),
+    });
+
     // Delete code after successful use
-    await deleteTelegramBindingCode(code);
+    await codeRef.remove();
 
     await sendTelegramMessage(
       chatId,
@@ -206,7 +217,8 @@ async function processBindingCode(chatId: number | string, telegramId: string, u
       '⭐ Новини з MLP світу\n\n' +
       'Дякуємо, що ви з нами! 💜'
     );
-  } else {
+  } catch (error) {
+    console.error('Processing binding error:', error);
     await sendTelegramMessage(
       chatId,
       '❌ Помилка при прив\'язці. Спробуйте ще раз.'
