@@ -22,6 +22,8 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  let chatIdForError: number | null = null;
+
   try {
     const body = await request.json();
 
@@ -32,6 +34,7 @@ export async function POST(request: NextRequest) {
 
     const message = body.message;
     const chatId = message.chat.id;
+    chatIdForError = chatId;
     const telegramId = message.from.id.toString();
     const text = message.text || '';
     const username = message.from.username || null; // може бути undefined
@@ -161,6 +164,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('Telegram webhook error:', error);
+    if (chatIdForError) {
+      try {
+        await sendTelegramMessage(
+          chatIdForError,
+          '⚠️ <b>Системна помилка сервера:</b>\n' + String(error)
+        );
+      } catch (e) {}
+    }
     return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -285,6 +296,7 @@ export async function GET(request: NextRequest) {
           },
           body: JSON.stringify({
             url: webhookUrl,
+            ...(TELEGRAM_WEBHOOK_SECRET && { secret_token: TELEGRAM_WEBHOOK_SECRET }),
           }),
         }
       );
