@@ -1447,16 +1447,33 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      <div className="flex justify-between items-center">
-                        <div className="text-sm text-gray-600">
-                          <span className="font-semibold">{order.items.length}</span> товарів в замовленні
+                      <div className="flex flex-col gap-3 mt-2 border-t border-gray-100 pt-3">
+                        <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                          {order.items.map((item, idx) => (
+                            <div key={`${item.id}-${idx}`} className="flex-shrink-0 w-10 h-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden border border-gray-200" title={item.name}>
+                              {(item as any).images && (item as any).images.length > 0 ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={(item as any).images[0]} alt={item.name} className="w-full h-full object-cover" />
+                              ) : item.image && item.image.startsWith('http') ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <span className="text-lg">{item.image || '🎁'}</span>
+                              )}
+                            </div>
+                          ))}
                         </div>
-                        <button
-                          onClick={() => setSelectedOrder(order)}
-                          className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
-                        >
-                          Info
-                        </button>
+                        <div className="flex justify-between items-center">
+                          <div className="text-sm text-gray-600">
+                            <span className="font-semibold">{order.items.length}</span> товарів в замовленні
+                          </div>
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                          >
+                            Info
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2906,7 +2923,18 @@ export default function AdminPage() {
                 </h3>
                 <div className="space-y-2 sm:space-y-3 max-h-48 overflow-y-auto">
                   {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-start p-2 sm:p-3 bg-gray-50 rounded-lg gap-2">
+                    <div key={item.id} className="flex justify-between items-start p-2 sm:p-3 bg-gray-50 rounded-lg gap-3">
+                      <div className="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-md overflow-hidden bg-gray-200 flex items-center justify-center border border-gray-300">
+                        {(item as any).images && (item as any).images.length > 0 ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={(item as any).images[0]} alt={item.name} className="w-full h-full object-cover" />
+                        ) : item.image && item.image.startsWith('http') ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-2xl sm:text-3xl">{item.image || '🎁'}</span>
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-900 text-sm sm:text-base break-words">{item.name}</p>
                         <p className="text-xs sm:text-sm text-gray-600">Категорія: {item.category}</p>
