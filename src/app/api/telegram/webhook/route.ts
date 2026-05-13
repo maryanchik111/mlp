@@ -273,7 +273,8 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'TELEGRAM_BOT_TOKEN is not set' }, { status: 400 });
       }
 
-      const webhookUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com'}/api/telegram/webhook`;
+      const origin = request.nextUrl.origin;
+      const webhookUrl = `${origin}/api/telegram/webhook`;
 
       const response = await fetch(
         `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook`,
